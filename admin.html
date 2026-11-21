@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Order · Soft Cookies</title>
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<meta name="theme-color" content="#7A1E2C">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ordering/ordering.css">
+<style>
+.wrap{max-width:1240px}
+.login{max-width:420px;margin:40px auto}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.toolbar .inp{width:auto;padding:9px 12px;font-size:14px}
+.toolbar .grow{flex:1;min-width:180px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:18px}
+@media (min-width:800px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.stat b{display:block;font-family:'Bodoni Moda',Georgia,serif;font-size:34px;font-weight:900;line-height:1.1}
+.stat span{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.bake{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.bk{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 12px 8px 8px}
+.bk img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 3px 4px rgba(30,10,5,.3))}
+.bk .nm{font-size:13px;font-weight:700;line-height:1.2;min-width:0}
+.bk .n{margin-left:auto;flex-shrink:0;padding-left:6px;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.bk.zero{opacity:.45}
+.seg2{display:inline-flex;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px}
+.seg2 button{border:0;background:transparent;padding:7px 14px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer;color:var(--muted)}
+.seg2 button[aria-pressed="true"]{background:var(--brown);color:#fff}
+.tablewrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:16px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);background:var(--paper);position:sticky;top:0;white-space:nowrap;cursor:pointer;user-select:none}
+th[data-k=""]{cursor:default}
+tr:last-child td{border-bottom:0}
+tr.cancelled td{color:#9A8B84}
+td.num{font-family:'Bodoni Moda',Georgia,serif;font-weight:900;font-size:18px;white-space:nowrap}
+.code{font-weight:700;white-space:nowrap}
+.sub{display:block;font-size:12px;color:var(--muted)}
+.items{display:flex;flex-wrap:wrap;gap:4px;max-width:420px}
+.items span{background:var(--paper);border-radius:999px;padding:2px 8px;font-size:12px;white-space:nowrap}
+.items b{font-weight:700}
+select.st{border:1.5px solid var(--line);border-radius:999px;padding:5px 8px;font-size:13px;font-weight:700;background:#fff;cursor:pointer}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.upd{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="order.html"><em>Soft</em>Cookies · Admin</a>
+    <span class="upd" id="upd"></span>
+  </header>
+
+  <div id="demo" class="demo hidden">Mod demo: data datang dari browser ini sahaja. Kata laluan demo: <b>admin</b>.</div>
+
+  <!-- login -->
+  <section id="login" class="panel login hidden">
+    <span class="kicker">Admin</span>
+    <h2 style="font-size:28px;font-weight:900;margin:4px 0 16px">Tracking order</h2>
+    <form id="login-form" class="fields">
+      <label class="f">Kata laluan
+        <input class="inp" id="pw" type="password" autocomplete="current-password" required>
+      </label>
+      <div><button class="btn btn-p" id="login-btn" type="submit">Masuk</button></div>
+    </form>
+  </section>
+
+  <!-- dashboard -->
+  <main id="dash" class="hidden">
+    <div class="head" style="padding-top:0">
+      <span class="script">the tracker</span>
+      <h1>Order Agent</h1>
+    </div>
+
+    <div class="toolbar">
+      <select class="inp" id="f-date" aria-label="Tarikh"></select>
+      <select class="inp" id="f-status" aria-label="Status">
+        <option value="aktif">Semua aktif</option>
+        <option value="">Semua status</option>
+      </select>
+      <select class="inp" id="f-method" aria-label="Kaedah">
+        <option value="">Ambil &amp; Hantar</option><option>Ambil</option><option>Hantar</option>
+      </select>
+      <input class="inp grow" id="f-q" type="search" placeholder="Cari nama, telefon, kod…">
+      <button class="btn btn-o btn-sm" id="refresh" type="button">Muat semula</button>
+      <button class="btn btn-p btn-sm" id="export" type="button">Export CSV</button>
+      <button class="btn btn-o btn-sm" id="logout" type="button">Keluar</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="s-orders">0</b><span>Order</span></div>
+      <div class="stat"><b id="s-pcs">0</b><span>Jumlah biji</span></div>
+      <div class="stat"><b id="s-agents">0</b><span>Agent</span></div>
+      <div class="stat"><b id="s-hantar">0</b><span>Perlu hantar</span></div>
+    </div>
+
+    <section class="panel">
+      <div class="panel-h"><h2>Perlu bake</h2><span class="muted" id="bake-note" style="font-size:13px"></span></div>
+      <div class="bake" id="bake"></div>
+    </section>
+
+    <div class="toolbar" style="justify-content:space-between">
+      <div class="seg2" role="group" aria-label="Paparan">
+        <button type="button" data-view="orders" aria-pressed="true">Ikut order</button>
+        <button type="button" data-view="agents" aria-pressed="false">Ikut agent</button>
+      </div>
+      <span class="muted" id="count" style="font-size:13px"></span>
+    </div>
+    <div class="tablewrap"><table id="tbl"></table></div>
+  </main>
+
+  <p class="foot">Soft Cookies · Admin</p>
+</div>
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script src="ordering/config.js"></script>
+<script src="ordering/api.js"></script>
+<script>
+(function () {
+  const { FLAVOURS, STATUSES } = window.SC_CONFIG;
+  const API = window.SC_API;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmtDate = (iso) => { if (!iso) return '-'; const [y, m, d] = iso.split('-'); return new Date(+y, m - 1, +d).toLocaleDateString('ms-MY', { weekday: 'short', day: 'numeric', month: 'short' }); };
+  const sess = { get() { try { return sessionStorage.getItem('sc-admin-pw'); } catch (e) { return null; } },
+                 set(v) { try { v ? sessionStorage.setItem('sc-admin-pw', v) : sessionStorage.removeItem('sc-admin-pw'); } catch (e) {} } };
+
+  if (API.DEMO) $('demo').classList.remove('hidden');
+  STATUSES.forEach((s) => $('f-status').insertAdjacentHTML('beforeend', `<option>${s}</option>`));
+
+  let pw = sess.get(), orders = [], view = 'orders', sort = { k: 'date', dir: 1 }, timer;
+
+  /* ---------- auth ---------- */
+  $('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    pw = $('pw').value; $('login-btn').disabled = true;
+    const ok = await load();
+    $('login-btn').disabled = false;
+    if (ok) sess.set(pw);
+  });
+  $('logout').onclick = () => { sess.set(null); pw = null; clearInterval(timer); show(false); };
+  function show(on) { $('login').classList.toggle('hidden', on); $('dash').classList.toggle('hidden', !on); if (!on) $('pw').value = ''; }
+
+  async function load(quiet) {
+    try {
+      const res = await API.adminList(pw);
+      orders = res.orders; show(true); buildDates(); draw();
+      if (!quiet) $('toast').classList.add('hidden');
+      $('upd').textContent = 'Dikemas kini ' + new Date().toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+      clearInterval(timer); timer = setInterval(() => load(true), 60000);
+      return true;
+    } catch (err) {
+      if (!quiet) toast(err.message, true);
+      if (/kata laluan/i.test(err.message)) { sess.set(null); show(false); }
+      return false;
+    }
+  }
+  $('refresh').onclick = () => load();
+
+  /* ---------- filters ---------- */
+  function buildDates() {
+    const cur = $('f-date').value;
+    const dates = [...new Set(orders.map((o) => o.date).filter(Boolean))].sort();
+    $('f-date').innerHTML = '<option value="">Semua tarikh</option>' + dates.map((d) => `<option value="${d}">${esc(fmtDate(d))}</option>`).join('');
+    $('f-date').value = dates.includes(cur) ? cur : '';
+  }
+  ['f-date', 'f-status', 'f-method'].forEach((id) => $(id).addEventListener('change', draw));
+  $('f-q').addEventListener('input', draw);
+
+  function filtered() {
+    const d = $('f-date').value, s = $('f-status').value, m = $('f-method').value, q = $('f-q').value.trim().toLowerCase();
+    return orders.filter((o) =>
+      (!d || o.date === d) &&
+      (s === '' ? true : s === 'aktif' ? o.status !== 'Dibatalkan' : o.status === s) &&
+      (!m || o.method === m) &&
+      (!q || [o.code, o.name, o.phone].join(' ').toLowerCase().includes(q)));
+  }
+
+  /* ---------- render ---------- */
+  function draw() {
+    const list = filtered(), active = list.filter((o) => o.status !== 'Dibatalkan');
+    $('s-orders').textContent = active.length;
+    $('s-pcs').textContent = active.reduce((a, o) => a + o.total, 0);
+    $('s-agents').textContent = new Set(active.map((o) => o.phone)).size;
+    $('s-hantar').textContent = active.filter((o) => o.method === 'Hantar').length;
+
+    const tot = {}; FLAVOURS.forEach((f) => (tot[f.id] = 0));
+    active.forEach((o) => FLAVOURS.forEach((f) => (tot[f.id] += o.items[f.id] || 0)));
+    $('bake').innerHTML = FLAVOURS.map((f) => `<div class="bk${tot[f.id] ? '' : ' zero'}"><img src="${f.img}" alt=""><span class="nm">${esc(f.name)}</span><span class="n">${tot[f.id]}</span></div>`).join('');
+    $('bake-note').textContent = 'Tidak termasuk order dibatalkan';
+
+    view === 'orders' ? drawOrders(list) : drawAgents(active);
+  }
+
+  const itemsHTML = (items) => '<div class="items">' + FLAVOURS.filter((f) => items[f.id]).map((f) => `<span>${esc(f.name)} <b>×${items[f.id]}</b></span>`).join('') + '</div>';
+
+  function sorted(list, getters) {
+    const g = getters[sort.k] || ((o) => o[sort.k]);
+    return [...list].sort((a, b) => { const x = g(a), y = g(b); return (x > y ? 1 : x < y ? -1 : 0) * sort.dir; });
+  }
+  const th = (k, label) => `<th data-k="${k}">${label}${sort.k === k ? (sort.dir > 0 ? ' ↑' : ' ↓') : ''}</th>`;
+
+  function drawOrders(list) {
+    $('count').textContent = list.length + ' order';
+    if (!list.length) { $('tbl').innerHTML = '<tr><td class="empty">Tiada order untuk tapisan ini.</td></tr>'; return; }
+    const rows = sorted(list, { date: (o) => o.date + ' ' + (o.time || '99') }).map((o) => `
+      <tr class="${o.status === 'Dibatalkan' ? 'cancelled' : ''}">
+        <td><span class="code">${esc(o.code)}</span><span class="sub">${esc(o.createdAt)}</span></td>
+        <td><b>${esc(o.name)}</b><span class="sub"><a href="https://wa.me/6${esc(o.phone)}" target="_blank" rel="noopener">${esc(o.phone)}</a></span></td>
+        <td><b>${esc(o.method)}</b><span class="sub">${esc(fmtDate(o.date))}${o.time ? ' · ' + esc(o.time) : ''}</span>${o.method === 'Hantar' ? `<span class="sub">${esc(o.address)}</span>` : ''}</td>
+        <td>${itemsHTML(o.items)}${o.notes ? `<span class="sub" style="margin-top:4px">📝 ${esc(o.notes)}</span>` : ''}</td>
+        <td class="num">${o.total}</td>
+        <td><select class="st st-${esc(o.status)}" data-code="${esc(o.code)}" aria-label="Status ${esc(o.code)}">${STATUSES.map((s) => `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}</select><span class="sub">${esc(o.updatedAt)}</span></td>
+      </tr>`).join('');
+    $('tbl').innerHTML = `<thead><tr>${th('code', 'Kod')}${th('name', 'Agent')}${th('date', 'Ambil / Hantar')}<th data-k="">Pecahan</th>${th('total', 'Biji')}${th('status', 'Status')}</tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  function drawAgents(active) {
+    const map = new Map();
+    active.forEach((o) => {
+      const a = map.get(o.phone) || { name: o.name, phone: o.phone, orders: 0, total: 0, items: {}, dates: new Set() };
+      a.orders++; a.total += o.total; a.dates.add(o.date); a.name = o.name;
+      FLAVOURS.forEach((f) => (a.items[f.id] = (a.items[f.id] || 0) + (o.items[f.id] || 0)));
+      map.set(o.phone, a);
+    });
+    const list = [...map.values()];
+    $('count').textContent = list.length + ' agent';
+    if (!list.length) { $('tbl').innerHTML = '<tr><td class="empty">Tiada order aktif untuk tapisan ini.</td></tr>'; return; }
+    const rows = sorted(list, { date: (a) => [...a.dates].sort()[0] }).map((a) => `
+      <tr><td><b>${esc(a.name)}</b><span class="sub">${esc(a.phone)}</span></td>
+      <td class="num">${a.orders}</td>
+      <td>${[...a.dates].sort().map((d) => esc(fmtDate(d))).join('<br>')}</td>
+      <td>${itemsHTML(a.items)}</td><td class="num">${a.total}</td></tr>`).join('');
+    $('tbl').innerHTML = `<thead><tr>${th('name', 'Agent')}${th('orders', 'Order')}${th('date', 'Tarikh')}<th data-k="">Pecahan</th>${th('total', 'Biji')}</tr></thead><tbody>${rows}</tbody>`;
+  }
+
+  $('tbl').addEventListener('click', (e) => {
+    const h = e.target.closest('th[data-k]'); if (!h || !h.dataset.k) return;
+    sort = { k: h.dataset.k, dir: sort.k === h.dataset.k ? -sort.dir : (h.dataset.k === 'total' || h.dataset.k === 'orders' ? -1 : 1) };
+    draw();
+  });
+  document.querySelectorAll('.seg2 button').forEach((b) => b.onclick = () => {
+    view = b.dataset.view;
+    document.querySelectorAll('.seg2 button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    if (view === 'agents' && sort.k === 'code') sort = { k: 'name', dir: 1 };
+    draw();
+  });
+
+  /* ---------- status change ---------- */
+  $('tbl').addEventListener('change', async (e) => {
+    const sel = e.target.closest('select.st'); if (!sel) return;
+    const code = sel.dataset.code, status = sel.value, o = orders.find((x) => x.code === code), prev = o.status;
+    sel.disabled = true;
+    try {
+      await API.adminSetStatus(pw, code, status);
+      o.status = status; toast(`${code} → ${status}`); draw();
+    } catch (err) { sel.value = prev; sel.disabled = false; toast(err.message, true); }
+  });
+
+  /* ---------- export ---------- */
+  $('export').onclick = () => {
+    const list = filtered();
+    const head = ['Kod', 'Status', 'Dicipta', 'Dikemaskini', 'Nama Agent', 'Telefon', 'Kaedah', 'Tarikh', 'Masa', 'Alamat', 'Nota', ...FLAVOURS.map((f) => f.name), 'Jumlah'];
+    const rows = list.map((o) => [o.code, o.status, o.createdAt, o.updatedAt, o.name, o.phone, o.method, o.date, o.time, o.address, o.notes, ...FLAVOURS.map((f) => o.items[f.id] || 0), o.total]);
+    const csv = [head, ...rows].map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = `soft-cookies-orders-${$('f-date').value || 'semua'}.csv`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+
+  let tt;
+  function toast(msg, err) { const t = $('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3000); }
+
+  if (pw) load(); else show(false);
+})();
+</script>
+</body>
+</html>

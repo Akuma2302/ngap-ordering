@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order Agent · Soft Cookies</title>
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="img/icons/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#7A1E2C">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ordering/ordering.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="order.html"><em>Soft</em>Cookies · Agent</a>
+    <span class="kicker">11 Perisa · 70g</span>
+  </header>
+
+  <div class="head">
+    <span class="script">the order</span>
+    <h1>Tempahan Agent</h1>
+  </div>
+
+  <div id="demo" class="demo hidden">Mod demo: order hanya disimpan dalam browser ini. Masukkan URL Apps Script dalam <code>ordering/config.js</code> untuk guna Google Sheets.</div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-new" aria-selected="true">Order Baru</button>
+    <button class="tab" role="tab" id="tab-edit" aria-selected="false">Edit Order</button>
+  </div>
+
+  <!-- Edit: lookup -->
+  <section id="lookup" class="panel lookup hidden">
+    <div class="panel-h"><h2>Cari order anda</h2></div>
+    <form id="lookup-form" class="fields">
+      <label class="f">Kod order <small>Contoh: SC-7K2PQ</small>
+        <input class="inp" id="lk-code" autocomplete="off" autocapitalize="characters" required placeholder="SC-">
+      </label>
+      <label class="f">Nombor telefon <small>Nombor yang digunakan semasa order</small>
+        <input class="inp" id="lk-phone" type="tel" inputmode="tel" required placeholder="012-345 6789">
+      </label>
+      <div><button class="btn btn-p" type="submit" id="lk-btn">Buka order</button></div>
+    </form>
+    <div id="saved-wrap" class="hidden">
+      <p class="kicker" style="margin:22px 0 0">Order dari peranti ini</p>
+      <div class="saved" id="saved"></div>
+    </div>
+  </section>
+
+  <!-- Editing banner -->
+  <div id="editing" class="editing hidden">
+    <div><span class="kicker">Mengedit</span><br><b id="ed-code"></b> <span id="ed-status" class="pill"></span></div>
+    <button class="btn btn-o btn-sm" id="ed-close" type="button">Tutup &amp; cari order lain</button>
+  </div>
+
+  <!-- Order form (shared by both tabs) -->
+  <form id="order-form" novalidate>
+    <section class="panel">
+      <div class="panel-h"><span class="step">01</span><h2>Pilih perisa &amp; kuantiti</h2></div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><span class="step">02</span><h2>Butiran agent</h2></div>
+      <div class="fields two">
+        <label class="f">Nama agent
+          <input class="inp" id="f-name" autocomplete="name" required placeholder="Nama penuh">
+        </label>
+        <label class="f">Nombor telefon
+          <input class="inp" id="f-phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="012-345 6789">
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><span class="step">03</span><h2>Ambil atau hantar</h2></div>
+      <div class="fields">
+        <div class="seg" role="radiogroup" aria-label="Kaedah">
+          <label><input type="radio" name="method" value="Ambil" checked><span>Ambil sendiri<small>Agent ambil di dapur</small></span></label>
+          <label><input type="radio" name="method" value="Hantar"><span>Hantar<small>Team hantar ke alamat</small></span></label>
+        </div>
+        <div class="fields two">
+          <label class="f"><span id="date-label">Tarikh ambil</span>
+            <input class="inp" id="f-date" type="date" required>
+          </label>
+          <label class="f">Masa <small>Pilihan</small>
+            <input class="inp" id="f-time" type="time">
+          </label>
+        </div>
+        <label class="f hidden" id="addr-wrap">Alamat penghantaran
+          <textarea class="inp" id="f-address" rows="3" placeholder="No. rumah, jalan, taman, poskod, bandar"></textarea>
+        </label>
+        <label class="f">Nota <small>Pilihan</small>
+          <textarea class="inp" id="f-notes" rows="2" placeholder="Contoh: bungkus berasingan, nak siap awal"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <div class="bar">
+      <div class="sum"><b id="total">0</b><span>biji · <span id="nflav">0</span> perisa</span></div>
+      <div class="acts">
+        <button class="btn btn-d btn-sm hidden" type="button" id="cancel-btn">Batal order</button>
+        <button class="btn btn-p" type="submit" id="submit-btn">Semak &amp; hantar</button>
+      </div>
+    </div>
+  </form>
+
+  <p class="foot">Soft Cookies · Sistem order agent</p>
+</div>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script src="ordering/config.js"></script>
+<script src="ordering/api.js"></script>
+<script>
+(function () {
+  const { FLAVOURS } = window.SC_CONFIG;
+  const API = window.SC_API;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const store = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+  const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+  const fmtDate = (iso) => { if (!iso) return '-'; const [y, m, d] = iso.split('-'); return new Date(+y, m - 1, +d).toLocaleDateString('ms-MY', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); };
+
+  if (API.DEMO) $('demo').classList.remove('hidden');
+
+  /* ---------- flavour grid ---------- */
+  $('grid').innerHTML = FLAVOURS.map((f, i) => `
+    <div class="fl" data-id="${f.id}">
+      <div class="imgbox"><span class="no">No. ${String(i + 1).padStart(2, '0')}</span><img src="${f.img}" alt="" loading="lazy"></div>
+      <h3>${esc(f.name)}</h3>
+      <p>${esc(f.desc)}</p>
+      <div class="qty">
+        <button type="button" class="minus" aria-label="Kurang ${esc(f.name)}">−</button>
+        <input type="number" min="0" max="9999" inputmode="numeric" value="0" aria-label="Kuantiti ${esc(f.name)}">
+        <button type="button" class="plus" aria-label="Tambah ${esc(f.name)}">+</button>
+      </div>
+    </div>`).join('');
+
+  const qtyInput = (id) => document.querySelector(`.fl[data-id="${id}"] input`);
+  function setQty(id, v) {
+    const n = Math.max(0, Math.min(9999, Math.floor(Number(v) || 0)));
+    const card = document.querySelector(`.fl[data-id="${id}"]`);
+    card.querySelector('input').value = n;
+    card.querySelector('.minus').disabled = n === 0;
+    card.classList.toggle('on', n > 0);
+  }
+  $('grid').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    const id = b.closest('.fl').dataset.id, cur = Number(qtyInput(id).value) || 0;
+    setQty(id, cur + (b.classList.contains('plus') ? 1 : -1)); updateTotal();
+  });
+  $('grid').addEventListener('input', (e) => {
+    if (e.target.matches('input')) { const id = e.target.closest('.fl').dataset.id; setQty(id, e.target.value); updateTotal(); }
+  });
+  $('grid').addEventListener('focusin', (e) => { if (e.target.matches('input')) e.target.select(); });
+
+  function updateTotal() {
+    let t = 0, n = 0;
+    FLAVOURS.forEach((f) => { const q = Number(qtyInput(f.id).value) || 0; t += q; if (q) n++; });
+    $('total').textContent = t; $('nflav').textContent = n;
+  }
+
+  /* ---------- method / date ---------- */
+  const methodVal = () => document.querySelector('input[name="method"]:checked').value;
+  function syncMethod() {
+    const m = methodVal();
+    $('date-label').textContent = m === 'Hantar' ? 'Tarikh hantar' : 'Tarikh ambil';
+    $('addr-wrap').classList.toggle('hidden', m !== 'Hantar');
+  }
+  document.querySelectorAll('input[name="method"]').forEach((r) => r.addEventListener('change', syncMethod));
+
+  /* ---------- read / write form ---------- */
+  function readForm() {
+    const items = {};
+    FLAVOURS.forEach((f) => { items[f.id] = Number(qtyInput(f.id).value) || 0; });
+    return { items, name: $('f-name').value.trim(), phone: $('f-phone').value.trim(), method: methodVal(),
+             date: $('f-date').value, time: $('f-time').value, address: $('f-address').value.trim(), notes: $('f-notes').value.trim() };
+  }
+  function fillForm(o) {
+    o = o || {};
+    FLAVOURS.forEach((f) => setQty(f.id, (o.items || {})[f.id] || 0));
+    $('f-name').value = o.name || ''; $('f-phone').value = o.phone || '';
+    document.querySelector(`input[name="method"][value="${o.method === 'Hantar' ? 'Hantar' : 'Ambil'}"]`).checked = true;
+    $('f-date').value = o.date || ''; $('f-time').value = o.time || '';
+    $('f-address').value = o.address || ''; $('f-notes').value = o.notes || '';
+    syncMethod(); updateTotal();
+  }
+  function validate(o) {
+    const total = Object.values(o.items).reduce((a, b) => a + b, 0);
+    if (!total) return ['Sila pilih sekurang-kurangnya 1 cookie.', 'grid'];
+    if (!o.name) return ['Sila isi nama agent.', 'f-name'];
+    const p = API.normPhone(o.phone);
+    if (p.length < 9 || p.length > 12) return ['Nombor telefon tidak sah.', 'f-phone'];
+    if (!o.date) return [`Sila pilih tarikh ${o.method.toLowerCase()}.`, 'f-date'];
+    if (o.method === 'Hantar' && !o.address) return ['Sila isi alamat penghantaran.', 'f-address'];
+    return null;
+  }
+
+  /* ---------- state & tabs ---------- */
+  const profile = store.get('sc-agent', {});
+  const drafts = { new: { name: profile.name, phone: profile.phone }, edit: null };
+  let tab = 'new';
+  let editing = null; // { code, phone, status }
+
+  function showTab(t) {
+    if (tab === 'new') drafts.new = readForm();
+    else if (editing) drafts.edit = readForm();
+    tab = t;
+    $('tab-new').setAttribute('aria-selected', t === 'new');
+    $('tab-edit').setAttribute('aria-selected', t === 'edit');
+    render();
+  }
+  function render() {
+    const showForm = tab === 'new' || !!editing;
+    $('order-form').classList.toggle('hidden', !showForm);
+    $('lookup').classList.toggle('hidden', showForm);
+    $('editing').classList.toggle('hidden', !(tab === 'edit' && editing));
+    $('cancel-btn').classList.toggle('hidden', !(tab === 'edit' && editing && editing.status !== 'Dibatalkan'));
+    $('submit-btn').textContent = tab === 'new' ? 'Semak & hantar' : (editing && editing.status === 'Dibatalkan' ? 'Aktifkan semula' : 'Simpan perubahan');
+    $('f-date').min = tab === 'new' ? todayISO() : '';
+    if (tab === 'new') fillForm(drafts.new);
+    else if (editing) {
+      fillForm(drafts.edit);
+      $('ed-code').textContent = editing.code;
+      $('ed-status').className = 'pill st-' + editing.status; $('ed-status').textContent = editing.status;
+    } else renderSaved();
+  }
+  $('tab-new').onclick = () => showTab('new');
+  $('tab-edit').onclick = () => showTab('edit');
+
+  /* ---------- saved orders on this device ---------- */
+  function remember(o) {
+    const list = store.get('sc-my-orders', []).filter((x) => x.code !== o.code);
+    list.unshift({ code: o.code, phone: o.phone, date: o.date, total: o.total, status: o.status });
+    store.set('sc-my-orders', list.slice(0, 12));
+    store.set('sc-agent', { name: o.name, phone: o.phone });
+  }
+  function renderSaved() {
+    const list = store.get('sc-my-orders', []);
+    $('saved-wrap').classList.toggle('hidden', !list.length);
+    $('saved').innerHTML = list.map((o) => `<button class="chip" type="button" data-code="${esc(o.code)}" data-phone="${esc(o.phone)}">${esc(o.code)} · ${o.total} biji · ${esc(fmtDate(o.date))}</button>`).join('');
+  }
+  $('saved').addEventListener('click', (e) => {
+    const c = e.target.closest('.chip'); if (!c) return;
+    $('lk-code').value = c.dataset.code; $('lk-phone').value = c.dataset.phone; openOrder();
+  });
+
+  /* ---------- lookup ---------- */
+  $('lookup-form').addEventListener('submit', (e) => { e.preventDefault(); openOrder(); });
+  async function openOrder() {
+    const code = API.normCode($('lk-code').value), phone = $('lk-phone').value;
+    if (!code || !phone) return toast('Isi kod order dan nombor telefon.', true);
+    busy($('lk-btn'), true, 'Mencari…');
+    try {
+      const { order } = await API.get(code, phone);
+      loadEdit(order);
+    } catch (err) { toast(err.message, true); }
+    finally { busy($('lk-btn'), false); }
+  }
+  function loadEdit(order) {
+    editing = { code: order.code, phone: order.phone, status: order.status };
+    drafts.edit = order; remember(order);
+    tab = 'edit';
+    $('tab-new').setAttribute('aria-selected', false); $('tab-edit').setAttribute('aria-selected', true);
+    render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $('ed-close').onclick = () => { editing = null; drafts.edit = null; render(); };
+
+  /* ---------- submit ---------- */
+  $('order-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const o = readForm(), bad = validate(o);
+    if (bad) { toast(bad[0], true); const el = $(bad[1]); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (el.focus && bad[1] !== 'grid') el.focus({ preventScroll: true }); return; }
+    confirmSheet(o);
+  });
+
+  function summaryHTML(o) {
+    const rows = FLAVOURS.filter((f) => o.items[f.id]).map((f) => `<li><span>${esc(f.name)}</span><b>× ${o.items[f.id]}</b></li>`).join('');
+    const total = Object.values(o.items).reduce((a, b) => a + b, 0);
+    return `<ul class="sumlist">${rows}<li><span><b>Jumlah</b></span><b>${total} biji</b></li></ul>
+      <dl class="kv"><dt>Agent</dt><dd>${esc(o.name)}</dd><dt>Telefon</dt><dd>${esc(o.phone)}</dd>
+      <dt>${o.method === 'Hantar' ? 'Hantar' : 'Ambil'}</dt><dd>${esc(fmtDate(o.date))}${o.time ? ', ' + esc(o.time) : ''}</dd>
+      ${o.method === 'Hantar' ? `<dt>Alamat</dt><dd>${esc(o.address)}</dd>` : ''}
+      ${o.notes ? `<dt>Nota</dt><dd>${esc(o.notes)}</dd>` : ''}</dl>`;
+  }
+
+  function confirmSheet(o) {
+    const isEdit = tab === 'edit' && editing;
+    openModal(`<span class="kicker">${isEdit ? 'Simpan perubahan' : 'Semak order'}</span>
+      <h2>${isEdit ? esc(editing.code) : 'Betul semua?'}</h2>${summaryHTML(o)}
+      <div class="acts"><button class="btn btn-o" data-close>Ubah lagi</button>
+      <button class="btn btn-p" id="go">${isEdit ? 'Simpan' : 'Hantar order'}</button></div>`);
+    $('go').onclick = async () => {
+      busy($('go'), true, 'Menghantar…');
+      try {
+        const { order } = isEdit ? await API.update(editing.code, editing.phone, o) : await API.create(o);
+        remember(order);
+        if (isEdit) {
+          closeModal(); loadEdit(order); toast('Perubahan disimpan.');
+        } else {
+          drafts.new = { name: order.name, phone: order.phone };
+          fillForm(drafts.new);
+          successSheet(order);
+        }
+      } catch (err) { busy($('go'), false); toast(err.message, true); }
+    };
+  }
+
+  function successSheet(order) {
+    openModal(`<span class="kicker">Order diterima</span><h2>Terima kasih, ${esc(order.name.split(' ')[0])}!</h2>
+      <p class="muted" style="margin:6px 0 0">Simpan kod ini. Anda perlukannya bersama nombor telefon untuk edit atau batal order.</p>
+      <div class="codebox"><b>${esc(order.code)}</b><button class="btn btn-o btn-sm" id="copy">Salin</button></div>
+      ${summaryHTML(order)}
+      <div class="acts"><button class="btn btn-o" id="edit-now">Edit order ini</button><button class="btn btn-p" data-close>Buat order lain</button></div>`);
+    $('copy').onclick = async () => {
+      try { await navigator.clipboard.writeText(order.code); toast('Kod disalin.'); } catch (e) { toast('Tak dapat salin, sila tulis kod ini.', true); }
+    };
+    $('edit-now').onclick = () => { closeModal(); loadEdit(order); };
+  }
+
+  /* ---------- cancel ---------- */
+  $('cancel-btn').onclick = () => {
+    openModal(`<span class="kicker">Batal order</span><h2>Batalkan ${esc(editing.code)}?</h2>
+      <p class="muted">Order akan ditanda "Dibatalkan" dan team tidak akan sediakannya. Anda masih boleh aktifkan semula kemudian.</p>
+      <div class="acts"><button class="btn btn-o" data-close>Jangan batal</button><button class="btn btn-p" id="go-cancel" style="background:var(--bad)">Ya, batalkan</button></div>`);
+    $('go-cancel').onclick = async () => {
+      busy($('go-cancel'), true, 'Membatalkan…');
+      try {
+        const { order } = await API.cancel(editing.code, editing.phone);
+        closeModal(); remember(order); loadEdit(order); toast('Order dibatalkan.');
+      } catch (err) { busy($('go-cancel'), false); toast(err.message, true); }
+    };
+  };
+
+  /* ---------- ui helpers ---------- */
+  function openModal(html) { $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); const f = $('sheet').querySelector('.btn-p'); if (f) f.focus(); }
+  function closeModal() { $('modal').classList.add('hidden'); }
+  $('modal').addEventListener('click', (e) => { if (e.target === $('modal') || e.target.closest('[data-close]')) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  let tt;
+  function toast(msg, err) { const t = $('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3200); }
+  function busy(btn, on, label) { if (on) { btn.dataset.l = btn.textContent; btn.textContent = label; btn.disabled = true; } else { btn.textContent = btn.dataset.l || btn.textContent; btn.disabled = false; } }
+
+  // Deep link: order.html?edit=SC-XXXXX
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('edit')) { $('lk-code').value = qs.get('edit'); tab = 'edit'; $('tab-new').setAttribute('aria-selected', false); $('tab-edit').setAttribute('aria-selected', true); }
+  render();
+})();
+</script>
+</body>
+</html>
