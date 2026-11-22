@@ -12,7 +12,8 @@
       ['Daftar agent', 'Tab <b>Agent</b> → <b>+ Daftar agent baru</b>. Sistem beri kod (cth. <b>agentAli</b>). Tekan <b>Hantar kod (WhatsApp)</b> supaya agent boleh log masuk.'],
       ['Agih stok ke agent', 'Buka agent → <b>+ Agih stok</b>. Pilih kuantiti dan harga seunit untuk agent. Stok diambil daripada order paling lama dahulu.'],
       ['Rekod jualan sendiri', 'Buka order → <b>Jualan ikut pelanggan</b> → <b>+ Jualan baru</b>. Isi nama pelanggan, perisa, bilangan dan harga. Tekan <b>Resit</b> untuk hantar resit WhatsApp.'],
-      ['Bayaran', 'Rekod bayaran agent di halaman agent. Hutang kepada HQ dan invois ada di <b>Profil → Kewangan</b>.'],
+      ['Bayaran', 'Rekod bayaran agent di halaman agent. Hutang kepada HQ dan status setiap invois (Lunas / Separa / Belum bayar) ada di <b>Profil → Invois &amp; bayaran HQ</b>.'],
+      ['Permintaan ke HQ', 'Order dah dibakar tapi perlu dibatalkan, atau perlu diskaun invois? <b>Profil → Permintaan ke HQ</b>. HQ akan lulus atau tolak.'],
       ['Untung', 'Tekan kad untung di <b>Utama</b> atau <b>Profil → Laporan &amp; sasaran</b>. Set harga kos/jual di <b>Harga saya</b> supaya untung dikira tepat.']
     ],
     agent: [
@@ -27,7 +28,10 @@
       ['PDF kilang', '<b>Order → Pilih order untuk PDF</b> → tanda order → <b>PDF kilang</b>. Selepas itu boleh tanda semua sebagai Dibakar.'],
       ['Kalendar', 'Ringkasan: berapa biji perlu dibake setiap hari berbanding kapasiti. Tekan hari untuk lihat order.'],
       ['Kewangan', 'Tab <b>Sales</b>: invois, bayaran dan baki setiap salesperson. Tab <b>Laporan</b>: revenue, untung HQ, sell-through dan amaran stok lama.'],
-      ['Tetapan', '<b>Lagi</b>: harga HQ &amp; kos bahan, kapasiti &amp; tarikh tutup, perisa habis, telefon HQ, salesperson dan pengumuman.']
+      ['Produk &amp; stok', '<b>Lagi → Produk</b>: tambah / arkib produk dan set resipi. <b>Bahan mentah</b>: stok dikira dari lejar; bila order ditanda Dibakar, bahan ditolak ikut resipi. <b>Pembekal &amp; belian</b>: belian masuk ke stok.'],
+      ['Kewangan', '<b>Perbelanjaan HQ</b> direkod di Lagi. Tab <b>Laporan</b> tunjuk P&amp;L bulanan (revenue − kos bahan − perbelanjaan) dan status bayaran setiap invois (FIFO).'],
+      ['Kelulusan &amp; sasaran', 'Salesperson hantar permintaan (batal order dikunci, diskaun invois). Lulus / tolak di <b>Lagi → Kelulusan</b>. Set <b>Sasaran bulanan</b> biji setiap salesperson.'],
+      ['Tetapan &amp; keselamatan', '<b>Lagi</b>: harga, kapasiti, perisa habis, telefon HQ, salesperson, pengumuman. <b>Keselamatan</b>: tukar kata laluan admin dan muat turun backup.']
     ]
   };
 

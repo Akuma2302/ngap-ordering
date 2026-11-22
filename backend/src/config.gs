@@ -4,8 +4,9 @@
  * Shared constants: flavour list, sheet layout, statuses, time zone.
  */
 
-// Keep this list in sync with frontend/src/config.js (same ids, same order).
-var FLAVOURS = [
+// Starting product list (same ids as frontend/src/config.js). The live list is in Script Property PRODUCTS
+// (models/products.gs); doPost loads it into FLAVOURS before every request.
+var FLAVOURS_SEED = [
   { id: 'chocolate-chip',    name: 'Chocolate Chip' },
   { id: 'chochocunk',        name: 'Chochocunk' },
   { id: 'seasalt',           name: 'Seasalt' },
@@ -18,6 +19,8 @@ var FLAVOURS = [
   { id: 'smores',            name: "Choco S'mores" },
   { id: 'matcha-smores',     name: "Matcha S'mores" }
 ];
+
+var FLAVOURS = FLAVOURS_SEED;
 
 var SHEET_NAME = 'Orders';
 

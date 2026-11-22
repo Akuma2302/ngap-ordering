@@ -24,3 +24,19 @@ window.SC_CONFIG = {
 
 // Open any page with ?demo=1 to try the app with sample data. Nothing is sent to the real Google Sheet.
 if (/[?&]demo=1(&|$)/.test(location.search)) { window.SC_CONFIG.SCRIPT_URL = ''; window.SC_CONFIG.DEMO_RUN = true; }
+
+// Products are managed by HQ (admin → Produk). The last list the server sent is cached on this device and
+// applied here, before any page builds its forms, so new / renamed / archived products show up everywhere.
+(function (C) {
+  C.FLAVOURS_SEED = C.FLAVOURS.map((f) => Object.assign({}, f));
+  C.PRODUCTS_KEY = C.DEMO_RUN || !C.SCRIPT_URL ? 'sc-demo-products' : 'sc-products';
+  C.NO_IMG = 'img/logo-ngap-mark.webp';
+  C.mergeProducts = (list) => {
+    const seed = Object.fromEntries(C.FLAVOURS_SEED.map((f) => [f.id, f]));
+    return list.map((p) => { const b = seed[p.id] || {};
+      return { id: p.id, name: p.name || b.name || p.id, desc: p.desc || b.desc || '', img: p.img || b.img || C.NO_IMG, bg: p.bg || b.bg || '#C9845A', active: p.active !== false }; });
+  };
+  let cached = null; try { cached = JSON.parse(localStorage.getItem(C.PRODUCTS_KEY) || 'null'); } catch (e) {}
+  if (Array.isArray(cached) && cached.length && cached.every((p) => p && p.id)) C.FLAVOURS.splice(0, C.FLAVOURS.length, ...C.mergeProducts(cached));
+  else C.FLAVOURS.forEach((f) => { f.active = true; });
+})(window.SC_CONFIG);

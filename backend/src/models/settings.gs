@@ -6,7 +6,9 @@ function settings_() {
   var s = {}; try { s = JSON.parse(PropertiesService.getScriptProperties().getProperty('SETTINGS') || '{}'); } catch (e) {}
   return { hqPrice: s.hqPrice || { def: '', items: {} }, hqCost: s.hqCost || { def: '', items: {} }, capacity: Number(s.capacity) || 0,
            cutoffDays: s.cutoffDays === undefined ? 1 : Number(s.cutoffDays) || 0, cutoffHour: s.cutoffHour || '', unavailable: s.unavailable || [],
-           stockAgeDays: Number(s.stockAgeDays) || 5, hqPhone: s.hqPhone || '' };
+           stockAgeDays: Number(s.stockAgeDays) || 5, hqPhone: s.hqPhone || '',
+           allowNegStock: !!s.allowNegStock, targets: s.targets || {},
+           openingCash: s.openingCash || { amount: '', date: '' }, invoiceTermDays: s.invoiceTermDays === undefined ? 14 : Number(s.invoiceTermDays) };
 }
 
 function priceIn_(map, id) {

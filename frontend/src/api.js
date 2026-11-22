@@ -109,7 +109,7 @@
       if (name) s.name = String(name).trim();
       localStorage.setItem(KEY + '-sps', JSON.stringify(all)); return { ok: true, sp: s };
     },
-    adminSalespersons({ password }) { if (password !== DEMO_PASSWORD) throw new Error('Kata laluan admin salah.'); return { ok: true, salespersons: sps() }; },
+    adminSalespersons({ password }) { adm(password); return { ok: true, salespersons: sps() }; },
     create({ order }) {
       const o = clean(order), list = load();
       let last = Number(localStorage.getItem(KEY + '-last')) || 0;
@@ -209,35 +209,35 @@
     agSaveSales({ code, dist, data }) { const T = net(), a = agentOf(T, code); if (!T.dists.some((x) => x.code === dist && x.agent === a.code)) throw new Error('Agihan tidak dijumpai.'); T.jsales[dist] = data; saveNet(T); return { ok: true }; },
     agSaveProfile({ code, data }) { const T = net(), a = agentOf(T, code); T.aprof[a.code] = data; saveNet(T); return { ok: true }; },
     adminTree({ password }) {
-      if (password !== DEMO_PASSWORD) throw new Error('Kata laluan admin salah.');
+      adm(password);
       const T = net(); return { ok: true, agents: T.agents, dists: T.dists, payments: T.pays, sales: T.jsales };
     },
     getAnnouncement() { const a = JSON.parse(localStorage.getItem(KEY + '-ann') || 'null'); return { ok: true, announcement: a && a.text ? a : null }; },
     adminSetAnnouncement({ password, text }) {
-      if (password !== DEMO_PASSWORD) throw new Error('Kata laluan admin salah.');
+      adm(password);
       text = String(text || '').trim();
       const a = text ? { text, updatedAt: stamp() } : null;
       localStorage.setItem(KEY + '-ann', JSON.stringify(a)); return { ok: true, announcement: a };
     },
     adminList({ password }) {
-      if (password !== DEMO_PASSWORD) throw new Error('Kata laluan admin salah.');
+      adm(password);
       return { ok: true, orders: load() };
     },
     adminSetStatus({ password, code, status }) {
-      if (password !== DEMO_PASSWORD) throw new Error('Kata laluan admin salah.');
+      adm(password);
       if (!cfg.STATUSES.includes(status)) throw new Error('Status tidak sah.');
       const list = load(), i = findIdx(list, code);
       list[i].status = status; save(list); return { ok: true, order: list[i] };
     },
     adminDelete({ password, code }) {
-      if (password !== DEMO_PASSWORD) throw new Error('Kata laluan admin salah.');
+      adm(password);
       const list = load(), i = findIdx(list, code), c = list[i].code;
       list.splice(i, 1); save(list); return { ok: true, code: c };
     }
   };
 
   /* ---------- demo: HQ settings, invoices, PIN, log, targeted announcements ---------- */
-  const DEF_SET = { hqPrice: { def: 3.5, items: { 'tiramisu': 4, 'matcha-strawberry': 4 } }, hqCost: { def: 1.6, items: {} }, capacity: 300, cutoffDays: 1, cutoffHour: '18:00', unavailable: [], stockAgeDays: 5, hqPhone: '0123000000' };
+  const DEF_SET = { hqPrice: { def: 3.5, items: { 'tiramisu': 4, 'matcha-strawberry': 4 } }, hqCost: { def: 1.6, items: {} }, capacity: 300, cutoffDays: 1, cutoffHour: '18:00', unavailable: [], stockAgeDays: 5, hqPhone: '0123000000', openingCash: { amount: '', date: '' }, invoiceTermDays: 14 };
   const getJ = (k, d) => { try { return JSON.parse(localStorage.getItem(KEY + k)) ?? d; } catch (e) { return d; } };
   const setJ = (k, v) => { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) {} };
   const dSet = () => Object.assign({}, DEF_SET, getJ('-set', {}));
@@ -246,10 +246,12 @@
   function dEarliest(s) { const now = new Date(); let add = Number(s.cutoffDays) || 0; const hm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     if (s.cutoffHour && hm >= s.cutoffHour) add++; const d = new Date(); d.setDate(d.getDate() + add); return isoD(d); }
   function dLoad(skip) { const t = isoD(new Date()), l = {}; load().forEach((o) => { if (o.code === skip || o.status === 'Dibatalkan' || o.date < t) return; l[o.date] = (l[o.date] || 0) + o.total; }); return l; }
-  const dPublic = () => { const s = dSet(); return { hqPrice: s.hqPrice, capacity: s.capacity, cutoffDays: s.cutoffDays, cutoffHour: s.cutoffHour, unavailable: s.unavailable, earliest: dEarliest(s), load: dLoad(''), hqPhone: s.hqPhone }; };
+  const dPublic = () => { const s = dSet(), pr = getJ('-products', null) || []; return { hqPrice: s.hqPrice, capacity: s.capacity, cutoffDays: s.cutoffDays, cutoffHour: s.cutoffHour,
+    unavailable: s.unavailable.concat(pr.filter((p) => p.active === false).map((p) => p.id)), earliest: dEarliest(s), load: dLoad(''), hqPhone: s.hqPhone,
+    products: (pr.length ? pr : cfg.FLAVOURS_SEED).map((p) => ({ id: p.id, name: p.name, desc: p.desc || '', img: pr.length ? p.img || '' : '', bg: pr.length ? p.bg || '' : '', active: p.active !== false })) }; };
   function dRules(o, prev, code) {
     const s = dSet(), pi = prev ? prev.items : {};
-    const bad = cfg.FLAVOURS.filter((f) => s.unavailable.includes(f.id) && (o.items[f.id] || 0) > (pi[f.id] || 0));
+    const bad = cfg.FLAVOURS.filter((f) => (s.unavailable.includes(f.id) || f.active === false) && (o.items[f.id] || 0) > (pi[f.id] || 0));
     if (bad.length) throw new Error(bad.map((f) => f.name).join(', ') + ' sedang habis. Sila buang dari order.');
     if (!prev || prev.date !== o.date) { const e = dEarliest(s); if (o.date < e) throw new Error('Order ditutup untuk tarikh ini. Tarikh terawal: ' + e + '.'); }
     if (s.capacity) { const used = dLoad(code)[o.date] || 0; if (used + o.total > s.capacity) throw new Error(`Kapasiti ${o.date} penuh. Baki: ${Math.max(0, s.capacity - used)} biji.`); }
@@ -261,7 +263,8 @@
       const old = inv[o.code] || { prices: {} }, prices = {}; let amount = 0, missing = false;
       cfg.FLAVOURS.forEach((f) => { const q = o.items[f.id] || 0; if (!q) return; const keep = old.prices[f.id] !== undefined && old.prices[f.id] !== null;
         const p = keep ? old.prices[f.id] : pIn(s.hqPrice, f.id); if (p === null) missing = true; prices[f.id] = p; amount += q * (p || 0); });
-      inv[o.code] = { code: o.code, phone: o.phone, date: o.date, status: o.status, total: o.total, amount: o.status === 'Dibatalkan' ? 0 : Math.round(amount * 100) / 100, prices, missing };
+      const disc = Math.min(Number(old.disc) || 0, amount);
+      inv[o.code] = { code: o.code, phone: o.phone, date: o.date, status: o.status, total: o.total, amount: o.status === 'Dibatalkan' ? 0 : Math.round((amount - disc) * 100) / 100, prices, missing, disc };
     });
     Object.keys(inv).forEach((k) => { if (!load().some((o) => o.code === k)) delete inv[k]; });
     setJ('-inv', inv); return Object.values(inv);
@@ -271,7 +274,7 @@
   const dLog = (who, action, ref, detail) => { const l = getJ('-log', []); l.unshift({ at: stamp(), who: who || '-', action, ref: ref || '', detail: detail || '' }); setJ('-log', l.slice(0, 400)); };
   const dSp = (code) => { const all = sps(), s = all.find((x) => x.code.toLowerCase() === String(code || '').trim().toLowerCase()); if (!s) throw new Error('Kod salesperson tidak sah.'); return { all, s }; };
   const pinH = (code, pin) => btoa(unescape(encodeURIComponent(String(code).toLowerCase() + ':' + pin)));
-  const adm = (pw) => { if (pw !== DEMO_PASSWORD) throw new Error('Kata laluan admin salah.'); };
+  const adm = (pw) => { if (pw !== (getJ('-pw', null) || DEMO_PASSWORD)) throw new Error('Kata laluan admin salah.'); };
   const anns = () => { let l = getJ('-anns', null); if (!l) { const old = getJ('-ann', null); l = old && old.text ? [{ id: 'AN-1', text: old.text, target: 'all', updatedAt: old.updatedAt }] : []; setJ('-anns', l); } return l; };
 
   Object.assign(demo, {
@@ -351,17 +354,146 @@
       Object.values(all).forEach((a) => Object.assign(spSales, a.sales || {})); return Object.assign(r, { spSales }); }
   });
 
+
+  /* ---------- demo: HQ back office (products, finance, raw materials, suppliers, approvals) ---------- */
+  const EXPENSE_CATS = ['Bahan mentah', 'Packaging', 'Penghantaran', 'Gaji & upah', 'Sewa & utiliti', 'Pemasaran', 'Peralatan', 'Lain-lain'];
+  const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100, q4 = (n) => Math.round((Number(n) || 0) * 10000) / 10000;
+  const today = () => stamp().slice(0, 10), isoOr = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(String(d || '')) ? d : today());
+  const nextId = (k, pre) => { const n = (getJ('-n-' + k, 0) || 0) + 1; setJ('-n-' + k, n); return pre + String(n).padStart(4, '0'); };
+  const dProducts = () => getJ('-products', null) || cfg.FLAVOURS_SEED.map((f) => ({ id: f.id, name: f.name, desc: '', img: '', bg: '', active: true, recipe: {} }));
+  const pubProducts = () => dProducts().map(({ id, name, desc, img, bg, active }) => ({ id, name, desc, img, bg, active }));
+  const dMats = () => getJ('-mats', []), dMoves = () => getJ('-moves', []);
+  function dSummary(mv) {
+    const s = {};
+    mv.forEach((m) => { const x = s[m.mat] = s[m.mat] || { onHand: 0, cq: 0, cv: 0 }; x.onHand = q4(x.onHand + m.qty);
+      if (m.cost !== null && (m.type === 'Masuk' || (m.type === 'Pembetulan' && /^PU-/.test(m.ref)))) { x.cq += m.qty; x.cv += m.qty * m.cost; } });
+    Object.values(s).forEach((x) => { x.avgCost = x.cq > 0 ? Math.round(x.cv / x.cq * 10000) / 10000 : null; });
+    return s;
+  }
+  const dMaterials = () => { const s = dSummary(dMoves()); return dMats().map((m) => { const x = s[m.id] || { onHand: 0, avgCost: null }; return Object.assign({}, m, { onHand: x.onHand, avgCost: x.avgCost, low: m.status === 'Aktif' && m.reorder > 0 && x.onHand <= m.reorder }); }); };
+  function dPost(moves, who) {
+    if (!moves.length) return [];
+    const all = dMoves(), mats = Object.fromEntries(dMats().map((m) => [m.id, m])), sum = dSummary(all), after = {};
+    moves.forEach((m) => { if (!mats[m.mat]) throw new Error('Bahan ' + m.mat + ' tidak dijumpai.'); if (!m.qty) throw new Error('Kuantiti tidak boleh 0.');
+      after[m.mat] = q4((after[m.mat] ?? (sum[m.mat] || { onHand: 0 }).onHand) + m.qty); });
+    if (!dSet().allowNegStock) Object.keys(after).forEach((id) => { if (after[id] < -0.00005) throw new Error(`Stok ${mats[id].name} tak cukup (ada ${(sum[id] || { onHand: 0 }).onHand} ${mats[id].unit}). Rekod belian atau pelarasan dahulu.`); });
+    const out = moves.map((m) => ({ id: nextId('mv', 'MV-'), at: stamp(), date: isoOr(m.date), mat: m.mat, type: m.type, qty: q4(m.qty), cost: m.cost === null || m.cost === undefined ? null : q4(m.cost), ref: m.ref || '', reason: m.reason || '', by: who || 'Admin' }));
+    setJ('-moves', all.concat(out)); return out;
+  }
+  const USED = ['Dibakar', 'Siap', 'Selesai'];
+  function dBake(o, prev, next) {
+    const was = USED.includes(prev), is = USED.includes(next); if (was === is || next === 'Dibatalkan') return;
+    const net = {}; dMoves().forEach((m) => { if (m.ref === o.code && (m.type === 'Guna' || m.type === 'Pembetulan')) net[m.mat] = q4((net[m.mat] || 0) + m.qty); });
+    if (is) { if (Object.values(net).some((v) => v < 0)) return; const need = {}, sum = dSummary(dMoves());
+      dProducts().forEach((p) => { const q = o.items[p.id] || 0; if (!q) return; Object.entries(p.recipe || {}).forEach(([mid, per]) => { if (per > 0) need[mid] = (need[mid] || 0) + per * q; }); });
+      dPost(Object.entries(need).map(([mid, n]) => ({ mat: mid, type: 'Guna', qty: -q4(n), cost: (sum[mid] || {}).avgCost ?? null, date: o.date, ref: o.code, reason: 'Bake ' + o.total + ' biji' })), 'Sistem');
+    } else dPost(Object.entries(net).filter(([, v]) => v < 0).map(([mid, v]) => ({ mat: mid, type: 'Pembetulan', qty: -v, cost: null, date: o.date, ref: o.code, reason: `Status ${prev} → ${next}` })), 'Sistem');
+  }
+  const dReqs = () => getJ('-reqs', []);
+  const REQ_TYPES = { batal: 'Batalkan order', diskaun: 'Diskaun invois', lain: 'Lain-lain' };
+  const _setStatus2 = demo.adminSetStatus, _myOrders2 = demo.myOrders, _adminList2 = demo.adminList, _agLogin2 = demo.agLogin;
+  const dSetStatus = (code, status, who) => { const list = load(), o = list[findIdx(list, code)], prev = o.status; if (prev === status) return o;
+    dBake(Object.assign({}, o), prev, status); list[findIdx(list, code)].status = status; save(list); dInvoices(); dLog(who, 'Status order', o.code, prev + ' → ' + status); return list[findIdx(list, code)]; };
+  Object.assign(demo, {
+    publicSettings() { return { ok: true, settings: dPublic() } },
+    adminSetStatus(p) { adm(p.password); if (!cfg.STATUSES.includes(p.status)) throw new Error('Status tidak sah.'); return { ok: true, order: dSetStatus(p.code, p.status, 'Admin') }; },
+    myOrders(p) { const r = _myOrders2(p), s = dSet(); return Object.assign(r, { hqTarget: (s.targets || {})[p.sp] || 0, pendingRequests: dReqs().filter((x) => x.sp === p.sp && x.status === 'Menunggu').length }); },
+    adminList(p) { const r = _adminList2(p); return Object.assign(r, { pwDefault: false, pending: dReqs().filter((x) => x.status === 'Menunggu').length }); },
+    agLogin(p) { return Object.assign(_agLogin2(p), { products: pubProducts() }); },
+    adminHQ({ password }) { adm(password); return { ok: true, products: dProducts(), materials: dMaterials(), moves: dMoves().slice(-500).reverse(), suppliers: getJ('-sups', []),
+      purchases: getJ('-purs', []), expenses: getJ('-exps', []), requests: dReqs(), expenseCats: EXPENSE_CATS }; },
+    adminSaveProduct({ password, product }) {
+      adm(password); const list = dProducts(), x = product || {}, name = String(x.name || '').trim(), img = String(x.img || '').trim();
+      if (img && !/^(https:\/\/|img\/)/.test(img)) throw new Error('Gambar mesti link https:// atau fail img/…');
+      const recipe = {}; Object.entries(x.recipe || {}).forEach(([k, v]) => { if (Number(v) > 0) recipe[k] = q4(v); });
+      let p;
+      if (x.id) { p = list.find((y) => y.id === x.id); if (!p) throw new Error('Produk tidak dijumpai.');
+        if (name) p.name = name; if (x.desc !== undefined) p.desc = x.desc; if (x.img !== undefined) p.img = img; if (x.active !== undefined) p.active = !!x.active; if (x.recipe !== undefined) p.recipe = recipe;
+        dLog('Admin', 'Edit produk', p.id, p.name);
+      } else { if (!name) throw new Error('Sila isi nama produk.'); if (list.some((y) => y.name.toLowerCase() === name.toLowerCase())) throw new Error('Nama produk sudah ada.');
+        let base = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'produk', id = base, n = 2; while (list.some((y) => y.id === id)) id = base + '-' + (n++);
+        p = { id, name, desc: x.desc || '', img, bg: '', active: true, recipe }; list.push(p); dLog('Admin', 'Tambah produk', id, name); }
+      setJ('-products', list); return { ok: true, product: p, products: list };
+    },
+    adminSaveExpense({ password, date, cat, amount, note, ref }) { adm(password); const amt = r2(amount); if (amt <= 0) throw new Error('Sila isi jumlah perbelanjaan.');
+      const l = getJ('-exps', []), id = nextId('ex', 'EX-'); l.push({ id, date: isoOr(date), cat: EXPENSE_CATS.includes(cat) ? cat : 'Lain-lain', amount: amt, note: note || '', ref: ref || '', status: 'Aktif', createdAt: stamp(), by: 'Admin' });
+      setJ('-exps', l); dLog('Admin', 'Perbelanjaan', id, cat + ' · RM' + amt.toFixed(2)); return { ok: true, id }; },
+    adminVoidExpense({ password, id, reason }) { adm(password); const l = getJ('-exps', []), e = l.find((x) => x.id === id); if (!e) throw new Error('Perbelanjaan tidak dijumpai.'); e.status = 'Dibatalkan'; setJ('-exps', l); dLog('Admin', 'Batal perbelanjaan', id, reason || ''); return { ok: true }; },
+    adminSaveMaterial({ password, material }) { adm(password); const l = dMats(), x = material || {}, name = String(x.name || '').trim(), unit = String(x.unit || '').trim() || 'unit', reorder = Math.max(0, q4(x.reorder));
+      if (x.id) { const m = l.find((y) => y.id === x.id); if (!m) throw new Error('Bahan tidak dijumpai.'); Object.assign(m, { name: name || m.name, unit, reorder, status: x.status === 'Tidak aktif' ? 'Tidak aktif' : 'Aktif' }); setJ('-mats', l); return { ok: true }; }
+      if (!name) throw new Error('Sila isi nama bahan.'); if (l.some((y) => y.name.toLowerCase() === name.toLowerCase())) throw new Error('Bahan ini sudah ada.');
+      const id = nextId('mt', 'BH-'); l.push({ id, name, unit, reorder, status: 'Aktif', createdAt: stamp() }); setJ('-mats', l); dLog('Admin', 'Tambah bahan', id, name); return { ok: true, id }; },
+    adminStockMove({ password, mat, type, qty, reason, date }) { adm(password); type = type === 'Rosak' ? 'Rosak' : 'Pelarasan'; qty = q4(qty); if (!String(reason || '').trim()) throw new Error('Sila tulis sebab pergerakan stok.');
+      if (type === 'Rosak') qty = -Math.abs(qty); if (!qty) throw new Error('Kuantiti tidak boleh 0.'); const mv = dPost([{ mat, type, qty, cost: null, date, ref: 'MANUAL', reason }], 'Admin'); dLog('Admin', 'Stok ' + type, mv[0].id, mat + ' ' + qty); return { ok: true }; },
+    adminSaveSupplier({ password, supplier }) { adm(password); const l = getJ('-sups', []), x = supplier || {}, name = String(x.name || '').trim();
+      if (x.id) { const s = l.find((y) => y.id === x.id); if (!s) throw new Error('Pembekal tidak dijumpai.'); Object.assign(s, { name: name || s.name, phone: x.phone ? normPhone(x.phone) : '', note: x.note || '', status: x.status === 'Tidak aktif' ? 'Tidak aktif' : 'Aktif' }); setJ('-sups', l); return { ok: true }; }
+      if (!name) throw new Error('Sila isi nama pembekal.'); const id = nextId('su', 'SU-'); l.push({ id, name, phone: x.phone ? normPhone(x.phone) : '', note: x.note || '', status: 'Aktif', createdAt: stamp() }); setJ('-sups', l); return { ok: true, id }; },
+    adminAddPurchase({ password, sup, date, lines, note, paid }) { adm(password);
+      lines = (lines || []).map((l) => ({ mat: String(l.mat || ''), qty: q4(l.qty), cost: q4(l.cost) })).filter((l) => l.mat && l.qty > 0); if (!lines.length) throw new Error('Tambah sekurang-kurangnya satu bahan.');
+      const id = nextId('pu', 'PU-'), d = isoOr(date), total = r2(lines.reduce((a, l) => a + l.qty * l.cost, 0));
+      dPost(lines.map((l) => ({ mat: l.mat, type: 'Masuk', qty: l.qty, cost: l.cost, date: d, ref: id, reason: 'Belian' })), 'Admin');
+      const l = getJ('-purs', []); l.push({ id, date: d, sup: sup || '', amount: total, status: 'Diterima', pay: paid ? 'Dibayar' : 'Belum bayar', paidDate: paid ? d : '', note: note || '', lines, createdAt: stamp() }); setJ('-purs', l);
+      dLog('Admin', 'Belian', id, 'RM' + total.toFixed(2)); return { ok: true, id }; },
+    adminVoidPurchase({ password, id }) { adm(password); const l = getJ('-purs', []), p = l.find((x) => x.id === id); if (!p) throw new Error('Belian tidak dijumpai.'); if (p.status === 'Dibatalkan') return { ok: true };
+      dPost(p.lines.map((x) => ({ mat: x.mat, type: 'Pembetulan', qty: -x.qty, cost: x.cost, date: p.date, ref: p.id, reason: 'Batal belian' })), 'Admin'); p.status = 'Dibatalkan'; setJ('-purs', l); dLog('Admin', 'Batal belian', id, ''); return { ok: true }; },
+    adminPayPurchase({ password, id, paid, date }) { adm(password); const l = getJ('-purs', []), p = l.find((x) => x.id === id); if (!p) throw new Error('Belian tidak dijumpai.'); p.pay = paid === false ? 'Belum bayar' : 'Dibayar'; p.paidDate = paid === false ? '' : isoOr(date); setJ('-purs', l); return { ok: true }; },
+    spRequests({ sp }) { return { ok: true, requests: dReqs().filter((r) => r.sp === sp).reverse() }; },
+    spAddRequest({ sp, phone, type, ref, detail, amount }) {
+      type = REQ_TYPES[type] ? type : 'lain'; detail = String(detail || '').trim(); let code = '', amt = 0;
+      if (type !== 'lain') { const list = load(), o = list[findIdx(list, ref)]; if (o.phone !== phone) throw new Error('Order ini bukan milik anda.'); code = o.code;
+        if (type === 'batal' && o.status === 'Dibatalkan') throw new Error('Order ini sudah dibatalkan.');
+        if (type === 'diskaun') { amt = r2(amount); const v = dInvoices().find((x) => x.code === code); if (amt <= 0) throw new Error('Sila isi jumlah diskaun.'); if (!v || amt > v.amount + (v.disc || 0)) throw new Error('Diskaun melebihi jumlah invois.'); } }
+      if (!detail) throw new Error('Sila tulis sebab permintaan.');
+      const l = dReqs(); if (code && l.some((r) => r.ref === code && r.type === type && r.status === 'Menunggu')) throw new Error(`Permintaan untuk ${code} masih menunggu keputusan HQ.`);
+      const id = nextId('rq', 'RQ-'); l.push({ id, at: stamp(), sp, type, ref: code, detail, amount: amt, status: 'Menunggu', by: '', decidedAt: '', reason: '' }); setJ('-reqs', l);
+      dLog(sp, 'Permintaan', id, REQ_TYPES[type] + (code ? ' · ' + code : '')); return { ok: true, id };
+    },
+    spCancelRequest({ sp, id }) { const l = dReqs(), r = l.find((x) => x.id === id && x.sp === sp); if (!r) throw new Error('Permintaan tidak dijumpai.'); if (r.status !== 'Menunggu') throw new Error('Permintaan ini sudah diputuskan.');
+      Object.assign(r, { status: 'Dibatalkan', by: sp, decidedAt: stamp(), reason: 'Dibatalkan oleh pemohon' }); setJ('-reqs', l); return { ok: true }; },
+    adminDecide({ password, id, decision, reason }) { adm(password); const ok = decision === 'Diluluskan'; reason = String(reason || '').trim(); if (!ok && !reason) throw new Error('Sila tulis sebab permintaan ditolak.');
+      const l = dReqs(), r = l.find((x) => x.id === id); if (!r) throw new Error('Permintaan tidak dijumpai.'); if (r.status !== 'Menunggu') throw new Error('Permintaan ini sudah diputuskan.');
+      if (ok && r.type === 'batal') dSetStatus(r.ref, 'Dibatalkan', 'Admin (' + r.id + ')');
+      if (ok && r.type === 'diskaun') { const inv = getJ('-inv', {}); if (inv[r.ref]) { inv[r.ref].disc = r.amount; setJ('-inv', inv); dInvoices(); } }
+      Object.assign(r, { status: ok ? 'Diluluskan' : 'Ditolak', by: 'Admin', decidedAt: stamp(), reason }); setJ('-reqs', l);
+      dLog('Admin', ok ? 'Lulus permintaan' : 'Tolak permintaan', r.id, REQ_TYPES[r.type]); return { ok: true }; },
+    adminChangePassword({ password, newPassword }) { adm(password); if (String(newPassword || '').length < 8) throw new Error('Kata laluan baru mesti sekurang-kurangnya 8 aksara.'); setJ('-pw', newPassword); dLog('Admin', 'Tukar kata laluan admin', '', ''); return { ok: true }; },
+    adminEndSession({ password, code }) { adm(password); const { all, s } = dSp(code); s.token = ''; localStorage.setItem(KEY + '-sps', JSON.stringify(all)); dLog('Admin', 'Tamatkan sesi', code, ''); return { ok: true }; },
+    spLogoutAll({ sp }) { const { all, s } = dSp(sp); s.token = 't' + Date.now(); localStorage.setItem(KEY + '-sps', JSON.stringify(all)); return { ok: true, token: s.token }; },
+    adminBackup({ password }) { adm(password); const data = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(KEY)) data[k] = getJ(k.slice(KEY.length), null); }
+      return { ok: true, backup: { app: 'ngap-ordering', demo: true, at: stamp(), data } }; }
+  });
+
   // Salesperson session: every salesperson request carries their code (e.g. salesAkmal) and session token.
   let spCode = '', spTok = '';
   const SP_ACTIONS = ['create', 'get', 'update', 'cancel', 'myOrders', 'agentGet', 'agentSaveProfile', 'agentSaveSales', 'spAgents', 'spAddAgent', 'spUpdateAgent',
-                      'spDistribute', 'spUpdateDist', 'spDeleteDist', 'spAddPayment', 'spDeletePayment'];
+                      'spDistribute', 'spUpdateDist', 'spDeleteDist', 'spAddPayment', 'spDeletePayment', 'spRequests', 'spAddRequest', 'spCancelRequest', 'spLogoutAll'];
   async function call(action, payload) {
     payload = Object.assign({}, payload || {});
     if (SP_ACTIONS.includes(action)) { payload.sp = spCode; payload.tok = spTok; }
-    if (!DEMO) return remote(action, payload);
-    await new Promise((r) => setTimeout(r, 250));
-    if (SP_ACTIONS.includes(action)) payload.phone = demoSpPhone(payload.sp, payload.tok);
-    return demo[action](payload);
+    let res;
+    if (!DEMO) res = await remote(action, payload);
+    else {
+      await new Promise((r) => setTimeout(r, 250));
+      if (SP_ACTIONS.includes(action)) payload.phone = demoSpPhone(payload.sp, payload.tok);
+      res = demo[action](payload);
+    }
+    syncProducts(res && (res.products && !res.materials ? res.products : res.settings && res.settings.products));
+    return res;
+  }
+
+  // Keep this device's product list in step with HQ. When it changes, reload once so every form is rebuilt.
+  function syncProducts(list) {
+    if (!Array.isArray(list) || !list.length) return;
+    const json = JSON.stringify(list.map(({ id, name, desc, img, bg, active }) => ({ id, name, desc, img, bg, active })));
+    let old = null; try { old = localStorage.getItem(cfg.PRODUCTS_KEY); } catch (e) {}
+    if (json === old) return;
+    try { localStorage.setItem(cfg.PRODUCTS_KEY, json); } catch (e) { return; }
+    const sig = (arr) => JSON.stringify(arr.map((p) => [p.id, p.name, p.desc, p.img, p.active !== false]));
+    if (sig(cfg.mergeProducts(JSON.parse(json))) === sig(cfg.FLAVOURS)) return;
+    let done = ''; try { done = sessionStorage.getItem('sc-prod-reload'); } catch (e) {}
+    if (done === json) return;
+    try { sessionStorage.setItem('sc-prod-reload', json); } catch (e) {}
+    location.reload();
   }
 
   window.SC_API = {
@@ -408,6 +540,24 @@
     adminSetAnnouncement: (password, text) => call('adminSetAnnouncement', { password, text }),
     adminList: (password) => call('adminList', { password }),
     adminSetStatus: (password, code, status) => call('adminSetStatus', { password, code, status }),
-    adminDelete: (password, code) => call('adminDelete', { password, code })
+    adminDelete: (password, code) => call('adminDelete', { password, code }),
+    adminHQ: (password) => call('adminHQ', { password }),
+    adminSaveProduct: (password, product) => call('adminSaveProduct', { password, product }),
+    adminSaveExpense: (password, x) => call('adminSaveExpense', Object.assign({ password }, x)),
+    adminVoidExpense: (password, id, reason) => call('adminVoidExpense', { password, id, reason }),
+    adminSaveMaterial: (password, material) => call('adminSaveMaterial', { password, material }),
+    adminStockMove: (password, x) => call('adminStockMove', Object.assign({ password }, x)),
+    adminSaveSupplier: (password, supplier) => call('adminSaveSupplier', { password, supplier }),
+    adminAddPurchase: (password, x) => call('adminAddPurchase', Object.assign({ password }, x)),
+    adminVoidPurchase: (password, id, reason) => call('adminVoidPurchase', { password, id, reason }),
+    adminPayPurchase: (password, id, paid, date) => call('adminPayPurchase', { password, id, paid, date }),
+    adminDecide: (password, id, decision, reason) => call('adminDecide', { password, id, decision, reason }),
+    adminChangePassword: (password, newPassword) => call('adminChangePassword', { password, newPassword }),
+    adminEndSession: (password, code) => call('adminEndSession', { password, code }),
+    adminBackup: (password) => call('adminBackup', { password }),
+    spRequests: () => call('spRequests', {}),
+    spAddRequest: (x) => call('spAddRequest', x),
+    spCancelRequest: (id) => call('spCancelRequest', { id }),
+    spLogoutAll: () => call('spLogoutAll', {})
   };
 })();

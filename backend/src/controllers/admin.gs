@@ -89,21 +89,28 @@ function adminList_(req) {
   var orders = n < 1 ? [] : sh.getRange(2, 1, n, headerRow_().length).getDisplayValues().map(function (r, i) { return fromRow_(i + 2, r); })
                      .filter(function (o) { return o.code; });
   ensureInvoices_(orders);
-  return { ok: true, orders: orders, invoices: invoices_(), hqPayments: hqPays_(), settings: adminGetSettings_(req).settings };
+  return { ok: true, orders: orders, invoices: invoices_(), hqPayments: hqPays_(), settings: adminGetSettings_(req).settings,
+           pwDefault: PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD') === 'tukar-saya',
+           pending: requests_().filter(function (r) { return r.status === 'Menunggu'; }).length };
 }
 
 function adminSetStatus_(req) {
   checkAdmin_(req.password);
   if (STATUSES.indexOf(req.status) < 0) throw new Error('Status tidak sah.');
-  return withLock_(function () {
-    var found = find_(req.code);
-    var prev = found.order.status;
-    found.sheet.getRange(found.row, 2, 1, 3).setValues([[req.status, found.order.createdAt, stamp_()]]);
-    found.order.status = req.status;
-    syncInvoice_(found.order, null);
-    log_('Admin', 'Status order', found.order.code, prev + ' → ' + req.status);
-    return { ok: true, order: found.order };
-  });
+  return withLock_(function () { return { ok: true, order: setOrderStatus_(req.code, req.status, 'Admin') }; });
+}
+
+// Status change shared by the status menu and approvals: invoice follows, raw materials follow the recipe.
+// Call inside withLock_.
+function setOrderStatus_(code, status, who) {
+  var found = find_(code), prev = found.order.status;
+  if (prev === status) return found.order;
+  found.order.status = status;
+  bakeStock_(found.order, prev, status);          // throws (and changes nothing) when stock is short
+  found.sheet.getRange(found.row, 2, 1, 3).setValues([[status, found.order.createdAt, stamp_()]]);
+  syncInvoice_(found.order, null);
+  log_(who, 'Status order', found.order.code, prev + ' → ' + status);
+  return found.order;
 }
 
 function adminDelete_(req) {

@@ -202,3 +202,16 @@ textarea.inp{height:auto;padding:12px 14px;resize:vertical;min-height:80px}
 .hp-n{width:26px;height:26px;border-radius:50%;background:var(--burgundy);color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .hp-g b{font-size:14.5px}
 .hp-g p{margin:2px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}
+
+/* ---------- mobile polish (all apps) ---------- */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,[role=button],label,select,summary{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+/* iOS zooms the page when a focused field is under 16px */
+input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{font-size:16px}
+.btn:active{transform:scale(.98)}
+.sheet .acts{position:sticky;bottom:calc(-18px - var(--safe-b));background:linear-gradient(transparent,var(--paper) 30%);padding:14px 0 6px;margin-bottom:-6px;z-index:2}
+.boot{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--cream)}
+.boot img{width:min(200px,55vw);height:auto}
+.boot p{margin:0;font-size:14px;color:var(--muted);font-weight:600}
+.boot .spin{width:28px;height:28px;border-radius:50%;border:3px solid rgba(122,30,44,.18);border-top-color:var(--burgundy);animation:bootspin .8s linear infinite}
+@keyframes bootspin{to{transform:rotate(360deg)}}

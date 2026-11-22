@@ -66,6 +66,7 @@ Link lama (`order.html`, `sales.html`, `agent.html`, `admin.html`) akan terus ke
 | | Pelanggan | `/sales/pelanggan` |
 | | Satu pelanggan | `/sales/pelanggan/0123456789` |
 | | Profil | `/sales/profil` |
+| | Harga · Invois HQ · Permintaan · Cara guna | `/sales/harga` · `/sales/invois` · `/sales/permintaan` · `/sales/panduan` |
 | Agent | Utama | `/agent` |
 | | Stok | `/agent/stok` |
 | | Butiran stok | `/agent/stok/DS-0001` |
@@ -73,11 +74,19 @@ Link lama (`order.html`, `sales.html`, `agent.html`, `admin.html`) akan terus ke
 | | Satu pelanggan | `/agent/pelanggan/0123456789` |
 | | Untung | `/agent/untung` |
 | | Profil | `/agent/profil` |
+| | Harga jual · Cara guna | `/agent/harga` · `/agent/panduan` |
 | | Log masuk terus | `/agent?code=agentAli` |
 | Admin | Ringkasan | `/admin` |
 | | Order | `/admin/order` |
 | | Salesperson & agent | `/admin/sales` |
 | | Laporan director | `/admin/laporan` |
 | | Lagi (tetapan) | `/admin/lagi` |
+| | Papan order (kanban) | `/admin/papan` |
+| | Produk · Bahan & stok · Pembekal & belian | `/admin/produk` · `/admin/bahan` · `/admin/belian` |
+| | Perbelanjaan · Kelulusan · Sasaran | `/admin/perbelanjaan` · `/admin/kelulusan` · `/admin/sasaran` |
+| | Pelanggan · Akaun salesperson · Keselamatan | `/admin/pelanggan` · `/admin/salesperson` · `/admin/keselamatan` |
+| | Harga HQ · Kapasiti · Perisa · Maklumat HQ | `/admin/harga` · `/admin/kapasiti` · `/admin/perisa` · `/admin/maklumat-hq` |
+| | Pengumuman · Log aktiviti · Notifikasi | `/admin/pengumuman` · `/admin/log` · `/admin/notifikasi` |
+| | Invois & bayaran · Jadual pengeluaran | `/admin/invois` · `/admin/jadual` |
 
 Tambah `?demo=1` pada mana-mana link untuk mod demo. Peraturan ini ada dalam `netlify.toml` (rewrite `/sales/*` → `/sales/index.html`).

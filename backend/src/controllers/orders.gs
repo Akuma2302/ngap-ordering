@@ -81,13 +81,14 @@ function myOrders_(req) {
   return { ok: true, orders: orders,
            invoices: invoices_().filter(function (v) { return v.phone === phone; }),
            hqPayments: hqPays_().filter(function (y) { return y.phone === phone; }),
-           settings: publicSettings_().settings };
+           settings: publicSettings_().settings, hqTarget: settings_().targets[req.sp] || 0,
+           pendingRequests: requests_().filter(function (r) { return r.sp.toLowerCase() === String(req.sp).toLowerCase() && r.status === 'Menunggu'; }).length };
 }
 
 // Flavours out of stock, earliest date and daily capacity are enforced here, not only in the form.
 function checkOrderRules_(o, prev, code) {
   var s = settings_(), prevItems = prev ? prev.items : {};
-  var bad = FLAVOURS.filter(function (f) { return s.unavailable.indexOf(f.id) >= 0 && (o.items[f.id] || 0) > (prevItems[f.id] || 0); });
+  var bad = FLAVOURS.filter(function (f) { return (s.unavailable.indexOf(f.id) >= 0 || f.active === false) && (o.items[f.id] || 0) > (prevItems[f.id] || 0); });
   if (bad.length) throw new Error(bad.map(function (f) { return f.name; }).join(', ') + ' sedang habis. Sila buang dari order.');
   if (!prev || prev.date !== o.date) {
     var e = earliest_(s); if (o.date < e) throw new Error('Order ditutup untuk tarikh ini. Tarikh terawal: ' + e + '.');

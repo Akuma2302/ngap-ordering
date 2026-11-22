@@ -19,8 +19,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ordering/ordering.css?v=6">
-<link rel="stylesheet" href="ordering/agent.css?v=21">
+<link rel="stylesheet" href="ordering/ordering.css?v=7">
+<link rel="stylesheet" href="ordering/agent.css?v=27">
 <style>
 .costfix{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
 .costfix b{font-size:15px}
@@ -41,6 +41,7 @@
   <button class="rbtn hidden" id="profile-btn" type="button" aria-label="Profil"><span class="av" id="av">?</span></button>
 </header>
 
+<div id="boot" class="boot hidden" role="status" aria-live="polite"><img src="img/logo-ngap.webp" alt="ngap soft cookies"><span class="spin"></span><p>Memuatkan akaun anda…</p></div>
 <div class="wrap">
   <div id="demo" class="demo hidden"></div>
 
@@ -162,12 +163,12 @@
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
 <div id="toast" class="toast hidden" role="status"></div>
 
-<script src="ordering/config.js?v=10"></script>
-<script src="ordering/api.js?v=10"></script>
+<script src="ordering/config.js?v=11"></script>
+<script src="ordering/api.js?v=11"></script>
 <script src="ordering/txsales.js?v=1"></script>
 <script src="ordering/router.js?v=1"></script>
 <script src="ordering/customers.js?v=1"></script>
-<script src="ordering/apphelp.js?v=1"></script>
+<script src="ordering/apphelp.js?v=2"></script>
 <script>
 (function () {
   const { FLAVOURS } = window.SC_CONFIG;
@@ -190,7 +191,7 @@
   const setv = (v) => v !== undefined && v !== null && v !== '';
   const initials = (n) => String(n || '').replace(/[^\p{L}\s]/gu, '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
   const validPhone = (p) => { const d = API.normPhone(p); return d.length >= 9 && d.length <= 12; };
-  const TITLES = { home: 'Utama', stock: 'Stok Saya', cust: 'Pelanggan', custd: 'Pelanggan', stats: 'Untung Saya', me: 'Profil', detail: 'Stok' };
+  const TITLES = { home: 'Utama', stock: 'Stok Saya', cust: 'Pelanggan', custd: 'Pelanggan', stats: 'Untung Saya', me: 'Profil', detail: 'Stok', 'pg-harga': 'Harga Jual', 'pg-panduan': 'Cara Guna' };
 
   /* ---------- demo seed for ?demo=1 ---------- */
   if (window.SC_CONFIG.DEMO_RUN) {
@@ -221,7 +222,7 @@
   }
   $('login-form').addEventListener('submit', (e) => { e.preventDefault(); login($('lg-code').value); });
   function show(on) {
-    $('login').classList.toggle('hidden', on); $('nav').classList.toggle('hidden', !on); $('profile-btn').classList.toggle('hidden', !on);
+    $('boot').classList.add('hidden'); $('login').classList.toggle('hidden', on); $('nav').classList.toggle('hidden', !on); $('profile-btn').classList.toggle('hidden', !on);
     if (!on) { document.querySelectorAll('[data-tab]').forEach((s) => s.classList.add('hidden')); $('lt').textContent = 'Agent'; $('lt').classList.add('hidden'); $('lt-logo').classList.remove('hidden'); }
   }
   $('m-logout').onclick = () => { if (!confirm('Log keluar dari akaun agent ini?')) return; store.del('ag-code'); store.del('ag-sales'); store.del('ag-prof'); D = null; show(false); };
@@ -289,23 +290,28 @@
   document.querySelectorAll('[data-tab-btn]').forEach((b) => b.onclick = () => go(b.dataset.tabBtn));
   document.addEventListener('click', (e) => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go); });
   $('profile-btn').onclick = () => go('me');
-  $('back-btn').onclick = () => go(tab === 'custd' ? 'cust' : 'stock');
+  $('back-btn').onclick = () => go(tab.startsWith('pg-') ? 'me' : tab === 'custd' ? 'cust' : 'stock');
+  let pgShown = '';
+  const PAGES = { 'pg-harga': () => priceSheet(), 'pg-panduan': () => SC_HELP.guideSheet(openModal, 'agent') };
 
   function render() {
     if (!D) return;
-    document.querySelectorAll('[data-tab-btn]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tabBtn === ({ detail: 'stock', custd: 'cust' }[tab] || tab)));
+    const pg = tab.startsWith('pg-');
+    document.querySelectorAll('[data-tab-btn]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tabBtn === (pg ? 'me' : { detail: 'stock', custd: 'cust' }[tab] || tab)));
+    $('modal').classList.toggle('as-page', pg);
+    if (pg && pgShown !== tab) { pgShown = tab; PAGES[tab](); } else if (!pg && pgShown) { pgShown = ''; closeModal(); }
     document.querySelectorAll('[data-tab]').forEach((s) => s.classList.toggle('hidden', s.dataset.tab !== tab));
     $('lt').textContent = tab === 'detail' && detail ? detail.code : tab === 'custd' ? ((customers().find((c) => c.key === curCust) || {}).name || 'Pelanggan') : TITLES[tab];
     $('lt').classList.toggle('code', tab === 'detail');
     $('lt').classList.toggle('hidden', tab === 'home'); $('lt-logo').classList.toggle('hidden', tab !== 'home');
-    $('back-btn').classList.toggle('hidden', tab !== 'detail' && tab !== 'custd');
+    $('back-btn').classList.toggle('hidden', !pg && tab !== 'detail' && tab !== 'custd');
     $('av').textContent = initials(D.agent.name);
-    ({ home: renderHome, stock: renderStock, cust: renderCust, custd: renderCustDetail, stats: renderStats, me: renderMe, detail: renderDetail })[tab]();
+    if (!pg) ({ home: renderHome, stock: renderStock, cust: renderCust, custd: renderCustDetail, stats: renderStats, me: renderMe, detail: renderDetail })[tab]();
     R.set(tab === 'detail' && detail ? ['stok', detail.code] : tab === 'custd' && curCust ? ['pelanggan', curCust] : ASLUG[tab] ? [ASLUG[tab]] : []);
   }
 
   /* ---------- clean URLs: /agent, /agent/stok, /agent/stok/DS-0001, /agent/pelanggan, /agent/untung, /agent/profil ---------- */
-  const ASLUG = { home: '', stock: 'stok', cust: 'pelanggan', stats: 'untung', me: 'profil' };
+  const ASLUG = { home: '', stock: 'stok', cust: 'pelanggan', stats: 'untung', me: 'profil', 'pg-harga': 'harga', 'pg-panduan': 'panduan' };
   const ATAB = Object.fromEntries(Object.entries(ASLUG).filter(([, v]) => v).map(([k, v]) => [v, k]));
   function routeA(parts) {
     if (!D) return;
@@ -481,8 +487,9 @@
   }
   $('m-stock').onclick = () => go('stock'); $('m-cust').onclick = () => go('cust');
   $('m-install').onclick = () => SC_HELP.installSheet(openModal, toast, 'ngap Agent');
-  $('m-guide').onclick = () => SC_HELP.guideSheet(openModal, 'agent');
-  $('m-price').onclick = () => {
+  $('m-guide').onclick = () => go('pg-panduan');
+  $('m-price').onclick = () => go('pg-harga');
+  function priceSheet() {
     const p = getProf().prices || { sell: '', items: {} };
     openModal(`<span class="kicker">Harga jual saya</span><h2>Harga jual</h2><p class="muted" style="margin:2px 0 10px">Harga asas seunit kepada pelanggan. Isi perisa tertentu hanya jika berbeza. Harga dalam setiap jualan boleh diubah.</p>
       <div class="prow"><b>Semua perisa</b><span></span><input class="inp" id="pp-sell" inputmode="decimal" placeholder="0.00" value="${esc(money(p.sell))}"></div>
@@ -513,8 +520,8 @@
 
   /* ---------- ui helpers ---------- */
   function openModal(html) { $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
-  function closeModal() { $('modal').classList.add('hidden'); }
-  $('modal').addEventListener('click', (e) => { if (e.target === $('modal') || e.target.closest('[data-close]')) closeModal(); });
+  function closeModal() { if ($('modal').classList.contains('as-page') && tab.startsWith('pg-')) { go('me'); return; } $('modal').classList.add('hidden'); }
+  $('modal').addEventListener('click', (e) => { if ((e.target === $('modal') && !$('modal').classList.contains('as-page')) || e.target.closest('[data-close]')) closeModal(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
   let tt;
   function toast(msg, err) { const t = $('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3200); }
@@ -523,7 +530,7 @@
   // start: ?code=agentNama link from the salesperson, else the saved code, else the login screen
   const qs = new URLSearchParams(location.search), qc = qs.get('code');
   if (qc) { $('lg-code').value = qc; login(qc); history.replaceState(null, '', location.pathname + (window.SC_CONFIG.DEMO_RUN ? '?demo=1' : '')); }
-  else if (code()) { $('lg-code').value = code(); login(code(), true); }
+  else if (code()) { $('boot').classList.remove('hidden'); $('lg-code').value = code(); Promise.resolve(login(code(), true)).finally(() => $('boot').classList.add('hidden')); }
   else show(false);
 })();
 </script>

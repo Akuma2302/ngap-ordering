@@ -19,8 +19,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ordering/ordering.css?v=6">
-<link rel="stylesheet" href="ordering/agent.css?v=21">
+<link rel="stylesheet" href="ordering/ordering.css?v=7">
+<link rel="stylesheet" href="ordering/agent.css?v=27">
 </head>
 <body class="glass">
 <header class="lt-bar">
@@ -30,6 +30,7 @@
   <button class="rbtn" id="profile-btn" type="button" aria-label="Profil"><span class="av" id="av">?</span></button>
 </header>
 
+<div id="boot" class="boot hidden" role="status" aria-live="polite"><img src="img/logo-ngap.webp" alt="ngap soft cookies"><span class="spin"></span><p>Memuatkan akaun anda…</p></div>
 <div class="wrap">
   <div id="demo" class="demo hidden">Mod demo: order hanya disimpan dalam browser ini.</div>
 
@@ -126,12 +127,14 @@
       <button type="button" data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V12M12 20V5M19 20v-9"/></svg>Laporan &amp; sasaran bulanan</button>
       <button type="button" id="m-price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg>Harga kos &amp; harga jual</button>
       <button type="button" id="m-hq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/></svg>Invois &amp; bayaran HQ</button>
+      <button type="button" id="m-req"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/><path d="M12 8v4l3 2"/></svg>Permintaan ke HQ <span class="pill st-Baru hidden" id="m-req-n" style="margin-left:6px"></span></button>
     </div></section>
 
     <p class="sec-h">Akaun</p>
     <section class="gcard" style="padding:0"><div class="menu2">
       <button type="button" id="m-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Edit profil</button>
       <button type="button" id="m-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Tukar PIN</button>
+      <button type="button" id="m-logoutall"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>Log keluar peranti lain</button>
     </div></section>
 
     <p class="sec-h">Bantuan</p>
@@ -163,6 +166,7 @@
       <div class="panel-h" style="margin-bottom:8px"><h2>Sasaran bulan ini</h2><span class="r" id="tg-pct"></span></div>
       <div class="tg-bar big"><i id="tg-fill2"></i></div>
       <p class="muted" id="tg-msg" style="margin:8px 0 10px;font-size:13px"></p>
+      <p class="muted hidden" id="tg-hq" style="margin:0 0 10px;font-size:13px"></p>
       <form id="tg-form" class="tg-form"><label>Sasaran untung bersih (RM)<input class="inp" id="tg-in" inputmode="decimal" placeholder="cth. 500"></label><button class="btn btn-p btn-sm" type="submit">Simpan</button></form>
     </section>
     <section class="gcard">
@@ -264,12 +268,13 @@
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
 <div id="toast" class="toast hidden" role="status"></div>
 
-<script src="ordering/config.js?v=10"></script>
-<script src="ordering/api.js?v=10"></script>
+<script src="ordering/config.js?v=11"></script>
+<script src="ordering/api.js?v=11"></script>
 <script src="ordering/txsales.js?v=1"></script>
 <script src="ordering/router.js?v=1"></script>
 <script src="ordering/customers.js?v=1"></script>
-<script src="ordering/apphelp.js?v=1"></script>
+<script src="ordering/apphelp.js?v=2"></script>
+<script src="ordering/finance.js?v=1"></script>
 <script>
 (function () {
   const { FLAVOURS } = window.SC_CONFIG;
@@ -328,7 +333,7 @@
   const fmtShort = (iso) => { if (!iso) return '-'; const [y, m, d] = iso.split('-'); return new Date(+y, m - 1, +d).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' }); };
   const RM = (n) => (n < 0 ? '-' : '') + 'RM' + Math.abs(n).toLocaleString('ms-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const RMs = (n) => (n < 0 ? '-' : '') + 'RM' + (Math.abs(n) >= 1000 ? (Math.abs(n) / 1000).toFixed(1) + 'k' : Math.round(Math.abs(n)));
-  const TITLES = { home: 'Utama', new: 'Order Stok', mine: 'Stok & Order', me: 'Profil', stats: 'Untung Saya', detail: 'Butiran Order', agents: 'Agent Saya', agent: 'Agent', cust: 'Pelanggan', custd: 'Pelanggan' };
+  const TITLES = { home: 'Utama', new: 'Order Stok', mine: 'Stok & Order', me: 'Profil', stats: 'Untung Saya', detail: 'Butiran Order', agents: 'Agent Saya', agent: 'Agent', cust: 'Pelanggan', custd: 'Pelanggan', 'pg-harga': 'Harga Saya', 'pg-invois': 'Invois HQ', 'pg-minta': 'Permintaan', 'pg-panduan': 'Cara Guna' };
 
   if (API.DEMO) $('demo').classList.remove('hidden');
   if (window.SC_CONFIG.DEMO_RUN) {
@@ -361,6 +366,7 @@
       const off = (hqSet.unavailable || []).includes(f.id), card = document.querySelector(`.fl[data-id="${f.id}"]`);
       const cur = Number(qtyInput(f.id).value) || 0, max = off ? (keep[f.id] || 0) : 9999;
       card.classList.toggle('off', off); card.dataset.max = max;
+      card.classList.toggle('hidden', f.active === false && !cur && !keep[f.id]);
       card.querySelector('.plus').disabled = cur >= max;
       let tag = card.querySelector('.offtag'); if (off && !tag) { tag = document.createElement('span'); tag.className = 'offtag'; tag.textContent = 'Habis'; card.querySelector('.tx').appendChild(tag); } else if (!off && tag) tag.remove();
     });
@@ -588,7 +594,7 @@
 
   /* ---------- my orders (from server by phone) ---------- */
   let mine = [], mineFilter = 'active', period = 'this', loadingMine = false;
-  let hq = { invoices: [], payments: [] };
+  let hq = { invoices: [], payments: [], target: 0, pending: 0 };
   const invOf = (code) => hq.invoices.find((v) => v.code === code);
   function invPrice(code, id) { const v = invOf(code); const p = v && v.prices ? v.prices[id] : null; return p === null || p === undefined ? null : Number(p); }
   const hqOwe = () => hq.invoices.reduce((a, v) => a + v.amount, 0) - hq.payments.reduce((a, y) => a + y.amount, 0);
@@ -638,12 +644,12 @@
     try {
       const [res, ag] = await Promise.all([API.myOrders(pr.phone), API.agentGet(pr.phone).catch(() => null), fetchNet()]);
       mine = res.orders || [];
-      hq = { invoices: res.invoices || [], payments: res.hqPayments || [] };
+      hq = { invoices: res.invoices || [], payments: res.hqPayments || [], target: res.hqTarget || 0, pending: res.pendingRequests || 0 };
       if (res.settings) { hqSet = res.settings; applySettings(); }
       if (ag) mergeAgent(ag, mine);
     }
     catch (err) { toast(err.message, true); }
-    finally { loadingMine = false; renderMine(); renderStats(); if (detail) detail = mine.find((x) => x.code === detail.code) || detail; resolveRoute();
+    finally { loadingMine = false; renderMine(); renderStats(); if (tab === 'pg-invois') hqSheet(); if (detail) detail = mine.find((x) => x.code === detail.code) || detail; resolveRoute();
       if (tab === 'cust') renderCust(); else if (tab === 'custd') { renderCustDetail(); $('lt').textContent = (customers().find((c) => c.key === curCust) || {}).name || 'Pelanggan'; } }
   }
   function renderStockCard() {
@@ -723,7 +729,7 @@
         <div class="kpis" id="d-kpi"></div>
         ${o.method === 'Hantar' && o.address ? `<div class="r2">📍 ${esc(o.address)}</div>` : ''}
         ${o.notes ? `<div class="r2">📝 ${esc(o.notes)}</div>` : ''}
-        <div class="dacts"><button class="btn btn-o btn-sm" type="button" id="d-edit">Edit order</button><button class="btn btn-o btn-sm" type="button" id="d-again">Order semula</button><button class="btn btn-o btn-sm" type="button" id="d-share">Kongsi WhatsApp</button>${cancelled ? '' : '<button class="btn btn-o btn-sm" type="button" id="d-def">Guna harga asas</button>'}${cancelled || LOCKED.includes(o.status) ? '' : '<button class="btn btn-d btn-sm" type="button" id="d-cancel">Batalkan order</button>'}</div>
+        <div class="dacts"><button class="btn btn-o btn-sm" type="button" id="d-edit">Edit order</button><button class="btn btn-o btn-sm" type="button" id="d-again">Order semula</button><button class="btn btn-o btn-sm" type="button" id="d-share">Kongsi WhatsApp</button>${cancelled ? '' : '<button class="btn btn-o btn-sm" type="button" id="d-def">Guna harga asas</button>'}${cancelled || LOCKED.includes(o.status) ? '' : '<button class="btn btn-d btn-sm" type="button" id="d-cancel">Batalkan order</button>'}${!cancelled && LOCKED.includes(o.status) ? '<button class="btn btn-o btn-sm" type="button" id="d-ask">Minta HQ batalkan</button>' : ''}</div>
       </div>
       ${cancelled ? '<div class="warnbox">Order ini dibatalkan, jadi tidak dikira dalam untung.</div>' : ''}
       <p class="sec-h">Jualan ikut pelanggan</p>
@@ -814,6 +820,7 @@
     $('skus').addEventListener('focusin', (e) => { if (e.target.matches('input')) e.target.select(); });
     $('d-edit').onclick = () => loadEdit(o);
     const dc = $('d-cancel'); if (dc) dc.onclick = () => cancelSheet(o);
+    const da = $('d-ask'); if (da) da.onclick = () => { reqPre = { type: 'batal', ref: o.code }; go('pg-minta'); };
     $('d-again').onclick = () => {
       const pr = getProfile();
       drafts.new = { items: Object.assign({}, o.items), method: o.method, address: o.address, notes: o.notes, time: o.time, date: '', name: pr.name || o.name, phone: pr.phone || o.phone };
@@ -866,7 +873,7 @@
       closeModal(); toast('Harga disimpan.'); renderMine(); renderStats();
     };
   }
-  $('tile-price').onclick = $('m-price').onclick = $('bn-btn').onclick = priceSheet;
+  $('tile-price').onclick = $('m-price').onclick = $('bn-btn').onclick = () => go('pg-harga');
 
   /* ---------- customers (shared module ordering/customers.js) ---------- */
   function purchases() {
@@ -894,17 +901,18 @@
   function renderProfileExtra() {
     $('p-code').textContent = spSess() || '-';
     $('p-pin').classList.toggle('hidden', !store.get('sp-haspin', false));
+    $('m-req-n').textContent = hq.pending ? hq.pending + ' menunggu' : ''; $('m-req-n').classList.toggle('hidden', !hq.pending);
     const o = hqOwe(); $('k-hq-v').textContent = hq.invoices.length ? (o > 0.004 ? RM(o) : 'Selesai ✓') : '–'; $('k-hq-v').className = o > 0.004 ? 'neg' : 'pos';
     const ag = net.agents.reduce((a, x) => a + Math.max(0, agentStats(x).owe), 0); $('k-ag-v').textContent = net.agents.length ? RM(ag) : '–'; $('k-ag-v').className = ag > 0.004 ? 'neg' : '';
   }
-  $('k-hq').onclick = () => hqSheet();
+  $('k-hq').onclick = () => go('pg-invois');
   $('m-hqwa').onclick = () => {
     const ph = (hqSet.hqPhone || '').replace(/\D/g, '');
     if (!ph) return toast('Nombor HQ belum diset oleh admin.', true);
     window.open(`https://wa.me/6${ph}?text=${encodeURIComponent(`Hai HQ, saya ${getProfile().name || ''} (${spSess()}).`)}`, '_blank', 'noopener');
   };
   $('m-install').onclick = () => SC_HELP.installSheet(openModal, toast, 'ngap Sales');
-  $('m-guide').onclick = () => SC_HELP.guideSheet(openModal, 'sales');
+  $('m-guide').onclick = () => go('pg-panduan');
 
 
   /* ---------- home dashboard ---------- */
@@ -957,7 +965,7 @@
     const ow = hqOwe();
     $('h-hq').innerHTML = hq.invoices.length ? `<button class="gcard oweC hqc" type="button" id="hq-open"><div><small>${ow > 0.004 ? 'Perlu bayar kepada HQ' : 'Bayaran kepada HQ'}</small><b class="${ow > 0.004 ? 'neg' : 'pos'}">${ow > 0.004 ? RM(ow) : 'Selesai ✓'}</b>
       <small>Invois ${RM(hq.invoices.reduce((a, v) => a + v.amount, 0))} · dibayar ${RM(hq.payments.reduce((a, y) => a + y.amount, 0))}</small></div><span class="wa">Lihat</span></button>` : '';
-    const ho = $('hq-open'); if (ho) ho.onclick = hqSheet;
+    const ho = $('hq-open'); if (ho) ho.onclick = () => go('pg-invois');
 
     // network summary
     if (net.agents.length) {
@@ -1001,6 +1009,9 @@
         <div class="tbar"><i class="${v !== null && v < 0 ? 'n' : ''}" style="height:${h}%"></i></div><span>${esc(x.label)}</span><small class="ts">${x.c.orders ? RMs(x.c.sale) : ''}</small></div>`; }).join('');
   }
   function renderTarget() {
+    const ht = $('tg-hq'); if (ht) { const pcs = mine.filter((o) => o.status !== 'Dibatalkan' && inPeriod(o, 'this')).reduce((a, o) => a + o.total, 0);
+      ht.classList.toggle('hidden', !hq.target);
+      if (hq.target) ht.innerHTML = `<b>Sasaran HQ bulan ini:</b> order ${pcs}/${hq.target} biji (${Math.round(pcs / hq.target * 100)}%)<span class="tg-bar"><i style="width:${Math.min(100, pcs / hq.target * 100)}%"></i></span>`; }
     const tg = Number((store.get('sc-target', null) || {}).amount) || 0, m = calc(mine.filter((o) => inPeriod(o, 'this')));
     $('tg-in').value = tg ? tg.toFixed(2) : '';
     const pct = tg ? m.profit / tg * 100 : 0;
@@ -1202,6 +1213,9 @@
   let tab = 'home';
   let editing = null; // { code, status }
 
+  // Profil destinations open as full pages (/sales/harga, /sales/invois, /sales/permintaan, /sales/panduan)
+  let pgShown = '', reqPre = null;
+  const PAGES = { 'pg-harga': () => priceSheet(), 'pg-invois': () => hqSheet(), 'pg-minta': () => { const p = reqPre; reqPre = null; reqSheet(p); }, 'pg-panduan': () => SC_HELP.guideSheet(openModal, 'sales') };
   function go(t) {
     if (tab === 'new') drafts.new = readForm();
     else if (tab === 'mine' && editing) drafts.edit = readForm();
@@ -1214,19 +1228,22 @@
 
   function render() {
     const showForm = tab === 'new' || (tab === 'mine' && !!editing);
-    document.querySelectorAll('[data-tab-btn]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tabBtn === ({ detail: 'mine', new: 'mine', agent: 'agents', cust: 'cust', custd: 'cust', stats: 'home' }[tab] || tab)));
+    const pg = tab.startsWith('pg-');
+    document.querySelectorAll('[data-tab-btn]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tabBtn === (pg ? 'me' : { detail: 'mine', new: 'mine', agent: 'agents', cust: 'cust', custd: 'cust', stats: 'home' }[tab] || tab)));
+    $('modal').classList.toggle('as-page', pg);
+    if (pg && pgShown !== tab) { pgShown = tab; PAGES[tab](); } else if (!pg && pgShown) { pgShown = ''; closeModal(); }
     document.querySelectorAll('[data-tab]').forEach((s) => s.classList.toggle('hidden', s.dataset.tab !== tab || (tab === 'mine' && !!editing)));
     $('order-form').classList.toggle('hidden', !showForm);
     document.body.classList.toggle('has-bar', showForm);
     $('lt').textContent = tab === 'mine' && editing ? 'Edit Order' : tab === 'detail' && detail ? detail.code : tab === 'agent' && curAgent ? agentName(curAgent) : tab === 'custd' ? ((customers().find((c) => c.key === curCust) || {}).name || 'Pelanggan') : TITLES[tab];
-    $('back-btn').classList.toggle('hidden', !(tab === 'detail' || tab === 'agent' || tab === 'stats' || tab === 'custd' || (tab === 'mine' && editing)));
+    $('back-btn').classList.toggle('hidden', !(pg || tab === 'detail' || tab === 'agent' || tab === 'stats' || tab === 'custd' || (tab === 'mine' && editing)));
     $('lt').classList.toggle('code', tab === 'detail');
     $('lt').classList.toggle('hidden', tab === 'home'); $('lt-logo').classList.toggle('hidden', tab !== 'home');
     $('editing').classList.toggle('hidden', !(tab === 'mine' && editing));
     const isEdit = tab === 'mine' && editing, locked = isEdit && LOCKED.includes(editing.status);
     $('ed-cancel').classList.toggle('hidden', !(isEdit && !locked && editing.status !== 'Dibatalkan'));
     $('ed-lock').classList.toggle('hidden', !locked);
-    if (locked) $('ed-lock').textContent = `Order ini dah ${editing.status.toLowerCase()} — tak boleh diubah atau dibatalkan. Hubungi HQ jika perlu.`;
+    if (locked) $('ed-lock').innerHTML = `Order ini dah ${editing.status.toLowerCase()} — tak boleh diubah atau dibatalkan. Buat <b>Permintaan ke HQ</b> di Profil jika perlu dibatalkan.`;
     $('submit-btn').disabled = !!locked;
     $('submit-btn').textContent = tab === 'new' ? 'Semak & hantar' : (editing && editing.status === 'Dibatalkan' ? 'Aktifkan semula' : 'Simpan perubahan');
     $('f-date').min = tab === 'new' ? (hqSet.earliest || todayISO()) : '';
@@ -1248,7 +1265,8 @@
   }
 
   /* ---------- clean URLs: /sales, /sales/stok, /sales/order/SC-0001, /sales/agent/agentAli ... ---------- */
-  const SLUG = { home: '', mine: 'stok', new: 'order-baru', agents: 'agent', stats: 'untung', me: 'profil', cust: 'pelanggan' };
+  const SLUG = { home: '', mine: 'stok', new: 'order-baru', agents: 'agent', stats: 'untung', me: 'profil', cust: 'pelanggan',
+                 'pg-harga': 'harga', 'pg-invois': 'invois', 'pg-minta': 'permintaan', 'pg-panduan': 'panduan' };
   const TAB_OF = Object.fromEntries(Object.entries(SLUG).filter(([, v]) => v).map(([k, v]) => [v, k]));
   function urlParts() {
     if (tab === 'detail' && detail) return ['order', detail.code];
@@ -1291,7 +1309,7 @@
     render(); window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   $('ed-close').onclick = () => { editing = null; drafts.edit = null; render(); fetchMine(); };
-  $('back-btn').onclick = () => { if (tab === 'mine' && editing) $('ed-close').onclick(); else if (tab === 'agent') go('agents'); else if (tab === 'custd') go('cust'); else if (tab === 'stats') go('home'); else go('mine'); };
+  $('back-btn').onclick = () => { if (tab.startsWith('pg-')) go('me'); else if (tab === 'mine' && editing) $('ed-close').onclick(); else if (tab === 'agent') go('agents'); else if (tab === 'custd') go('cust'); else if (tab === 'stats') go('home'); else go('mine'); };
 
   /* ---------- submit ---------- */
   $('order-form').addEventListener('submit', (e) => {
@@ -1358,8 +1376,8 @@
   /* ---------- ui helpers ---------- */
   let modalLocked = false;
   function openModal(html, locked) { modalLocked = !!locked; $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
-  function closeModal() { $('modal').classList.add('hidden'); }
-  $('modal').addEventListener('click', (e) => { if ((e.target === $('modal') && !modalLocked) || e.target.closest('[data-close]')) closeModal(); });
+  function closeModal() { if ($('modal').classList.contains('as-page') && tab.startsWith('pg-')) { go('me'); return; } $('modal').classList.add('hidden'); }
+  $('modal').addEventListener('click', (e) => { if ((e.target === $('modal') && !modalLocked && !$('modal').classList.contains('as-page')) || e.target.closest('[data-close]')) closeModal(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
   let tt;
   function toast(msg, err) { const t = $('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3200); }
@@ -1367,6 +1385,7 @@
 
   /* ---------- salesperson session (code such as salesAkmal) ---------- */
   function showApp(on) {
+    $('boot').classList.add('hidden');
     $('sp-login').classList.toggle('hidden', on);
     document.querySelector('.pillnav').classList.toggle('hidden', !on);
     $('profile-btn').classList.toggle('hidden', !on);
@@ -1396,12 +1415,44 @@
   }
   function hqSheet() {
     const inv = [...hq.invoices].sort((a, b) => b.date.localeCompare(a.date)), pays = [...hq.payments].sort((a, b) => b.date.localeCompare(a.date)), ow = hqOwe();
+    const alloc = SC_FIN.allocate(hq.invoices, hq.payments);
     openModal(`<span class="kicker">Invois & bayaran HQ</span><h2 class="${ow > 0.004 ? 'neg' : 'pos'}">${ow > 0.004 ? 'Baki ' + RM(ow) : 'Tiada hutang ✓'}</h2>
-      <p class="sec-h">Invois</p><div class="clist">${inv.map((v) => `<div class="payrow"><span><b>${esc(v.code)} · ${RM(v.amount)}</b><small>${esc(fmtDate(v.date))} · ${v.total} biji · ${esc(v.status)}${v.missing ? ' · harga HQ belum lengkap' : ''}</small></span></div>`).join('') || '<p class="none">Tiada invois.</p>'}</div>
+      <p class="sec-h">Invois</p><div class="clist">${inv.map((v) => { const al = alloc[v.code] || {}; return `<div class="payrow"><span><b>${esc(v.code)} · ${RM(v.amount)}</b><small>${esc(fmtDate(v.date))} · ${v.total} biji · ${esc(v.status)}${v.disc ? ' · diskaun HQ ' + RM(v.disc) : ''}${v.missing ? ' · harga HQ belum lengkap' : ''}${al.status === 'Separa' ? ' · baki ' + RM(al.due) : ''}</small></span>${SC_FIN.payPill(al.status || 'Belum bayar')}</div>`; }).join('') || '<p class="none">Tiada invois.</p>'}</div>
       <p class="sec-h">Bayaran direkod oleh HQ</p><div class="clist">${pays.map((y) => `<div class="payrow"><span><b>${RM(y.amount)}</b><small>${esc(fmtDate(y.date))}${y.note ? ' · ' + esc(y.note) : ''}</small></span><span class="pill st-Siap">Diterima</span></div>`).join('') || '<p class="none">Belum ada bayaran.</p>'}</div>
       <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-close>Tutup</button></div>`);
   }
-  $('m-hq').onclick = hqSheet;
+  $('m-hq').onclick = () => go('pg-invois');
+
+  /* ---------- requests to HQ (approval) ---------- */
+  const RQ_T = { batal: 'Batalkan order', diskaun: 'Diskaun invois', lain: 'Lain-lain' };
+  async function reqSheet(pre) {
+    let L = []; try { L = (await API.spRequests()).requests || []; } catch (err) { return toast(err.message, true); }
+    const open = mine.filter((o) => o.status !== 'Dibatalkan').sort((a, b) => b.date.localeCompare(a.date));
+    const opt = (sel) => open.map((o) => `<option value="${esc(o.code)}"${o.code === sel ? ' selected' : ''}>${esc(o.code)} · ${esc(fmtDate(o.date))} · ${o.total} biji · ${esc(o.status)}</option>`).join('');
+    openModal(`<span class="kicker">Kelulusan HQ</span><h2>Permintaan ke HQ</h2>
+      <p class="muted" style="margin:4px 0 10px">Untuk perkara yang perlukan kelulusan HQ — cth. batalkan order yang dah dibakar, atau minta diskaun invois.</p>
+      <form id="rq-f" class="fields" novalidate>
+        <label class="f">Jenis<select class="inp" id="rq-type">${Object.entries(RQ_T).map(([k, v]) => `<option value="${k}"${pre && pre.type === k ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
+        <label class="f" id="rq-ref-w">Order<select class="inp" id="rq-ref">${opt(pre && pre.ref)}</select></label>
+        <label class="f hidden" id="rq-amt-w">Jumlah diskaun (RM)<input class="inp" id="rq-amt" inputmode="decimal" placeholder="0.00"></label>
+        <label class="f">Sebab<textarea class="inp" id="rq-why" rows="3" placeholder="Terangkan kepada HQ…"></textarea></label>
+        <button class="btn btn-p btn-block" type="submit" id="rq-go">Hantar permintaan</button>
+      </form>
+      <p class="sec-h">Permintaan saya</p><div class="clist">${L.map((r) => `<div class="payrow"><span><b>${esc(r.id)} · ${esc(RQ_T[r.type] || r.type)}${r.ref ? ' · ' + esc(r.ref) : ''}</b><small>${esc(r.at)}${r.type === 'diskaun' ? ' · ' + RM(r.amount) : ''} · ${esc(r.detail)}</small>${r.reason ? `<small>HQ: ${esc(r.reason)}</small>` : ''}</span>
+        <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="pill ${r.status === 'Menunggu' ? 'st-Baru' : r.status === 'Diluluskan' ? 'st-Siap' : 'st-Dibatalkan'}">${esc(r.status)}</span>${r.status === 'Menunggu' ? `<button class="linkbtn" type="button" data-rqx="${esc(r.id)}">Tarik balik</button>` : ''}</span></div>`).join('') || '<p class="none">Belum ada permintaan.</p>'}</div>
+      <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-close>Tutup</button></div>`);
+    const sync = () => { const t = $('rq-type').value; $('rq-ref-w').classList.toggle('hidden', t === 'lain'); $('rq-amt-w').classList.toggle('hidden', t !== 'diskaun'); };
+    $('rq-type').onchange = sync; sync();
+    $('rq-f').onsubmit = async (e) => { e.preventDefault(); const t = $('rq-type').value; $('rq-go').disabled = true;
+      try { await API.spAddRequest({ type: t, ref: t === 'lain' ? '' : $('rq-ref').value, amount: num($('rq-amt').value) || 0, detail: $('rq-why').value.trim() });
+        toast('Permintaan dihantar ke HQ.'); hq.pending++; renderProfileExtra(); reqSheet(); } catch (err) { toast(err.message, true); $('rq-go').disabled = false; } };
+    document.querySelectorAll('[data-rqx]').forEach((b) => b.onclick = async () => { try { await API.spCancelRequest(b.dataset.rqx); hq.pending = Math.max(0, hq.pending - 1); renderProfileExtra(); reqSheet(); } catch (err) { toast(err.message, true); } });
+  }
+  $('m-req').onclick = () => go('pg-minta');
+  $('m-logoutall').onclick = async () => {
+    if (!confirm('Log keluar akaun ini dari semua telefon / komputer lain? Peranti ini kekal log masuk.')) return;
+    try { const { token } = await API.spLogoutAll(); store.set('sp-tok', token); API.setSP(spSess(), token); toast('Peranti lain dah dilog keluar.'); } catch (err) { toast(err.message, true); }
+  };
   function pinSheet(first, thenProfile) {
     openModal(`<span class="kicker">Keselamatan akaun</span><h2>${first ? 'Cipta PIN anda' : 'Tukar PIN'}</h2>
       <p class="muted" style="margin:4px 0 14px">${first ? 'Untuk melindungi akaun <b>' + esc(spSess()) + '</b>, cipta PIN 4–6 digit. Anda perlukannya setiap kali log masuk di peranti baru.' : 'PIN baru akan log keluar peranti lain.'}</p>
@@ -1434,7 +1485,7 @@
   const qs = new URLSearchParams(location.search);
   // start on the tab named in the URL; older links (?tab=new, ?edit=SC-0001) still work
   const startParts = R.parts().length ? R.parts() : qs.get('edit') ? ['order', API.normCode(qs.get('edit'))] : qs.get('tab') && SLUG[qs.get('tab')] ? [SLUG[qs.get('tab')]] : [];
-  if (spSess()) { API.setSP(spSess(), store.get('sp-tok', '')); $('sp-code').value = spSess(); spLoginWith(spSess(), true); }
+  if (spSess()) { $('boot').classList.remove('hidden'); API.setSP(spSess(), store.get('sp-tok', '')); $('sp-code').value = spSess(); spLoginWith(spSess(), true).finally(() => $('boot').classList.add('hidden')); }
   else { showApp(false); if (window.SC_CONFIG.DEMO_RUN) $('sp-code').value = 'salesDemo'; }
 })();
 </script>

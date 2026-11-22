@@ -18,7 +18,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ordering/ordering.css?v=4">
+<link rel="stylesheet" href="ordering/ordering.css?v=5">
+<link rel="stylesheet" href="ordering/admin-desk.css?v=5">
 <style>
 .login{max-width:420px;margin:24px auto}
 .fbar{display:flex;gap:8px;overflow-x:auto;margin:0 -14px 14px;padding:0 14px;scrollbar-width:none}
@@ -156,8 +157,17 @@ button.del:disabled{opacity:.5;cursor:wait}
 .lgrow small{font-size:11px;color:var(--muted)}
 .lgrow span{color:var(--muted)}
 .pos{color:var(--ok)}
+.hq-alerts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.hq-alerts:empty{display:none}
+.hq-al{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;width:100%;border:1px solid #F0D9A8;background:#FFF6E5;color:#6A4A10;border-radius:16px;padding:10px 14px;cursor:pointer;font:inherit}
+.hq-al b{font-size:14px}.hq-al small{font-size:12px;opacity:.85}
+.hq-al.bad{background:#FDECEC;border-color:#F2C2C2;color:var(--bad)}
+.payrow.off{opacity:.55}
+.tg-bar{margin-top:4px}
 .pickhead{display:flex;justify-content:space-between;align-items:center;margin:0 2px 8px}
-.linkbtn.pk{color:var(--burgundy);font-size:13px}
+.linkbtn.pk{color:var(--burgundy);font-size:13px;min-height:40px;padding:0 6px}
+select.st{font-size:16px !important;height:42px}
+.oc-foot{flex-wrap:wrap}
 .pick{display:inline-flex;margin-right:8px;cursor:pointer}
 .pick input{position:absolute;opacity:0}
 .pick i{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);background:#fff;display:inline-block;position:relative}
@@ -199,6 +209,43 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 </style>
 </head>
 <body>
+<aside class="side" id="side" aria-label="Navigasi admin">
+  <div class="brand"><img src="img/logo-ngap.webp" alt="ngap soft cookies"><span>HQ<br>Admin</span><button class="side-min" type="button" id="side-min" aria-label="Kecilkan sidebar" title="Kecilkan / besarkan sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div>
+  <button class="side-k" type="button" id="side-k" title="Carian pantas (Ctrl+K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Cari apa sahaja…</span><kbd>Ctrl K</kbd></button>
+  <div class="sgrp" data-g="utama"><button class="sg" type="button" aria-expanded="true"><span>Utama</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><nav>
+      <button class="si" title="Dashboard" type="button" data-sp="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></button>
+      <button class="si" title="Order" type="button" data-sp="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>Order</span><span class="bd hidden" id="sb-new"></span></button>
+      <button class="si" title="Papan order" type="button" data-sp="kanban"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="10" rx="1.5"/><rect x="17" y="4" width="4" height="13" rx="1.5"/></svg><span>Papan order</span></button>
+      <button class="si" title="Jadual pengeluaran" type="button" data-so="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17h2"/></svg><span>Jadual pengeluaran</span><span class="bd hidden" id="sb-sched">!</span></button>
+  </nav></div>
+  <div class="sgrp" data-g="kewangan"><button class="sg" type="button" aria-expanded="true"><span>Kewangan</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><nav>
+      <button class="si" title="Invois &amp; bayaran" type="button" data-so="invoices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg><span>Invois &amp; bayaran</span><span class="bd hidden" id="sb-inv"></span></button>
+      <button class="si" title="Perbelanjaan" type="button" data-so="expenses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span>Perbelanjaan</span></button>
+      <button class="si" title="Laporan" type="button" data-sp="report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg><span>Laporan</span></button>
+  </nav></div>
+  <div class="sgrp" data-g="operasi"><button class="sg" type="button" aria-expanded="true"><span>Operasi HQ</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><nav>
+      <button class="si" title="Produk" type="button" data-so="products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9"/></svg><span>Produk</span></button>
+      <button class="si" title="Bahan &amp; stok" type="button" data-so="materials"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l-1 6H7L6 3Z"/><path d="M7 9v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9"/></svg><span>Bahan &amp; stok</span><span class="bd hidden" id="sb-low"></span></button>
+      <button class="si" title="Pembekal &amp; belian" type="button" data-so="purchases"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.5 11h11L21 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg><span>Pembekal &amp; belian</span></button>
+  </nav></div>
+  <div class="sgrp" data-g="rangkaian"><button class="sg" type="button" aria-expanded="true"><span>Rangkaian</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><nav>
+      <button class="si" title="Salesperson &amp; agent" type="button" data-sp="agents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg><span>Salesperson &amp; agent</span></button>
+      <button class="si" title="Pelanggan" type="button" data-so="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Pelanggan</span></button>
+      <button class="si" title="Sasaran" type="button" data-so="targets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg><span>Sasaran</span></button>
+      <button class="si" title="Kelulusan" type="button" data-so="approvals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Kelulusan</span><span class="bd hidden" id="sb-appr"></span></button>
+      <button class="si" title="Pengumuman" type="button" data-so="ann"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><span>Pengumuman</span></button>
+  </nav></div>
+  <div class="sgrp" data-g="sistem"><button class="sg" type="button" aria-expanded="true"><span>Sistem</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><nav>
+      <button class="si" title="Tetapan" type="button" data-sp="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span>Tetapan</span></button>
+      <button class="si" title="Akaun salesperson" type="button" data-so="sp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/></svg><span>Akaun salesperson</span></button>
+      <button class="si" title="Log aktiviti" type="button" data-so="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg><span>Log aktiviti</span></button>
+  </nav></div>
+  <div class="sme"><span class="av">HQ</span><span class="sme-t"><b>Admin HQ</b><small id="side-upd">ngap soft cookies</small></span><button type="button" data-so="logout" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg></button></div>
+</aside>
+<header class="topbar" id="topbar"><h1 id="tb-title">Dashboard</h1>
+  <label class="tb-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="tb-q" type="search" placeholder="Cari order, nama, telefon, kod…" aria-label="Cari order"></label>
+  <div class="tb-act"><button class="tb-ic" type="button" id="tb-refresh" aria-label="Muat semula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button><button class="tb-ic" type="button" id="tb-bell" aria-label="Notifikasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="bd hidden" id="tb-bd"></span></button><div class="tb-me"><span class="av">HQ</span><div><b>Admin HQ</b><small id="tb-upd">ngap soft cookies</small></div></div></div>
+</header>
 <header class="appbar">
   <div class="appbar-in">
     <div class="ttl"><small>ngap soft cookies · Admin</small><b id="app-title">Admin</b></div>
@@ -207,6 +254,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   </div>
 </header>
 
+<div id="boot" class="boot hidden" role="status" aria-live="polite"><img src="img/logo-ngap.webp" alt="ngap soft cookies"><span class="spin"></span><p>Memuatkan data HQ…</p></div>
 <div class="wrap">
   <div id="demo" class="demo hidden">Mod demo: data datang dari browser ini sahaja. Kata laluan demo: <b>admin</b>.</div>
 
@@ -228,21 +276,44 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 
     <!-- Ringkasan -->
     <section data-page="home">
-      <div class="stats">
-        <div class="stat"><b id="s-orders">0</b><span>Order</span></div>
-        <div class="stat"><b id="s-pcs">0</b><span>Jumlah biji</span></div>
-        <div class="stat"><b id="s-agents">0</b><span>Agent</span></div>
-        <div class="stat"><b id="s-hantar">0</b><span>Perlu hantar</span></div>
+      <div class="dh"><div><h1 id="greet">Selamat datang 👋</h1><p>Prestasi syarikat untuk <b id="d-plabel">bulan ini</b> · <span id="d-upd">memuatkan…</span></p></div>
+        <div class="pchips" id="pchips" role="group" aria-label="Tempoh">
+          <button type="button" data-per="today">Hari ini</button><button type="button" data-per="week">Minggu</button><button type="button" data-per="month">Bulan</button><button type="button" data-per="quarter">Suku</button><button type="button" data-per="year">Tahun</button><button type="button" data-per="custom">Julat</button>
+          <span class="pc-custom hidden" id="pc-custom"><input class="inp" type="date" id="pc-from" aria-label="Dari"><input class="inp" type="date" id="pc-to" aria-label="Hingga"></span>
+        </div></div>
+      <div id="hq-alerts" class="hq-alerts"></div>
+      <div class="kgrid">
+        <button class="kc kx " type="button" data-kpi="rev"><span class="ki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="kt"><small>Revenue (invois HQ)</small><b id="k-rev">–</b><em id="k-rev-s">–</em><span id="k-rev-sp"></span></span></button>
+        <button class="kc kx k3" type="button" data-kpi="exp"><span class="ki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span><span class="kt"><small>Perbelanjaan</small><b id="k-exp">–</b><em id="k-exp-s">–</em><span id="k-exp-sp"></span></span></button>
+        <button class="kc kx k5" type="button" data-kpi="net"><span class="ki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></span><span class="kt"><small>Untung bersih</small><b id="k-net">–</b><em id="k-net-s">–</em><span id="k-net-sp"></span></span></button>
+        <button class="kc kx k4" type="button" data-kpi="cash"><span class="ki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h3"/></svg></span><span class="kt"><small>Baki tunai</small><b id="k-cash">–</b><em id="k-cash-s">–</em></span></button>
+        <button class="kc kx k2" type="button" data-kpi="inv"><span class="ki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg></span><span class="kt"><small>Invois belum bayar</small><b id="k-inv">–</b><em id="k-inv-s">–</em></span></button>
       </div>
-      <section class="panel">
-        <div class="panel-h"><h2>Kalendar pengeluaran</h2><span class="r" id="cal-cap"></span></div>
-        <div class="cal" id="cal"></div>
-      </section>
-      <section class="panel">
-        <div class="panel-h"><h2>Perlu bake</h2><span class="r">Tanpa order batal</span></div>
-        <div class="bake" id="bake"></div>
-      </section>
-      <button class="btn btn-p btn-block" type="button" data-pdf><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg>Export PDF untuk kilang</button>
+      <div class="dgrid">
+        <section class="panel s2" id="p-trend"><div class="panel-h"><h2>Revenue vs perbelanjaan vs untung</h2><span class="r" id="p-trend-r">RM · ikut tarikh order</span></div><div id="d-trend"></div></section>
+        <section class="panel" id="p-exp"><div class="panel-h"><h2>Pecahan perbelanjaan</h2><span class="r">RM · termasuk kos bahan</span></div><div id="d-exp"></div></section>
+        <section class="panel s2" id="p-cash"><div class="panel-h"><h2>Tunai masuk vs keluar</h2><span class="r" id="p-cash-r">RM · ikut tarikh bayaran</span></div><div id="d-cash"></div></section>
+        <section class="panel" id="p-sp"><div class="panel-h"><h2>Jualan ikut salesperson</h2><span class="r">revenue invois HQ</span></div><div id="d-sp"></div></section>
+        <section class="panel s2" id="p-age"><div class="panel-h"><h2>Umur hutang salesperson</h2><span class="r" id="p-age-r">sehingga hari ini</span></div><div id="d-age"></div><div id="d-age-t" style="margin-top:12px"></div></section>
+        <section class="panel" id="p-appr"><div class="panel-h"><h2>Kelulusan menunggu</h2><button class="linkbtn pk" type="button" data-so="approvals">Semua →</button></div><div id="d-appr"></div></section>
+        <section class="panel s2" id="p-act"><div class="panel-h"><h2>Aktiviti terkini</h2><button class="linkbtn pk" type="button" data-so="log">Log penuh →</button></div><div id="d-act"></div></section>
+        <section class="panel" id="p-low"><div class="panel-h"><h2>Bahan stok rendah</h2><button class="linkbtn pk" type="button" data-so="materials">Stok →</button></div><div id="d-low"></div></section>
+        <p class="hub-h dg-h">Operasi harian</p>
+        <section class="panel s2"><div class="panel-h"><h2>Kalendar pengeluaran</h2><span class="r" id="cal-cap"></span></div><div class="cal" id="cal"></div></section>
+        <section class="panel"><div class="panel-h"><h2>Status order</h2><span class="r">tapisan semasa</span></div><div class="donut-w" id="donut"></div></section>
+        <section class="panel s2"><div class="panel-h"><h2>Order masuk</h2><span class="r">biji, ikut tarikh order dibuat</span></div><div id="bars"></div></section>
+        <section class="panel"><div class="panel-h"><h2>Minggu ini</h2><button class="linkbtn pk" type="button" data-sp="orders">Semua order →</button></div><div class="wk" id="wk"></div></section>
+        <section class="panel"><div class="panel-h"><h2>Salesperson</h2><button class="linkbtn pk" type="button" data-sp="agents">Lihat →</button></div><div class="spl" id="spl"></div></section>
+        <section class="panel s2"><div class="panel-h"><h2>Perlu bake</h2><span class="r">Tanpa order batal</span></div><div class="bake" id="bake"></div>
+          <button class="btn btn-p btn-block" type="button" data-pdf style="margin-top:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg>Export PDF untuk kilang</button></section>
+        <section class="panel s3"><div class="panel-h"><h2>Papan order</h2><button class="linkbtn pk" type="button" data-sp="kanban">Papan penuh →</button></div><div class="kb" id="kb-mini"></div></section>
+      </div>
+    </section>
+
+    <!-- Papan order (kanban) -->
+    <section data-page="kanban" class="hidden">
+      <p class="muted" style="margin:0 2px 12px;font-size:13px">Seret kad ke lajur lain untuk tukar status (di telefon, tekan butang <b>→</b> pada kad). Ikut tapisan tarikh semasa.</p>
+      <div class="kb" id="kb-full"></div>
     </section>
 
     <!-- Order -->
@@ -272,6 +343,23 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 
     <!-- Lagi -->
     <section data-page="more" class="hidden">
+      <div class="hub" id="hub"></div>
+      <div class="qgrid">
+        <button class="qg-t" type="button" data-so="invoices"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg></span><span>Invois</span></button>
+        <button class="qg-t" type="button" data-so="schedule"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><span>Jadual</span></button>
+        <button class="qg-t" type="button" data-sp="agents"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg></span><span>Sales &amp; agent</span></button>
+        <button class="qg-t" type="button" data-so="approvals"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><b class="qg-b hidden" id="qg-appr"></b></span><span>Kelulusan</span></button>
+        <button class="qg-t" type="button" data-so="products"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9"/></svg></span><span>Produk</span></button>
+        <button class="qg-t" type="button" data-so="materials"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l-1 6H7L6 3Z"/><path d="M7 9v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9"/></svg><b class="qg-b hidden" id="qg-low"></b></span><span>Bahan &amp; stok</span></button>
+        <button class="qg-t" type="button" data-so="purchases"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.5 11h11L21 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></span><span>Belian</span></button>
+        <button class="qg-t" type="button" data-so="expenses"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span><span>Perbelanjaan</span></button>
+        <button class="qg-t" type="button" data-so="targets"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span><span>Sasaran</span></button>
+        <button class="qg-t" type="button" data-so="customers"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><span>Pelanggan</span></button>
+        <button class="qg-t" type="button" data-so="sp"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/></svg></span><span>Akaun sales</span></button>
+        <button class="qg-t" type="button" data-so="ann"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM15.5 8.5a5 5 0 0 1 0 7"/></svg></span><span>Pengumuman</span></button>
+        <button class="qg-t" type="button" data-so="price"><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg></span><span>Harga HQ</span></button>
+        <button class="qg-t" type="button" data-qpdf><span class="qg-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg></span><span>Laporan PDF</span></button>
+      </div>
       <p class="sec-h">Tetapan HQ</p>
       <div class="menu">
         <button class="mi" type="button" id="open-price"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg></span><span><b>Harga HQ &amp; kos bahan</b><small>Harga invois &amp; untung HQ</small></span></button>
@@ -279,12 +367,25 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
         <button class="mi" type="button" id="open-flav"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="14" r="1"/><circle cx="15" cy="9" r="1"/></svg></span><span><b>Perisa ada / habis</b><small>Tutup perisa yang habis stok</small></span></button>
         <button class="mi" type="button" id="open-hq"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg></span><span><b>Maklumat HQ</b><small id="hq-sum">Telefon WhatsApp untuk "Hubungi HQ"</small></span></button>
       </div>
-      <p class="sec-h">Salesperson</p>
-      <div class="menu">
+      <p class="sec-h dup">Produk &amp; stok</p>
+      <div class="menu dup">
+        <button class="mi" type="button" id="open-products"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9"/></svg></span><span><b>Produk</b><small>Tambah, edit, arkib &amp; resipi</small></span></button>
+        <button class="mi" type="button" id="open-materials"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l-1 6H7L6 3Z"/><path d="M7 9v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9"/></svg></span><span><b>Bahan mentah &amp; stok</b><small id="mat-sum">Lejar stok, rosak, pelarasan</small></span></button>
+        <button class="mi" type="button" id="open-purchases"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.5 11h11L21 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></span><span><b>Pembekal &amp; belian</b><small>Belian masuk stok, hutang pembekal</small></span></button>
+      </div>
+      <p class="sec-h dup">Kewangan</p>
+      <div class="menu dup">
+        <button class="mi" type="button" id="open-expenses"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span><span><b>Perbelanjaan HQ</b><small>Packaging, penghantaran, sewa…</small></span></button>
+      </div>
+      <p class="sec-h dup">Salesperson</p>
+      <div class="menu dup">
+        <button class="mi" type="button" id="open-approvals"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span><b>Kelulusan</b><small id="appr-sum">Permintaan dari salesperson</small></span></button>
+        <button class="mi" type="button" id="open-targets"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span><span><b>Sasaran bulanan</b><small>Biji sebulan setiap salesperson</small></span></button>
+        <button class="mi" type="button" id="open-customers"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg></span><span><b>Semua pelanggan</b><small>Seluruh rangkaian salesperson &amp; agent</small></span></button>
         <button class="mi" type="button" id="open-sp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/></svg></span><span><b>Salesperson</b><small>Kod, status, PIN, terakhir aktif</small></span></button>
       </div>
-      <p class="sec-h">Komunikasi</p>
-      <div class="menu">
+      <p class="sec-h dup">Komunikasi</p>
+      <div class="menu dup">
         <button class="mi" type="button" id="open-ann"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span><span><b>Pengumuman</b><small id="ann-sum">Ikut sasaran: semua / salesperson / agent</small></span></button>
       </div>
       <p class="sec-h">Laporan &amp; export</p>
@@ -294,6 +395,10 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
         <button class="mi" type="button" id="export"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span><span><b>Export CSV</b><small>Untuk Excel / Google Sheets</small></span></button>
         <button class="mi" type="button" id="open-filter2"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><span><b>Tapisan</b><small id="filter-sum">Semua tarikh</small></span></button>
         <button class="mi" type="button" id="open-log"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg></span><span><b>Log aktiviti</b><small>Siapa buat apa, bila</small></span></button>
+      </div>
+      <p class="sec-h">Keselamatan</p>
+      <div class="menu">
+        <button class="mi" type="button" id="open-security"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><span><b>Kata laluan &amp; backup</b><small>Tukar kata laluan, muat turun backup</small></span></button>
       </div>
       <p class="sec-h">Bantuan</p>
       <div class="menu">
@@ -310,11 +415,11 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 
 <nav class="tabbar hidden" id="tabbar" role="tablist" aria-label="Menu">
   <div class="tabbar-in">
-    <button role="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Ringkasan</button>
-    <button role="tab" data-tab="orders" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Order<span class="badge hidden" id="badge"></span></button>
-    <button role="tab" data-tab="agents" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>Sales</button>
-    <button role="tab" data-tab="report" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Laporan</button>
-    <button role="tab" data-tab="more" aria-selected="false"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>Lagi</button>
+    <button role="tab" data-tab="orders" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>Order</span><span class="badge hidden" id="badge">0</span></button>
+    <button role="tab" data-tab="kanban" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="10" rx="1.5"/><rect x="17" y="4" width="4" height="13" rx="1.5"/></svg><span>Papan</span></button>
+    <button role="tab" class="center" data-tab="home" aria-selected="true" aria-label="Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8Z"/></svg></button>
+    <button role="tab" data-tab="report" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg><span>Laporan</span></button>
+    <button role="tab" data-tab="more" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>Lagi</span><span class="badge hidden" id="badge-more">0</span></button>
   </div>
 </nav>
 
@@ -353,6 +458,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 
 <div id="gsheet" class="modal hidden" role="dialog" aria-modal="true"><div class="sheet" id="gsheet-in"></div></div>
 
+<div id="cmdk" class="cmdk hidden" role="dialog" aria-modal="true" aria-label="Carian pantas"><div class="cmd-box"><input id="cmd-q" type="search" placeholder="Cari halaman, order, salesperson, produk…" aria-label="Cari"><div id="cmd-r" class="cmd-r"></div><p class="cmd-f">↑↓ pilih · Enter buka · Esc tutup</p></div></div>
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="pickbar" class="pickbar hidden"><div class="pickbar-in">
   <span><b id="pick-n">0</b> order · <b id="pick-p">0</b> biji</span>
@@ -362,10 +468,15 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 </div></div>
 <div id="print" aria-hidden="true"></div>
 
-<script src="ordering/config.js?v=10"></script>
-<script src="ordering/api.js?v=10"></script>
+<script src="ordering/config.js?v=11"></script>
+<script src="ordering/api.js?v=11"></script>
 <script src="ordering/router.js?v=1"></script>
-<script src="ordering/apphelp.js?v=1"></script>
+<script src="ordering/apphelp.js?v=2"></script>
+<script src="ordering/finance.js?v=1"></script>
+<script src="ordering/customers.js?v=1"></script>
+<script src="ordering/hq.js?v=1"></script>
+<script src="ordering/charts.js?v=2"></script>
+<script src="ordering/metrics.js?v=1"></script>
 <script>
 (function () {
   const { FLAVOURS, STATUSES } = window.SC_CONFIG;
@@ -377,17 +488,24 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
                  set(v) { try { v ? sessionStorage.setItem('sc-admin-pw', v) : sessionStorage.removeItem('sc-admin-pw'); } catch (e) {} } };
   const ICON_WA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>';
   const ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
-  const TITLES = { home: 'Ringkasan', orders: 'Order', agents: 'Salesperson & Agent', report: 'Laporan Director', more: 'Lagi' };
+  const TITLES = { home: 'Dashboard', orders: 'Order', kanban: 'Papan order', agents: 'Salesperson & Agent', report: 'Laporan Director', more: 'Lagi',
+    'mod-products': 'Produk', 'mod-materials': 'Bahan & stok', 'mod-purchases': 'Pembekal & belian', 'mod-expenses': 'Perbelanjaan', 'mod-approvals': 'Kelulusan',
+    'mod-targets': 'Sasaran', 'mod-customers': 'Pelanggan', 'mod-sp': 'Akaun salesperson', 'mod-security': 'Keselamatan',
+    'mod-price': 'Harga HQ & kos', 'mod-cap': 'Kapasiti & tarikh tutup', 'mod-flav': 'Perisa ada / habis', 'mod-hqinfo': 'Maklumat HQ',
+    'mod-ann': 'Pengumuman', 'mod-log': 'Log aktiviti', 'mod-notif': 'Notifikasi', 'mod-invoices': 'Invois & bayaran', 'mod-schedule': 'Jadual pengeluaran' };
 
   if (API.DEMO) $('demo').classList.remove('hidden');
   STATUSES.forEach((s) => $('f-status').insertAdjacentHTML('beforeend', `<option>${s}</option>`));
 
-  let pw = sess.get(), orders = [], page = 'home', timer;
+  let pw = sess.get(), orders = [], page = 'home', timer, extra = { pwDefault: false, pending: 0 };
 
   // clean URLs: /admin, /admin/order, /admin/sales, /admin/laporan, /admin/lagi
-  const PSLUG = { home: '', orders: 'order', agents: 'sales', report: 'laporan', more: 'lagi' };
+  const PSLUG = { home: '', orders: 'order', kanban: 'papan', agents: 'sales', report: 'laporan', more: 'lagi',
+    'mod-products': 'produk', 'mod-materials': 'bahan', 'mod-purchases': 'belian', 'mod-expenses': 'perbelanjaan', 'mod-approvals': 'kelulusan',
+    'mod-targets': 'sasaran', 'mod-customers': 'pelanggan', 'mod-sp': 'salesperson', 'mod-security': 'keselamatan',
+    'mod-price': 'harga', 'mod-cap': 'kapasiti', 'mod-flav': 'perisa', 'mod-hqinfo': 'maklumat-hq', 'mod-ann': 'pengumuman', 'mod-log': 'log', 'mod-notif': 'notifikasi', 'mod-invoices': 'invois', 'mod-schedule': 'jadual' };
   const PAGE_OF = Object.fromEntries(Object.entries(PSLUG).filter(([, v]) => v).map(([k, v]) => [v, k]));
-  const R = SC_ROUTER('/admin', (parts) => { $('gsheet').classList.add('hidden'); if (!$('dash').classList.contains('hidden')) go(PAGE_OF[parts[0]] || 'home'); });
+  const R = SC_ROUTER('/admin', (parts) => { if (!$('dash').classList.contains('hidden')) go(PAGE_OF[parts[0]] || 'home'); else $('gsheet').classList.add('hidden'); });
   page = PAGE_OF[R.parts()[0]] || 'home';
   let firstLoad = true;
 
@@ -401,7 +519,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   });
   $('logout').onclick = () => { if (!confirm('Keluar dari admin?')) return; sess.set(null); pw = null; clearInterval(timer); show(false); };
   function show(on) {
-    $('login').classList.toggle('hidden', on); $('dash').classList.toggle('hidden', !on);
+    $('login').classList.toggle('hidden', on); $('dash').classList.toggle('hidden', !on); document.body.classList.toggle('authed', on);
     $('tabbar').classList.toggle('hidden', !on); $('filter-btn').classList.toggle('hidden', !on); $('refresh').classList.toggle('hidden', !on);
     $('app-title').textContent = on ? TITLES[page] : 'Admin';
     if (!on) $('pw').value = '';
@@ -410,14 +528,19 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   async function load(quiet) {
     const r = $('refresh'); r.style.opacity = .5;
     try {
-      const [res, tr, sp] = await Promise.all([API.adminList(pw), API.adminTree(pw).catch(() => null), API.adminSalespersons(pw).catch(() => null)]);
+      const [res, tr, sp, hq, an, lg] = await Promise.all([API.adminList(pw), API.adminTree(pw).catch(() => null), API.adminSalespersons(pw).catch(() => null), API.adminHQ(pw).catch(() => null), API.adminListAnnouncements(pw).catch(() => null), API.adminLog(pw).catch(() => null)]);
+      if (an) annList = an.announcements || [];
+      if (lg) logRows = lg.log || [];
+      hqOk = !!hq; lastLoad = new Date();
+      if (hq) SC_HQ.set(hq);
+      extra = { pwDefault: !!res.pwDefault, pending: res.pending || 0 };
       if (tr) tree = tr;
       if (sp) sps = sp.salespersons || [];
       invs = res.invoices || []; hqp = res.hqPayments || []; setts = res.settings || setts;
       orders = res.orders; show(true); draw();
       if (firstLoad) { firstLoad = false; go(page); }
       if (!quiet) $('toast').classList.add('hidden');
-      $('upd').textContent = 'Dikemas kini ' + new Date().toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+      $('upd').textContent = 'Dikemas kini ' + new Date().toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' }); $('tb-upd').textContent = $('upd').textContent; $('side-upd').textContent = $('upd').textContent;
       clearInterval(timer); timer = setInterval(() => load(true), 60000);
       return true;
     } catch (err) {
@@ -430,13 +553,26 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 
   /* ---------- tabs ---------- */
   document.querySelectorAll('#tabbar button').forEach((b) => b.onclick = () => go(b.dataset.tab));
+  // HQ modules open as full pages (/admin/produk, /admin/bahan, ...): the sheet is shown in page mode.
+  let rootNext = false, rootH2 = '';
+  const MODFN = () => ({ invoices: invoicesSheet, schedule: scheduleSheet, sp: spSheet, price: priceSheet, cap: capSheet, flav: flavSheet, hqinfo: hqSheet, ann: annSheet, log: logSheet, notif: notifSheet });
+  const SETTINGS_MODS = ['price', 'cap', 'flav', 'hqinfo', 'notif'];
+  const modOpen = (k) => () => { rootNext = true; (MODFN()[k] || SC_HQ.open[k])(); };
   function go(p) {
+    if (!TITLES[p]) p = 'home';
     page = p;
-    document.querySelectorAll('#tabbar button').forEach((x) => x.setAttribute('aria-selected', x.dataset.tab === p));
+    const mod = p.startsWith('mod-') ? p.slice(4) : '';
+    $('gsheet').classList.toggle('as-page', !!mod);
+    if (mod) { $('gsheet').scrollTop = 0; modOpen(mod)(); } else closeG();
+    document.querySelectorAll('#tabbar button').forEach((x) => x.setAttribute('aria-selected', x.dataset.tab === p || ((!!mod || p === 'agents') && x.dataset.tab === 'more')));
+    document.querySelectorAll('.side [data-sp]').forEach((x) => x.classList.toggle('on', x.dataset.sp === p));
+    document.querySelectorAll('.side [data-so]').forEach((x) => x.classList.toggle('on', 'mod-' + x.dataset.so === p));
+    if (SETTINGS_MODS.includes(mod)) document.querySelectorAll('.side [data-sp="more"]').forEach((x) => x.classList.add('on'));
+    $('tb-title').textContent = TITLES[p];
     document.querySelectorAll('[data-page]').forEach((s) => s.classList.toggle('hidden', s.dataset.page !== p));
     $('app-title').textContent = TITLES[p];
     window.scrollTo({ top: 0 });
-    $('fbar').classList.toggle('hidden', p === 'report' || p === 'more');
+    $('fbar').classList.toggle('hidden', p === 'report' || p === 'more' || p === 'home' || !!mod);
     if (p === 'report') renderReport();
     R.set(PSLUG[p] ? [PSLUG[p]] : []);
   }
@@ -511,21 +647,26 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   function draw() {
     drawFilterBar();
     const list = filtered(false), active = list.filter((o) => o.status !== 'Dibatalkan');
-    $('s-orders').textContent = active.length;
-    $('s-pcs').textContent = active.reduce((a, o) => a + o.total, 0);
-    $('s-agents').textContent = new Set(active.map((o) => o.phone)).size;
-    $('s-hantar').textContent = active.filter((o) => o.method === 'Hantar').length;
     const nNew = orders.filter((o) => o.status === 'Baru' || o.status === 'Dikemaskini').length;
     $('badge').textContent = nNew; $('badge').classList.toggle('hidden', !nNew);
+    { const rc = SC_MET.receivables(), cap = Number((setts || {}).capacity) || 0, t0 = todayIso(), hot = cap && [...Array(7)].some((_, i) => dayLoad(addD(t0, i)).pcs > cap);
+      $('sb-inv').textContent = rc.overdueCount; $('sb-inv').classList.toggle('hidden', !rc.overdueCount); $('sb-sched').classList.toggle('hidden', !hot); applySide(); }
+    { const H = SC_HQ.data(), nm = H.requests.filter((r) => r.status === 'Menunggu').length + H.materials.filter((m) => m.low).length;
+      $('badge-more').textContent = nm; $('badge-more').classList.toggle('hidden', !nm);
+      [['qg-appr', H.requests.filter((r) => r.status === 'Menunggu').length], ['qg-low', H.materials.filter((m) => m.low).length]].forEach(([id, n]) => { $(id).textContent = n; $(id).classList.toggle('hidden', !n); }); }
 
     const tot = {}; FLAVOURS.forEach((f) => (tot[f.id] = 0));
     active.forEach((o) => FLAVOURS.forEach((f) => (tot[f.id] += o.items[f.id] || 0)));
-    $('bake').innerHTML = [...FLAVOURS].sort((a, b) => (tot[b.id] > 0) - (tot[a.id] > 0))
+    $('bake').innerHTML = FLAVOURS.filter((f) => f.active !== false || tot[f.id]).sort((a, b) => (tot[b.id] > 0) - (tot[a.id] > 0))
       .map((f) => `<div class="bk${tot[f.id] ? '' : ' zero'}"><img src="${f.img}" alt=""><span class="nm">${esc(f.name)}</span><span class="n">${tot[f.id]}</span></div>`).join('');
 
+    $('hq-alerts').innerHTML = SC_HQ.homeAlerts(extra);
+    const pend = SC_HQ.data().requests.filter((r) => r.status === 'Menunggu').length, low = SC_HQ.data().materials.filter((m) => m.low).length;
+    $('appr-sum').textContent = pend ? pend + ' menunggu keputusan' : 'Tiada permintaan menunggu';
+    $('mat-sum').textContent = low ? low + ' bahan di bawah paras minimum' : SC_HQ.data().materials.length + ' bahan dijejak';
     drawOrders(filtered(true));
     drawAgents(active);
-    drawCalendar();
+    drawCalendar(); drawDash(list, active); drawKanban(); drawHub();
     if (page === 'report') renderReport();
   }
 
@@ -583,6 +724,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
         <div class="oc-who" style="margin:0"><b>${esc((spOf(a.phone) || {}).name || a.name || 'Salesperson')}</b><a href="https://wa.me/6${esc(a.phone)}" target="_blank" rel="noopener">${ICON_WA}${esc(a.phone)}</a></div>
         ${spOf(a.phone) ? `<div class="meta2" style="margin-top:2px">${esc(spOf(a.phone).code)} · terakhir aktif ${esc(spOf(a.phone).lastActive || 'belum pernah')}${spOf(a.phone).status !== 'Aktif' ? ' · TIDAK AKTIF' : ''}</div>` : ''}
         ${(() => { const h = spHQ(a.phone); return `<div class="hqline"><span>Invois <b>${RM(h.billed)}</b> · dibayar <b>${RM(h.paid)}</b> · baki <b class="${h.owe > 0.004 ? 'neg' : ''}">${RM(h.owe)}</b></span><button class="btn btn-o btn-sm" type="button" data-hqpay="${esc(a.phone)}">Bayaran HQ</button></div>`; })()}
+        ${SC_HQ.targetLine(a.phone)}
         <div class="oc-when">${a.orders} order${a.dates.size ? ' · ' + [...a.dates].sort().map((d) => esc(fmtDate(d))).join(', ') : ''}</div>
         ${itemsHTML(a.items)}
         <div class="oc-foot"><span class="tot">${a.total}<small>biji diorder</small></span></div>
@@ -720,9 +862,21 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   const spLabel = (phone) => { const s = spOf(phone); return s ? `${s.name} (${s.code})` : phone; };
   const pIn = (m, id) => { if (!m) return null; const it = (m.items || {})[id], v = it !== undefined && it !== '' && it !== null ? it : m.def; return v === '' || v === null || v === undefined ? null : Number(v); };
   const numv = (v) => { v = String(v ?? '').replace(',', '.').trim(); return v === '' ? '' : isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : null; };
-  function openG(html) { $('gsheet-in').innerHTML = html; $('gsheet').classList.remove('hidden'); }
-  function closeG() { $('gsheet').classList.add('hidden'); }
-  $('gsheet').addEventListener('click', (e) => { if (e.target === $('gsheet') || e.target.closest('[data-gclose]')) closeG(); });
+  const inPage = () => $('gsheet').classList.contains('as-page');
+  function openG(html) {
+    const mod = page.startsWith('mod-') ? page.slice(4) : '';
+    $('gsheet-in').innerHTML = (inPage() ? `<button class="pg-back" type="button" data-pgback>‹ Kembali</button>` : '') + html;
+    $('gsheet').classList.remove('hidden'); if (inPage()) $('gsheet').scrollTop = 0;
+    const h2 = ($('gsheet-in').querySelector('h2') || {}).textContent || '';
+    if (rootNext) { rootH2 = h2; rootNext = false; }
+    $('gsheet-in').classList.toggle('pg-root', !!mod && h2 === rootH2);
+  }
+  // In page mode "close" means: back to the module's main view (after a sub-view or a save), never an empty page.
+  function closeG() { if (inPage() && page.startsWith('mod-')) { modOpen(page.slice(4))(); return; } $('gsheet').classList.add('hidden'); }
+  $('gsheet').addEventListener('click', (e) => {
+    if (e.target.closest('[data-pgback]')) { if ($('gsheet-in').classList.contains('pg-root')) history.length > 1 ? history.back() : go('home'); else closeG(); return; }
+    if ((e.target === $('gsheet') && !inPage()) || e.target.closest('[data-gclose]')) closeG();
+  });
   async function saveSettings(patch, msg) {
     try { setts = (await API.adminSetSettings(pw, patch)).settings; closeG(); toast(msg || 'Tetapan disimpan.'); await load(true); }
     catch (err) { toast(err.message, true); }
@@ -750,14 +904,16 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
         <div><b>${esc(s.name)}</b> <span class="pill ${s.status === 'Aktif' ? 'st-Siap' : 'st-Dibatalkan'}">${esc(s.status)}</span>
           <small>${esc(s.code)} · ${s.phone ? esc(s.phone) : 'tiada telefon'} · ${s.hasPin ? 'PIN diset' : 'belum ada PIN'}</small>
           <small>Terakhir aktif: ${esc(s.lastActive || 'belum pernah')}</small></div>
-        <div class="sp-acts"><button class="btn btn-o btn-sm" type="button" data-spedit="${esc(s.code)}">Edit</button>${s.hasPin ? `<button class="btn btn-o btn-sm" type="button" data-sppin="${esc(s.code)}">Reset PIN</button>` : ''}</div></div>`).join('')}</div>
+        <div class="sp-acts"><button class="btn btn-o btn-sm" type="button" data-spedit="${esc(s.code)}">Edit</button>${s.hasPin ? `<button class="btn btn-o btn-sm" type="button" data-sppin="${esc(s.code)}">Reset PIN</button>` : ''}<button class="btn btn-o btn-sm" type="button" data-spend="${esc(s.code)}">Tamat sesi</button></div></div>`).join('')}</div>
       <form id="spadd" class="tg-form" style="margin-top:14px"><label>Tambah salesperson (nama)<input class="inp" id="spadd-name" placeholder="cth. Hakim" style="text-align:left"></label><button class="btn btn-p btn-sm" type="submit">Tambah</button></form>
       <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Tutup</button></div>`);
     $('spadd').onsubmit = async (e) => { e.preventDefault(); const name = $('spadd-name').value.trim(); if (!name) return toast('Isi nama.', true);
       try { const r = await API.adminSaveSalesperson(pw, { name }); toast(`Kod baru: ${r.code}`); sps = (await API.adminSalespersons(pw)).salespersons; spSheet(); } catch (err) { toast(err.message, true); } };
   }
   $('gsheet').addEventListener('click', async (e) => {
-    const ed = e.target.closest('[data-spedit]'), rp = e.target.closest('[data-sppin]');
+    const ed = e.target.closest('[data-spedit]'), rp = e.target.closest('[data-sppin]'), en = e.target.closest('[data-spend]');
+    if (en) { if (!confirm(`Log keluar ${en.dataset.spend} dari semua peranti?`)) return;
+      try { await API.adminEndSession(pw, en.dataset.spend); toast('Sesi ditamatkan. Mereka perlu log masuk semula.'); } catch (err) { toast(err.message, true); } }
     if (rp) { if (!confirm(`Reset PIN ${rp.dataset.sppin}? Mereka perlu cipta PIN baru semasa log masuk.`)) return;
       try { await API.adminResetPin(pw, rp.dataset.sppin); toast('PIN direset.'); sps = (await API.adminSalespersons(pw)).salespersons; spSheet(); } catch (err) { toast(err.message, true); } }
     if (ed) { const s = sps.find((x) => x.code === ed.dataset.spedit);
@@ -794,11 +950,17 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
     const s = setts || {};
     openG(`<h2>Maklumat HQ</h2><div class="fields" style="margin-top:10px">
       <label class="f">Telefon WhatsApp HQ <small>Salesperson tekan "Hubungi HQ" di Profil untuk WhatsApp nombor ini</small><input class="inp" id="hq-ph" type="tel" inputmode="tel" placeholder="cth. 0123456789" value="${esc(s.hqPhone || '')}"></label>
+      <p class="sec-h" style="margin:8px 0 0">Kewangan</p>
+      <div class="fields two"><label class="f">Baki pembukaan tunai &amp; bank (RM) <small>Jumlah semua akaun HQ pada tarikh di sebelah</small><input class="inp" id="hq-oc" inputmode="decimal" placeholder="cth. 5000.00" value="${esc((s.openingCash || {}).amount ?? '')}"></label>
+      <label class="f">Pada tarikh <small>Tunai masuk/keluar dikira selepas tarikh ini</small><input class="inp" id="hq-ocd" type="date" value="${esc((s.openingCash || {}).date || '')}"></label></div>
+      <label class="f">Tempoh bayar invois HQ (hari) <small>Invois dikira tertunggak selepas tempoh ini dari tarikh order</small><input class="inp" id="hq-term" type="number" inputmode="numeric" min="0" max="120" value="${esc(s.invoiceTermDays ?? 14)}"></label>
       <div class="acts"><button class="btn btn-o" type="button" data-gclose>Batal</button><button class="btn btn-p" type="button" id="hq-save">Simpan</button></div></div>`);
     $('hq-save').onclick = () => {
       const v = $('hq-ph').value.replace(/\D/g, '');
       if (v && !/^0\d{8,10}$/.test(v)) return toast('Nombor telefon tak sah (cth. 0123456789).', true);
-      saveSettings({ hqPhone: v }, 'Telefon HQ disimpan.');
+      const oc = $('hq-oc').value.trim().replace(',', '.'), ocd = $('hq-ocd').value;
+      if (oc && (isNaN(Number(oc)) || !ocd)) return toast('Isi baki pembukaan (nombor) dan tarikhnya.', true);
+      saveSettings({ hqPhone: v, openingCash: { amount: oc === '' ? '' : Number(oc), date: oc === '' ? '' : ocd }, invoiceTermDays: Number($('hq-term').value) || 0 }, 'Maklumat HQ disimpan.');
     };
   }
   function capSheet() {
@@ -863,7 +1025,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
       ${s ? `<div class="fields"><div class="fields two"><label class="f">Jumlah (RM)<input class="inp" id="hq-amt" inputmode="decimal" value="${h.owe > 0 ? h.owe.toFixed(2) : ''}"></label><label class="f">Tarikh<input class="inp" id="hq-date" type="date" value="${todayIso()}"></label></div>
         <label class="f">Nota<input class="inp" id="hq-note" placeholder="cth. transfer Maybank"></label><button class="btn btn-p btn-block" type="button" id="hq-go">Rekod bayaran</button></div>` : '<p class="warnbox">Telefon ini tiada akaun salesperson.</p>'}
       <p class="sec-h" style="margin-top:14px">Bayaran</p><div class="clist">${h.py.sort((a, b) => b.date.localeCompare(a.date)).map((y) => `<div class="payrow"><span><b>${RM(y.amount)}</b><small>${esc(fmtDate(y.date))}${y.note ? ' · ' + esc(y.note) : ''} · ${esc(y.id)}</small></span><button class="linkbtn" type="button" data-hqdel="${esc(y.id)}">Padam</button></div>`).join('') || '<p class="muted">Belum ada bayaran.</p>'}</div>
-      <p class="sec-h">Invois</p><div class="clist">${h.iv.sort((a, b) => b.date.localeCompare(a.date)).map((v) => `<div class="payrow"><span><b>${esc(v.code)} · ${RM(v.amount)}</b><small>${esc(fmtDate(v.date))} · ${v.total} biji · ${esc(v.status)}${v.missing ? ' · harga HQ belum lengkap' : ''}</small></span></div>`).join('') || '<p class="muted">Tiada invois.</p>'}</div>
+      <p class="sec-h">Invois</p><div class="clist">${h.iv.sort((a, b) => b.date.localeCompare(a.date)).map((v) => { const al = SC_FIN.allocate(invs, hqp)[v.code] || {}; return `<div class="payrow"><span><b>${esc(v.code)} · ${RM(v.amount)}</b><small>${esc(fmtDate(v.date))} · ${v.total} biji · ${esc(v.status)}${v.disc ? ' · diskaun ' + RM(v.disc) : ''}${v.missing ? ' · harga HQ belum lengkap' : ''}${al.status === 'Separa' ? ' · baki ' + RM(al.due) : ''}</small></span>${SC_FIN.payPill(al.status || 'Belum bayar')}</div>`; }).join('') || '<p class="muted">Tiada invois.</p>'}</div>
       <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Tutup</button></div>`);
     const go2 = $('hq-go'); if (go2) go2.onclick = async () => { const v = numv($('hq-amt').value); if (!v) return toast('Isi jumlah bayaran.', true);
       try { await API.adminAddHQPayment(pw, { sp: s.code, amount: v, date: $('hq-date').value, note: $('hq-note').value.trim() }); toast('Bayaran direkod.'); await load(true); hqPaySheet(phone); } catch (err) { toast(err.message, true); } };
@@ -879,10 +1041,10 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   const linesSold = (rec, id, q) => { let s = 0, rv = 0; ((rec[id] || {}).lines || []).forEach((l) => { const n = Math.max(0, Math.min(q - s, Math.floor(Number(l.qty)) || 0)); s += n; rv += n * (Number(l.price) || 0); }); return { s, rv }; };
   function monthStats(m) {
     const os = orders.filter((o) => o.status !== 'Dibatalkan' && monthOf(o.date) === m);
-    let rev = 0, cost = 0, pcs = 0, missingCost = false; const fl = {};
-    os.forEach((o) => { const v = invOf(o.code); rev += v ? v.amount : 0; pcs += o.total;
-      FLAVOURS.forEach((f) => { const q = o.items[f.id] || 0; if (!q) return; fl[f.id] = (fl[f.id] || 0) + q; const c = pIn(setts && setts.hqCost, f.id); if (c === null) missingCost = true; cost += q * (c || 0); }); });
-    const collected = hqp.filter((y) => monthOf(y.date) === m).reduce((a, y) => a + y.amount, 0);
+    // revenue, cost and cash come from the central metric dictionary (metrics.js)
+    const P = SC_MET.pnl(SC_MET.monthRange(m)), rev = P.rev, cost = P.cogs, pcs = P.pcs, missingCost = P.missing; const fl = {};
+    os.forEach((o) => FLAVOURS.forEach((f) => { const q = o.items[f.id] || 0; if (q) fl[f.id] = (fl[f.id] || 0) + q; }));
+    const collected = SC_MET.cashIn(SC_MET.monthRange(m));
     const bySp = {}; os.forEach((o) => { const b = bySp[o.phone] = bySp[o.phone] || { phone: o.phone, pcs: 0, rev: 0, orders: 0 }; b.pcs += o.total; b.orders++; b.rev += invOf(o.code) ? invOf(o.code).amount : 0; });
     return { os, rev, cost, profit: rev - cost, margin: rev ? (rev - cost) / rev * 100 : null, pcs, fl, collected, bySp, missingCost };
   }
@@ -905,45 +1067,78 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   }
   let repMonth = monthOf(todayIso());
   function renderReport() {
-    const m = repMonth, a = monthStats(m), b = monthStats(prevMonth(m));
+    const m = repMonth, a = monthStats(m), b = monthStats(prevMonth(m)), CH = SC_CHART, CC = CH.C, pl = SC_HQ.pnl(m);
     const owed = invs.reduce((x, v) => x + v.amount, 0) - hqp.reduce((x, y) => x + y.amount, 0);
-    const growth = b.rev ? (a.rev - b.rev) / b.rev * 100 : null;
-    const months = [...Array(12)].map((_, i) => { let x = m; for (let k = 0; k < 11 - i; k++) x = prevMonth(x); return x; });
-    const ms = months.map((x) => ({ x, s: monthStats(x) })), max = Math.max(1, ...ms.map((y) => y.s.rev));
-    const top = FLAVOURS.filter((f) => a.fl[f.id]).sort((p, q) => a.fl[q.id] - a.fl[p.id]), topMax = top.length ? a.fl[top[0].id] : 1;
+    const back = (n) => { let x = m; const out = []; for (let k = 0; k < n; k++) { out.unshift(x); x = prevMonth(x); } return out; };
+    const m6 = back(6).map((x) => ({ x, s: monthStats(x) })), m12 = back(12).map((x) => ({ x, s: monthStats(x) }));
+    const mShort = (x) => new Date(+x.slice(0, 4), +x.slice(5) - 1, 1).toLocaleDateString('ms-MY', { month: 'short' });
+    const delta = (cur, prev) => prev ? (cur - prev) / Math.abs(prev) * 100 : null;
+    const dTxt = (d) => d === null ? '<em>tiada data bulan lepas</em>' : `<em class="${d >= 0 ? 'up' : 'down'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d).toFixed(1)}% vs bulan lepas</em>`;
+    const tile = (label, val, d, sp, color) => `<div class="st-t"><small>${label}</small><b>${val}</b>${d}${sp ? CH.spark(sp, color) : ''}</div>`;
+    const noPrice = !(setts && (setts.hqPrice.def !== '' || Object.keys(setts.hqPrice.items || {}).length));
+    // weeks of the month (1–7, 8–14, 15–21, 22–28, 29+)
+    const [yy, mm] = m.split('-').map(Number), last = new Date(yy, mm, 0).getDate(), nW = last > 28 ? 5 : 4;
+    const wk = (iso) => Math.min(nW - 1, Math.floor((+iso.slice(8, 10) - 1) / 7));
+    const wLabels = [...Array(nW)].map((_, i) => `${i * 7 + 1}–${i === nW - 1 ? last : i * 7 + 7}`);
+    const wRev = Array(nW).fill(0), wCost = Array(nW).fill(0), wIn = Array(nW).fill(0), wOut = Array(nW).fill(0);
+    const H = SC_HQ.data();
+    for (let i = 0; i < nW; i++) { const r = [`${m}-${String(i * 7 + 1).padStart(2, '0')}`, `${m}-${String(i === nW - 1 ? last : i * 7 + 7).padStart(2, '0')}`]; wIn[i] = SC_MET.cashIn(r); wOut[i] = SC_MET.cashOut(r); wRev[i] = SC_MET.revenue(r); wCost[i] = SC_MET.cogs(r).value; }
+    const st = networkStock();
+    const tg = (setts && setts.targets) || {}, tgSum = Object.values(tg).reduce((x, v) => x + v, 0);
+    const tgDone = sps.filter((s) => tg[s.code]).reduce((x, s) => x + orders.filter((o) => o.phone === s.phone && o.status !== 'Dibatalkan' && monthOf(o.date) === m).reduce((y, o) => y + o.total, 0), 0);
     const spRank = Object.values(a.bySp).sort((p, q) => q.rev - p.rev || q.pcs - p.pcs);
+    const top = FLAVOURS.filter((f) => a.fl[f.id]).sort((p, q) => a.fl[q.id] - a.fl[p.id]).slice(0, 8);
     const agRank = tree.agents.map((g) => { let sale = 0, sold = 0; tree.dists.filter((d) => d.agent === g.code && monthOf(d.date) === m).forEach((d) => {
       const rec = (tree.sales[d.code] || {}).items || {}; FLAVOURS.forEach((f) => { const q = (d.items[f.id] || {}).qty || 0; if (!q) return; const r = linesSold(rec, f.id, q); sale += r.rv; sold += r.s; }); });
-      return { g, sale, sold }; }).filter((x) => x.sold).sort((p, q) => q.sale - p.sale).slice(0, 10);
-    const st = networkStock(), noPrice = !(setts && (setts.hqPrice.def !== '' || Object.keys(setts.hqPrice.items || {}).length));
+      return { g, sale, sold }; }).filter((x) => x.sold).sort((p, q) => q.sale - p.sale).slice(0, 8);
+    // heatmap: weekday × last 8 weeks (by pick-up / delivery date)
+    const endIso = m >= monthOf(todayIso()) ? todayIso() : `${m}-${String(last).padStart(2, '0')}`;
+    const [ey, em, ed] = endIso.split('-').map(Number), endD = new Date(ey, em - 1, ed), mon = new Date(endD); mon.setDate(endD.getDate() - ((endD.getDay() + 6) % 7));
+    const wkStarts = [...Array(8)].map((_, i) => { const d = new Date(mon); d.setDate(mon.getDate() - (7 - i) * 7 + 7); return d; });
+    const cells = [...Array(7)].map(() => Array(8).fill(0));
+    orders.filter((o) => o.status !== 'Dibatalkan').forEach((o) => { const [y, mo, d] = o.date.split('-').map(Number), t = new Date(y, mo - 1, d);
+      const wi = wkStarts.findIndex((w0) => t >= w0 && t < new Date(w0.getFullYear(), w0.getMonth(), w0.getDate() + 7)); if (wi < 0) return; cells[(t.getDay() + 6) % 7][wi] += o.total; });
     $('report').innerHTML = `
-      <div class="rp-month"><button class="ibtn2" type="button" data-mv="-1">‹</button><b>${esc(monthName(m))}</b><button class="ibtn2" type="button" data-mv="1"${m >= monthOf(todayIso()) ? ' disabled' : ''}>›</button></div>
+      <div class="rp-top"><div class="rp-month"><button class="ibtn2" type="button" data-mv="-1" aria-label="Bulan sebelum">‹</button><b>${esc(monthName(m))}</b><button class="ibtn2" type="button" data-mv="1"${m >= monthOf(todayIso()) ? ' disabled' : ''} aria-label="Bulan seterusnya">›</button></div>
+        <div class="rp-act"><button class="btn btn-o btn-sm" type="button" id="rp-csv">CSV</button><button class="btn btn-p btn-sm" type="button" id="rp-pdf">PDF bulanan</button></div></div>
       ${noPrice ? '<div class="warnbox">Harga HQ belum diset — revenue dikira RM0. Set di <b>Lagi → Harga HQ &amp; kos bahan</b>.</div>' : ''}
-      <div class="kpis">
-        <div class="kpi hl"><span>Revenue HQ</span><b>${RM(a.rev)}</b><small>${growth === null ? 'tiada data bulan lepas' : (growth >= 0 ? '▲ ' : '▼ ') + Math.abs(growth).toFixed(1) + '% berbanding bulan lepas'}</small></div>
-        <div class="kpi"><span>Kos bahan</span><b>${a.missingCost ? '–' : RM(a.cost)}</b><small>${a.pcs} biji</small></div>
-        <div class="kpi"><span>Untung HQ</span><b class="${a.profit < 0 ? 'neg' : ''}">${a.missingCost ? '–' : RM(a.profit)}</b><small>Margin ${a.missingCost || a.margin === null ? '–' : a.margin.toFixed(1) + '%'}</small></div>
-        <div class="kpi"><span>Kutipan bulan ini</span><b>${RM(a.collected)}</b><small>bayaran salesperson</small></div>
-        <div class="kpi"><span>Belum dikutip</span><b class="${owed > 0.004 ? 'neg' : ''}">${RM(owed)}</b><small>semua salesperson</small></div>
-        <div class="kpi"><span>Order</span><b>${a.os.length}</b><small>${Object.keys(a.bySp).length} salesperson aktif</small></div>
+      <div class="st-grid">
+        ${tile('Revenue HQ', RM(a.rev), dTxt(delta(a.rev, b.rev)), m6.map((y) => y.s.rev), CC.rev)}
+        ${tile('Untung bersih', a.missingCost ? '–' : RM(pl.net), `<em>margin ${pl.margin === null ? '–' : pl.margin.toFixed(1) + '%'}</em>`, m6.map((y) => SC_HQ.pnl(y.x).net), CC.profit)}
+        ${tile('Kos bahan', a.missingCost ? '–' : RM(a.cost), `<em>${a.pcs} biji</em>`, m6.map((y) => y.s.cost), CC.cost)}
+        ${tile('Kutipan', RM(a.collected), dTxt(delta(a.collected, b.collected)), m6.map((y) => y.s.collected), CC.rev)}
+        ${tile('Belum dikutip', `<span class="${owed > 0.004 ? 'neg' : ''}">${RM(owed)}</span>`, '<em>semua salesperson</em>', null)}
+        ${tile('Order', String(a.os.length), `<em>${Object.keys(a.bySp).length} salesperson aktif</em>`, m6.map((y) => y.s.os.length), CC.rev)}
       </div>
-      <section class="panel"><div class="panel-h"><h2>Trend 12 bulan</h2><span class="r">Revenue HQ</span></div>
-        <div class="trend12">${ms.map((y) => `<div class="tc${y.x === m ? ' now' : ''}"><small>${y.x === m && y.s.rev ? RMk(y.s.rev) : ''}</small><span class="tb"><i style="height:${y.s.rev / max * 100}%"></i></span><span>${esc(new Date(+y.x.slice(0, 4), +y.x.slice(5) - 1, 1).toLocaleDateString('ms-MY', { month: 'short' }))}</span></div>`).join('')}</div></section>
-      <section class="panel"><div class="panel-h"><h2>Sell-through rangkaian</h2><span class="r">Semua stok sehingga hari ini</span></div>
-        <div class="tg-bar big"><i style="width:${st.pct}%"></i></div>
-        <p style="margin:8px 0 4px;font-size:14px"><b>${st.pct.toFixed(0)}%</b> stok dah sampai ke pelanggan (${st.sold} daripada ${st.taken} biji)</p>
-        <div class="minis" style="margin:8px 0 0"><div class="mini"><b>${st.heldSp}</b><span>Di tangan salesperson</span></div><div class="mini"><b>${st.heldAg}</b><span>Di tangan agent</span></div><div class="mini"><b>${st.sold}</b><span>Terjual</span></div></div></section>
-      <section class="panel"><div class="panel-h"><h2>Amaran stok lama</h2><span class="r">Lebih ${st.age} hari</span></div>
-        ${st.old.length ? `<div class="clist">${st.old.slice(0, 12).map((x) => `<div class="payrow"><span><b>${esc(x.who)}</b><small>${esc(x.ref)} · ${esc(fmtDate(x.date))}</small></span><span class="pill st-Dikemaskini">${x.left} belum terjual</span></div>`).join('')}</div>` : '<p class="muted" style="margin:0">Tiada stok lama. 👍</p>'}</section>
-      <section class="panel"><div class="panel-h"><h2>Perisa terlaris</h2><span class="r">${a.pcs} biji</span></div>
-        ${top.length ? `<div class="best">${top.slice(0, 6).map((f, i) => `<div class="best-r"><span class="rk">${i + 1}</span><img src="${f.img}" alt=""><span class="bn"><b>${esc(f.name)}</b><i style="width:${a.fl[f.id] / topMax * 100}%"></i></span><b class="bq">${a.fl[f.id]}</b></div>`).join('')}</div>` : '<p class="muted" style="margin:0">Tiada order.</p>'}</section>
-      <section class="panel"><div class="panel-h"><h2>Ranking salesperson</h2></div>
-        ${spRank.length ? `<div class="clist">${spRank.map((r, i) => { const h = spHQ(r.phone); return `<div class="payrow"><span><b>${i + 1}. ${esc(spLabel(r.phone))}</b><small>${r.orders} order · ${r.pcs} biji · baki hutang ${RM(h.owe)}</small></span><b>${RM(r.rev)}</b></div>`; }).join('')}</div>` : '<p class="muted" style="margin:0">Tiada order.</p>'}</section>
-      <section class="panel"><div class="panel-h"><h2>Ranking agent</h2><span class="r">Jualan ke pelanggan</span></div>
-        ${agRank.length ? `<div class="clist">${agRank.map((r, i) => `<div class="payrow"><span><b>${i + 1}. ${esc(r.g.name)}</b><small>${esc(r.g.code)} · ${esc(spLabel(r.g.sp))} · ${r.sold} biji</small></span><b>${RM(r.sale)}</b></div>`).join('')}</div>` : '<p class="muted" style="margin:0">Tiada jualan agent direkod.</p>'}</section>
-      <button class="btn btn-p btn-block" type="button" id="rp-pdf">Laporan bulanan PDF</button>`;
-    $('report').querySelectorAll('[data-mv]').forEach((x) => x.onclick = () => { let mm = repMonth; if (x.dataset.mv === '-1') mm = prevMonth(mm); else { const [y, k] = mm.split('-').map(Number); const d = new Date(y, k, 1); mm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; } repMonth = mm; renderReport(); });
+      <div class="rgrid">
+        <section class="panel s2"><div class="panel-h"><h2>Minggu demi minggu</h2><span class="r">revenue, kos &amp; untung kasar</span></div><div id="ch-week"></div></section>
+        <section class="panel"><div class="panel-h"><h2>Pencapaian</h2><span class="r">bulan ini</span></div>
+          <div class="rings">${CH.ring(st.pct, 'Sell-through', `${st.sold}/${st.taken} biji`, CC.rev)}${CH.ring(pl.margin, 'Margin bersih', RM(pl.net), CC.profit)}${CH.ring(tgSum ? tgDone / tgSum * 100 : null, 'Sasaran HQ', tgSum ? `${tgDone}/${tgSum} biji` : 'belum diset', CC.cost)}</div>
+          <div class="minis" style="margin-top:12px"><div class="mini"><b>${st.heldSp}</b><span>Di salesperson</span></div><div class="mini"><b>${st.heldAg}</b><span>Di agent</span></div><div class="mini"><b>${st.sold}</b><span>Terjual</span></div></div></section>
+        <section class="panel s2"><div class="panel-h"><h2>Trend 12 bulan</h2><span class="r">revenue &amp; untung kasar (RM)</span></div><div id="ch-trend"></div></section>
+        <section class="panel"><div class="panel-h"><h2>Tunai</h2><span class="r">masuk vs keluar, ikut minggu</span></div><div id="ch-cash"></div></section>
+        ${SC_HQ.pnlHTML(m).replace('<section class="panel">', '<section class="panel s2">')}
+        <section class="panel"><div class="panel-h"><h2>Hari paling sibuk</h2><span class="r">biji, 8 minggu</span></div><div id="ch-heat"></div></section>
+        <section class="panel"><div class="panel-h"><h2>Ranking salesperson</h2><span class="r">revenue HQ</span></div><div id="ch-sp"></div></section>
+        <section class="panel"><div class="panel-h"><h2>Perisa terlaris</h2><span class="r">${a.pcs} biji</span></div><div id="ch-fl"></div></section>
+        <section class="panel"><div class="panel-h"><h2>Ranking agent</h2><span class="r">jualan ke pelanggan</span></div><div id="ch-ag"></div></section>
+        <section class="panel s3"><div class="panel-h"><h2>Amaran stok lama</h2><span class="r">Lebih ${st.age} hari</span></div>
+          ${st.old.length ? `<div class="clist">${st.old.slice(0, 12).map((x) => `<div class="payrow"><span><b>${esc(x.who)}</b><small>${esc(x.ref)} · ${esc(fmtDate(x.date))}</small></span><span class="pill st-Dikemaskini">${x.left} belum terjual</span></div>`).join('')}</div>` : '<p class="muted" style="margin:0">Tiada stok lama. 👍</p>'}</section>
+      </div>`;
+    const wProfit = wRev.map((v, i) => Math.round((v - wCost[i]) * 100) / 100);
+    CH.columns($('ch-week'), { labels: wLabels, title: 'Revenue, kos dan untung setiap minggu', fmt: RM, tipTitle: (i) => `Minggu ${i + 1} (${wLabels[i]} ${mShort(m)})`,
+      series: [{ name: 'Revenue', color: CC.rev, values: wRev }, { name: 'Kos bahan', color: CC.cost, values: wCost }, { name: 'Untung kasar', color: CC.profit, values: wProfit }], empty: 'Tiada order bulan ini.' });
+    CH.lines($('ch-trend'), { labels: m12.map((y) => mShort(y.x)), title: 'Trend revenue dan untung 12 bulan', fmt: RM, tipTitle: (i) => monthName(m12[i].x),
+      series: [{ name: 'Revenue', color: CC.rev, values: m12.map((y) => y.s.rev) }, { name: 'Untung kasar', color: CC.profit, values: m12.map((y) => y.s.profit) }] });
+    CH.lines($('ch-cash'), { labels: wLabels, area: true, height: 190, title: 'Tunai masuk dan keluar', fmt: RM, tipTitle: (i) => `Minggu ${i + 1} (${wLabels[i]})`,
+      series: [{ name: 'Masuk', color: CC.profit, values: wIn }, { name: 'Keluar', color: CC.rev, values: wOut }], empty: 'Tiada pergerakan tunai bulan ini.' });
+    CH.heat($('ch-heat'), { rows: ['Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab', 'Ahd'], cols: wkStarts.map((d) => `${d.getDate()}/${d.getMonth() + 1}`), cells, name: 'Biji', fmt: (v) => v + ' biji', empty: 'Tiada order 8 minggu ini.' });
+    CH.hbars($('ch-sp'), { rows: spRank.map((r) => ({ label: (spOf(r.phone) || {}).name || r.phone, sub: `${r.orders} order · ${r.pcs} biji`, value: r.rev, tip: `Baki hutang ${RM(spHQ(r.phone).owe)}` })), fmt: RM, name: 'Revenue', empty: 'Tiada order.' });
+    CH.hbars($('ch-fl'), { rows: top.map((f) => ({ label: f.name, img: f.img, value: a.fl[f.id] })), color: CC.cost, fmt: (v) => v + ' biji', name: 'Biji', empty: 'Tiada order.' });
+    CH.hbars($('ch-ag'), { rows: agRank.map((r) => ({ label: r.g.name, sub: `${r.g.code} · ${r.sold} biji`, value: r.sale })), color: CC.profit, fmt: RM, name: 'Jualan', empty: 'Tiada jualan agent direkod.' });
+    $('report').querySelectorAll('[data-mv]').forEach((x) => x.onclick = () => { let mm2 = repMonth; if (x.dataset.mv === '-1') mm2 = prevMonth(mm2); else { const [y, k] = mm2.split('-').map(Number); const d = new Date(y, k, 1); mm2 = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; } repMonth = mm2; renderReport(); });
     $('rp-pdf').onclick = () => monthlyPDF(m);
+    $('rp-csv').onclick = () => $('export').click();
   }
 
   /* ---------- #10 monthly PDF for meetings ---------- */
@@ -953,6 +1148,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
     $('print').innerHTML = `<img src="img/logo-ngap.webp" alt="" style="height:60px;width:auto;margin-bottom:6px"><h1>Laporan Bulanan · ${esc(monthName(m))}</h1>
       <p class="meta">Dijana ${esc(new Date().toLocaleString('ms-MY'))}</p>
       <h2>Ringkasan kewangan HQ</h2><table class="big"><tbody>${row('Revenue HQ', RM(a.rev))}${row('Revenue bulan lepas', RM(b.rev))}${row('Kos bahan', a.missingCost ? '–' : RM(a.cost))}${row('Untung HQ', a.missingCost ? '–' : RM(a.profit))}${row('Margin', a.missingCost || a.margin === null ? '–' : a.margin.toFixed(1) + '%')}${row('Kutipan bulan ini', RM(a.collected))}${row('Belum dikutip (semua)', RM(owed))}</tbody></table>
+      ${(() => { const p = SC_HQ.pnl(m); return `<h2>Untung rugi (P&amp;L)</h2><table><tbody>${row('Revenue HQ (invois)', RM(p.rev))}${row('Kos bahan', RM(p.cogs))}${row('Untung kasar', RM(p.gross))}${Object.entries(p.byCat).filter(([k]) => k !== 'Bahan mentah').map(([k, v]) => row('Perbelanjaan: ' + esc(k), RM(v))).join('')}${row('<b>Untung bersih</b>', '<b>' + RM(p.net) + '</b>')}${row('Tunai masuk / keluar', RM(p.cashIn) + ' / ' + RM(p.cashOut))}${row('Hutang kepada pembekal', RM(p.ap))}</tbody></table>`; })()}
       <h2>Order & pengeluaran</h2><table><tbody>${row('Bilangan order', a.os.length)}${row('Jumlah biji', a.pcs)}${row('Sell-through rangkaian', st.pct.toFixed(0) + '%')}${row('Stok di salesperson', st.heldSp)}${row('Stok di agent', st.heldAg)}</tbody></table>
       <h2>Perisa</h2><table><thead><tr><th>Perisa</th><th class="n">Biji</th></tr></thead><tbody>${FLAVOURS.filter((f) => a.fl[f.id]).sort((p, q) => a.fl[q.id] - a.fl[p.id]).map((f) => row(esc(f.name), a.fl[f.id])).join('')}</tbody></table>
       <h2>Salesperson</h2><table><thead><tr><th>Salesperson</th><th class="n">Order</th><th class="n">Biji</th><th class="n">Revenue</th><th class="n">Baki hutang</th></tr></thead><tbody>
@@ -964,17 +1160,365 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
     window.print();
   }
 
-  $('open-hq').onclick = hqSheet;
+  $('open-hq').onclick = () => go('mod-hqinfo');
   const helpModal = (h) => openG(h.replace(/data-close/g, 'data-gclose'));
   $('open-install').onclick = () => SC_HELP.installSheet(helpModal, toast, 'ngap Admin');
   $('open-guide').onclick = () => SC_HELP.guideSheet(helpModal, 'admin');
-  $('open-sp').onclick = spSheet; $('open-price').onclick = priceSheet; $('open-cap').onclick = capSheet;
-  $('open-flav').onclick = flavSheet; $('open-ann').onclick = annSheet; $('open-log').onclick = logSheet; $('open-pdfm').onclick = () => monthlyPDF(repMonth);
+  $('open-sp').onclick = () => go('mod-sp'); $('open-price').onclick = () => go('mod-price'); $('open-cap').onclick = () => go('mod-cap');
+  $('open-flav').onclick = () => go('mod-flav'); $('open-ann').onclick = () => go('mod-ann'); $('open-log').onclick = () => go('mod-log'); $('open-pdfm').onclick = () => monthlyPDF(repMonth);
+
+
+  /* ---------- web-app dashboard + kanban ---------- */
+  const ST_COL = { 'Baru': '#C9845A', 'Dikemaskini': '#E0A458', 'Disahkan': '#A8394B', 'Dibakar': '#7A1E2C', 'Siap': '#2F7A4B', 'Selesai': '#3A1F14', 'Dibatalkan': '#CDBFB6' };
+  const initials2 = (n) => String(n || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+
+  /* ---------- dashboard: financial view (CompanyOS dashboard guidelines), all numbers from SC_MET ---------- */
+  let dper = (() => { try { return JSON.parse(localStorage.getItem('sc-dash-period')) || { key: 'month' }; } catch (e) { return { key: 'month' }; } })();
+  let logRows = [], hqOk = true, lastLoad = null;
+  const agoTxt = (s) => { const t = new Date(String(s).replace(' ', 'T')).getTime(); if (isNaN(t)) return s; const mi = Math.round((Date.now() - t) / 6e4);
+    return mi < 1 ? 'baru tadi' : mi < 60 ? mi + ' minit lepas' : mi < 1440 ? Math.round(mi / 60) + ' jam lepas' : Math.round(mi / 1440) + ' hari lepas'; };
+  function setPeriod(key, from, to) {
+    dper = { key, from: from || dper.from, to: to || dper.to }; try { localStorage.setItem('sc-dash-period', JSON.stringify(dper)); } catch (e) {}
+    drawFinance();
+  }
+  $('pchips').addEventListener('click', (e) => { const b = e.target.closest('[data-per]'); if (!b) return;
+    if (b.dataset.per === 'custom') { const t = todayIso(); $('pc-from').value = dper.from || addD(t, -29); $('pc-to').value = dper.to || t; setPeriod('custom', $('pc-from').value, $('pc-to').value); }
+    else setPeriod(b.dataset.per); });
+  ['pc-from', 'pc-to'].forEach((id) => $(id).addEventListener('change', () => { if ($('pc-from').value && $('pc-to').value) setPeriod('custom', $('pc-from').value, $('pc-to').value); }));
+  const deltaEm = (cur, prev, label, goodUp) => {
+    if (!prev) return `<span class="muted2">tiada asas perbandingan (${esc(label)})</span>`;
+    const d = (cur - prev) / Math.abs(prev) * 100, good = (d >= 0) === (goodUp !== false);
+    return `<span class="${good ? 'up' : 'down'}">${d >= 0 ? '▲' : '▼'} ${Math.abs(d).toFixed(1)}%</span> vs ${esc(label)}`;
+  };
+  function drawFinance() {
+    const P = SC_MET.period(dper.key, dper.from, dper.to), r = P.range, M = SC_MET, CH = SC_CHART, CC = CH.C;
+    document.querySelectorAll('#pchips [data-per]').forEach((b) => b.classList.toggle('on', b.dataset.per === P.key));
+    $('pc-custom').classList.toggle('hidden', P.key !== 'custom');
+    $('d-plabel').textContent = P.key === 'custom' ? `${fmtDate(r[0])} – ${fmtDate(r[1])}` : P.label.toLowerCase();
+    $('d-upd').textContent = lastLoad ? 'dikemas kini ' + lastLoad.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' }) : 'memuatkan…';
+    const cur = M.pnl(r), prev = M.pnl(P.prev);
+    // KPI cards
+    $('k-rev').textContent = RM(cur.rev); $('k-rev-s').innerHTML = deltaEm(cur.rev, prev.rev, P.prevLabel);
+    $('k-exp').textContent = hqOk ? RM(cur.expenses) : '–'; $('k-exp-s').innerHTML = hqOk ? `kos bahan ${RM(cur.cogs)} + operasi ${RM(cur.opex)}` : 'data HQ tak dapat dimuat';
+    $('k-net').textContent = hqOk ? RM(cur.net) : '–'; $('k-net').className = cur.net < 0 ? 'neg' : '';
+    $('k-net-s').innerHTML = hqOk ? `margin ${cur.margin === null ? '–' : cur.margin.toFixed(1) + '%'} · ${deltaEm(cur.net, prev.net, P.prevLabel)}` : '–';
+    const cb = M.cashBalance(r[1] < todayIso() ? r[1] : todayIso());
+    $('k-cash').textContent = hqOk ? RM(cb.value) : '–'; $('k-cash').className = cb.value < 0 ? 'neg' : '';
+    $('k-cash-s').innerHTML = !cb.set ? '<span class="down">baki pembukaan belum diset</span> · aliran sahaja' : `sejak ${esc(fmtDate(cb.from))} · masuk ${RM(M.cashIn(r))} / keluar ${RM(M.cashOut(r))}`;
+    const rc = M.receivables();
+    $('k-inv').textContent = RM(rc.total);
+    $('k-inv-s').innerHTML = `${rc.count} invois${rc.overdueCount ? ` · <span class="down">${rc.overdueCount} tertunggak (${RM(rc.overdue)})</span>` : ' · tiada tertunggak'}`;
+    // sparklines: last 6 months
+    const m6 = [...Array(6)].map((_, k) => { let x = monthOf(r[1]); for (let q = 0; q < 5 - k; q++) x = prevMonth(x); return M.pnl(M.monthRange(x)); });
+    $('k-rev-sp').innerHTML = CH.spark(m6.map((x) => x.rev), CC.rev); $('k-exp-sp').innerHTML = CH.spark(m6.map((x) => x.expenses), CC.cost); $('k-net-sp').innerHTML = CH.spark(m6.map((x) => x.net), CC.profit);
+    // trend + cash (same buckets)
+    const B = M.buckets(r), per = B.list.map((b) => ({ b, p: M.pnl(b.range), ci: M.cashIn(b.range), co: M.cashOut(b.range) }));
+    $('p-trend-r').textContent = `RM · ikut ${B.unit} · tarikh order`; $('p-cash-r').textContent = `RM · ikut ${B.unit} · tarikh bayaran`;
+    CH.lines($('d-trend'), { labels: per.map((x) => x.b.label), title: 'Revenue, perbelanjaan dan untung bersih', fmt: RM, tipTitle: (i) => per[i].b.long, height: 240,
+      series: [{ name: 'Revenue', color: CC.rev, values: per.map((x) => x.p.rev) }, { name: 'Perbelanjaan', color: CC.cost, values: per.map((x) => x.p.expenses) }, { name: 'Untung bersih', color: CC.profit, values: per.map((x) => x.p.net) }],
+      empty: 'Tiada revenue atau perbelanjaan dalam tempoh ini.' });
+    CH.tableToggle($('p-trend'), [B.unit[0].toUpperCase() + B.unit.slice(1), 'Revenue', 'Perbelanjaan', 'Untung bersih'], per.map((x) => [x.b.long, RM(x.p.rev), RM(x.p.expenses), RM(x.p.net)]));
+    CH.columns($('d-cash'), { labels: per.map((x) => x.b.label), title: 'Tunai masuk dan keluar', fmt: RM, tipTitle: (i) => per[i].b.long, height: 220,
+      series: [{ name: 'Tunai masuk', color: CC.profit, values: per.map((x) => x.ci) }, { name: 'Tunai keluar', color: CC.rev, values: per.map((x) => x.co) }], empty: 'Tiada pergerakan tunai dalam tempoh ini.' });
+    CH.tableToggle($('p-cash'), [B.unit[0].toUpperCase() + B.unit.slice(1), 'Masuk', 'Keluar', 'Bersih'], per.map((x) => [x.b.long, RM(x.ci), RM(x.co), RM(x.ci - x.co)]));
+    // expense breakdown
+    const er = [{ label: 'Kos bahan', value: cur.cogs }].concat(Object.entries(cur.byCat).map(([k, v]) => ({ label: k, value: v })));
+    CH.donut($('d-exp'), { rows: er, fmt: RM, center: 'perbelanjaan', name: 'Perbelanjaan', title: 'Pecahan perbelanjaan', empty: 'Tiada perbelanjaan dalam tempoh ini.' });
+    CH.tableToggle($('p-exp'), ['Kategori', 'RM', '%'], er.filter((x) => x.value > 0).sort((a, b) => b.value - a.value).map((x) => [x.label, RM(x.value), cur.expenses ? Math.round(x.value / cur.expenses * 100) + '%' : '–']));
+    // sales by salesperson (period)
+    const bySp = {}; orders.filter((o) => o.status !== 'Dibatalkan' && o.date >= r[0] && o.date <= r[1]).forEach((o) => { const v = invOf(o.code), x = bySp[o.phone] = bySp[o.phone] || { phone: o.phone, rev: 0, pcs: 0, n: 0 }; x.rev += v ? v.amount : 0; x.pcs += o.total; x.n++; });
+    const tg = (setts && setts.targets) || {};
+    const spRows = Object.values(bySp).sort((a, b) => b.rev - a.rev).slice(0, 8).map((x) => { const sp = spOf(x.phone) || {}; return { label: sp.name || x.phone, sub: `${x.n} order · ${x.pcs} biji${tg[sp.code] ? ` · sasaran ${Math.round(x.pcs / tg[sp.code] * 100)}%` : ''}`, value: x.rev, phone: x.phone }; });
+    CH.hbars($('d-sp'), { rows: spRows, fmt: RM, name: 'Revenue', empty: 'Tiada order dalam tempoh ini.' });
+    $('d-sp').querySelectorAll('.hb-r').forEach((el, i) => { el.style.cursor = 'pointer'; el.onclick = () => go('agents'); });
+    // receivables ageing
+    const AGE_C = ['#C9B8AC', '#E3A3A6', '#B5505F', '#7A1E2C'];
+    $('p-age-r').textContent = `tempoh bayar ${rc.term} hari · sehingga hari ini`;
+    CH.segbar($('d-age'), { rows: rc.buckets.map(([l, v], i) => ({ label: l, value: v, color: AGE_C[i] })), fmt: RM, name: 'Belum bayar', empty: 'Tiada invois belum bayar. 👍' });
+    $('d-age-t').innerHTML = rc.bySp.length ? `<div class="dtbl"><div class="dt-h"><span>Salesperson</span><span>Belum bayar</span><span>Tertunggak</span><span>Paling lama</span><span></span></div>${rc.bySp.slice(0, 6).map((x) => { const sp = spOf(x.phone) || {};
+      return `<div class="dt-r" data-age="${esc(x.phone)}"><span><b>${esc(sp.name || x.phone)}</b><small>${x.n} invois</small></span><span>${RM(x.balance)}</span><span class="${x.overdue > 0.004 ? 'neg' : ''}">${x.overdue > 0.004 ? RM(x.overdue) : '–'}</span><span>${x.oldest ? x.oldest + ' hari lewat' : 'dalam tempoh'}</span><span>${x.overdue > 0.004 && x.phone ? `<a class="linkbtn pk" href="https://wa.me/6${esc(x.phone)}?text=${encodeURIComponent(`Hai ${sp.name || ''}, peringatan bayaran invois HQ tertunggak ${RM(x.overdue)}. Terima kasih!`)}" target="_blank" rel="noopener">WhatsApp</a>` : ''}</span></div>`; }).join('')}</div>` : '';
+    $('d-age-t').querySelectorAll('[data-age]').forEach((el) => el.addEventListener('click', (e) => { if (!e.target.closest('a')) hqPaySheet(el.dataset.age); }));
+    CH.tableToggle($('p-age'), ['Umur', 'RM'], rc.buckets.map(([l, v]) => [l, RM(v)]));
+    // action centre
+    const H = SC_HQ.data(), RQT = { batal: 'Batal order', diskaun: 'Diskaun invois', lain: 'Lain-lain' };
+    const pendL = H.requests.filter((x) => x.status === 'Menunggu').sort((a, b) => a.at.localeCompare(b.at));
+    $('d-appr').innerHTML = !hqOk ? '<div class="ch-empty">Data HQ tak dapat dimuat. Tekan muat semula.</div>' : pendL.length ? `<div class="alist">${pendL.slice(0, 6).map((x) => { const sp = sps.find((y) => y.code === x.sp) || {};
+      return `<button class="al-r" type="button" data-so="approvals"><span><b>${esc(RQT[x.type] || x.type)}${x.ref ? ' · ' + esc(x.ref) : ''}</b><small>${esc(sp.name || x.sp)}${x.type === 'diskaun' ? ' · ' + RM(x.amount) : ''} · ${esc(x.at.slice(0, 10))}</small></span><span class="pill st-Baru">Menunggu ${esc(agoTxt(x.at).replace(' lepas', ''))}</span></button>`; }).join('')}</div>` : '<div class="ch-empty">Tiada permintaan menunggu. 👍</div>';
+    const lowL = H.materials.filter((x) => x.low);
+    $('d-low').innerHTML = !hqOk ? '<div class="ch-empty">Data HQ tak dapat dimuat.</div>' : !H.materials.length ? '<div class="ch-empty">Belum ada bahan mentah dijejak.</div>' : lowL.length ? `<div class="alist">${lowL.slice(0, 6).map((x) =>
+      `<button class="al-r" type="button" data-so="materials"><span><b>${esc(x.name)}</b><small>Ada ${x.onHand} ${esc(x.unit)} · minimum ${x.reorder} ${esc(x.unit)}</small></span><span class="pill ${x.onHand <= 0 ? 'st-Dibatalkan' : 'st-Dikemaskini'}">${x.onHand <= 0 ? 'Habis' : 'Stok rendah'}</span></button>`).join('')}</div>` : '<div class="ch-empty">Semua bahan di atas paras minimum. 👍</div>';
+    $('d-act').innerHTML = logRows.length ? `<div class="alist">${logRows.slice(0, 8).map((x) => `<button class="al-r" type="button" data-so="log"><span><b>${esc(x.action)}${x.ref ? ' · ' + esc(x.ref) : ''}</b><small>${esc(x.who)}${x.detail ? ' — ' + esc(String(x.detail).slice(0, 80)) : ''}</small></span><small class="al-t">${esc(agoTxt(x.at))}</small></button>`).join('')}</div>` : '<div class="ch-empty">Tiada aktiviti direkod.</div>';
+  }
+  // KPI drill-down: open the records behind each number
+  document.addEventListener('click', (e) => {
+    const k = e.target.closest('[data-kpi]'); if (!k) return;
+    const r = SC_MET.period(dper.key, dper.from, dper.to).range;
+    if (k.dataset.kpi === 'rev') { $('f-from').value = r[0]; $('f-to').value = r[1]; $('f-preset').value = 'custom'; $('f-status').value = 'aktif'; draw(); go('orders'); }
+    else if (k.dataset.kpi === 'exp') go('mod-expenses');
+    else if (k.dataset.kpi === 'net') { repMonth = monthOf(r[1] > todayIso() ? todayIso() : r[1]); go('report'); }
+    else if (k.dataset.kpi === 'cash') { const oc = (setts && setts.openingCash) || {}; go(oc.amount === '' || !oc.date ? 'mod-hqinfo' : 'report'); }
+    else if (k.dataset.kpi === 'inv') { invF.st = 'open'; go('mod-invoices'); }
+  });
+
+  function drawDash(list, active) {
+    const h = new Date().getHours();
+    $('greet').textContent = (h < 12 ? 'Selamat pagi' : h < 15 ? 'Selamat tengah hari' : h < 19 ? 'Selamat petang' : 'Selamat malam') + ', HQ 👋';
+    drawFinance();
+    const pend = SC_HQ.data().requests.filter((r) => r.status === 'Menunggu').length, low = SC_HQ.data().materials.filter((x) => x.low).length;
+    // sidebar + bell badges
+    [['sb-new', orders.filter((o) => o.status === 'Baru' || o.status === 'Dikemaskini').length], ['sb-appr', pend], ['sb-low', low]].forEach(([id, n]) => { $(id).textContent = n; $(id).classList.toggle('hidden', !n); });
+    $('tb-bd').classList.toggle('hidden', !(pend || low || extra.pwDefault));
+    // donut
+    const counts = {}; list.forEach((o) => { counts[o.status] = (counts[o.status] || 0) + 1; });
+    const tot = list.length || 1, C = 2 * Math.PI * 42; let off = 0;
+    const segs = STATUSES.filter((st) => counts[st]).map((st) => { const len = counts[st] / tot * C, el = `<circle cx="50" cy="50" r="42" fill="none" stroke="${ST_COL[st]}" stroke-width="14" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}"/>`; off += len; return el; }).join('');
+    $('donut').innerHTML = `<div class="donut"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#EFE2CF" stroke-width="14"/>${segs}</svg><div class="dc"><b>${list.length}</b><small>order</small></div></div>
+      <div class="lg">${STATUSES.filter((st) => counts[st]).map((st) => `<div><i style="background:${ST_COL[st]}"></i>${esc(st)}<b>${counts[st]}</b></div>`).join('') || '<span class="muted">Tiada order.</span>'}</div>`;
+    // order intake, last 7 days (by created date)
+    const days = [...Array(7)].map((_, i) => addD(todayIso(), i - 6));
+    const per = days.map((d) => { const os = orders.filter((o) => String(o.createdAt).slice(0, 10) === d && o.status !== 'Dibatalkan'); return { d, n: os.length, p: os.reduce((x, o) => x + o.total, 0) }; });
+    const mx = Math.max(1, ...per.map((x) => Math.max(x.p, x.n * 10)));
+    SC_CHART.columns($('bars'), { labels: per.map((x) => { const [y, mm, dd] = x.d.split('-'); return new Date(+y, mm - 1, +dd).toLocaleDateString('ms-MY', { weekday: 'short' }); }), height: 190,
+      title: 'Biji diorder 7 hari lepas', fmt: (v) => v + ' biji', tipTitle: (i) => fmtDate(per[i].d), tipExtra: (i) => `<div>Order<span>${per[i].n}</span></div>`,
+      series: [{ name: 'Biji', color: SC_CHART.C.rev, values: per.map((x) => x.p) }], empty: 'Tiada order baru dalam 7 hari lepas.' });
+    // this week: upcoming pickups / deliveries
+    const t0 = todayIso(), wkList = orders.filter((o) => o.status !== 'Dibatalkan' && o.status !== 'Selesai' && o.date >= t0 && o.date <= addD(t0, 6)).sort((x, y) => (x.date + (x.time || '99')).localeCompare(y.date + (y.time || '99'))).slice(0, 6);
+    $('wk').innerHTML = wkList.map((o) => { const [y, mm, dd] = o.date.split('-'), dt = new Date(+y, mm - 1, +dd);
+      return `<button class="wk-r${o.date === t0 ? ' today' : ''}" type="button" data-wk="${esc(o.date)}"><span class="wk-d"><small>${esc(dt.toLocaleDateString('ms-MY', { weekday: 'short' }))}</small><b>${+dd}</b></span>
+        <span class="wk-t"><b>${esc(o.code)} · ${esc(o.method)}</b><small>${esc((spOf(o.phone) || {}).name || o.name)}${o.time ? ' · ' + esc(o.time) : ''}</small></span><span class="wk-n">${o.total} biji</span></button>`; }).join('') || '<p class="muted" style="margin:0">Tiada ambil / hantar 7 hari ini.</p>';
+    // salesperson activity
+    const now = Date.now(), ago = (s) => { if (!s) return null; const t = new Date(s.replace(' ', 'T')).getTime(); return isNaN(t) ? null : (now - t) / 864e5; };
+    $('spl').innerHTML = [...sps].sort((x, y) => String(y.lastActive || '').localeCompare(String(x.lastActive || ''))).slice(0, 6).map((sp) => { const d = ago(sp.lastActive);
+      const pill = sp.status !== 'Aktif' ? ['dp-off', 'Tidak aktif'] : d === null ? ['dp-off', 'Belum log masuk'] : d < 1 ? ['dp-on', 'Aktif hari ini'] : d < 7 ? ['dp-mid', Math.ceil(d) + ' hari lepas'] : ['dp-off', 'Lama tak aktif'];
+      return `<div class="spl-r"><span class="av">${esc(initials2(sp.name))}</span><span class="t"><b>${esc(sp.name)}</b><small>${esc(sp.code)}</small></span><span class="dot-pill ${pill[0]}">${pill[1]}</span></div>`; }).join('') || '<p class="muted" style="margin:0">Tiada salesperson.</p>';
+  }
+  $('wk').addEventListener('click', (e) => { const b = e.target.closest('[data-wk]'); if (!b) return; $('f-from').value = $('f-to').value = b.dataset.wk; $('f-preset').value = 'custom'; $('f-status').value = 'aktif'; draw(); go('orders'); });
+
+  const KB_COLS = [['Baru', ['Baru', 'Dikemaskini']], ['Disahkan', ['Disahkan']], ['Dibakar', ['Dibakar']], ['Siap', ['Siap']], ['Selesai', ['Selesai']]];
+  const NEXT = { 'Baru': 'Disahkan', 'Dikemaskini': 'Disahkan', 'Disahkan': 'Dibakar', 'Dibakar': 'Siap', 'Siap': 'Selesai' };
+  function kbHTML(limit) {
+    const list = filtered(false).filter((o) => o.status !== 'Dibatalkan');
+    return KB_COLS.map(([col, sts]) => { const os = list.filter((o) => sts.includes(o.status)).sort((x, y) => (x.date + (x.time || '')).localeCompare(y.date + (y.time || '')));
+      const show = col === 'Selesai' ? os.slice(-(limit || 8)).reverse() : os.slice(0, limit || 999);
+      return `<div class="kb-col" data-col="${col}"><div class="kb-h"><i style="background:${ST_COL[col]}"></i>${esc(col)}<small>${os.length}</small></div>
+        ${show.map((o) => `<div class="kb-c" draggable="true" data-kb="${esc(o.code)}"><div class="r1"><b>${esc(o.code)}</b>${o.status === 'Dikemaskini' ? '<span class="pill st-Dikemaskini">Dikemaskini</span>' : ''}</div>
+          <small>${esc((spOf(o.phone) || {}).name || o.name)} · ${esc(o.method)}</small>
+          <div class="r2"><small>📅 ${esc(fmtDate(o.date))}</small><span class="n">${o.total} biji</span></div>${NEXT[o.status] ? `<button class="nx" type="button" data-kbnext="${esc(o.code)}" aria-label="Tukar ke ${NEXT[o.status]}">→ ${NEXT[o.status]}</button>` : ''}</div>`).join('') ||
+          '<div class="kb-empty">Tiada order</div>'}${os.length > show.length ? `<div class="kb-more">+${os.length - show.length} lagi</div>` : ''}</div>`; }).join('');
+  }
+  function drawKanban() { $('kb-mini').innerHTML = kbHTML(3); if (page === 'kanban' || !$('kb-full').innerHTML) $('kb-full').innerHTML = kbHTML(0); }
+  async function moveOrder(code, status) {
+    const o = orders.find((x) => x.code === code); if (!o || o.status === status) return;
+    const prev = o.status; o.status = status; draw();
+    try { await API.adminSetStatus(pw, code, status); toast(`${code} → ${status}`); await load(true); }
+    catch (err) { o.status = prev; draw(); toast(err.message, true); }
+  }
+  ['kb-mini', 'kb-full'].forEach((id) => {
+    const el = $(id);
+    el.addEventListener('click', (e) => { const b = e.target.closest('[data-kbnext]'); if (!b) return; const o = orders.find((x) => x.code === b.dataset.kbnext); if (o && NEXT[o.status]) moveOrder(o.code, NEXT[o.status]); });
+    el.addEventListener('dragstart', (e) => { const c = e.target.closest('[data-kb]'); if (!c) return; e.dataTransfer.setData('text/plain', c.dataset.kb); e.dataTransfer.effectAllowed = 'move'; c.classList.add('drag'); });
+    el.addEventListener('dragend', (e) => { const c = e.target.closest('[data-kb]'); if (c) c.classList.remove('drag'); el.querySelectorAll('.over').forEach((x) => x.classList.remove('over')); });
+    el.addEventListener('dragover', (e) => { const col = e.target.closest('[data-col]'); if (!col) return; e.preventDefault(); el.querySelectorAll('.over').forEach((x) => x !== col && x.classList.remove('over')); col.classList.add('over'); });
+    el.addEventListener('drop', (e) => { const col = e.target.closest('[data-col]'); if (!col) return; e.preventDefault(); col.classList.remove('over'); const code = e.dataTransfer.getData('text/plain'); if (code) moveOrder(code, col.dataset.col); });
+  });
+
+  // sidebar, topbar, KPI shortcuts
+  document.addEventListener('click', (e) => {
+    const p = e.target.closest('[data-sp]'); if (p && !$('dash').classList.contains('hidden')) { go(p.dataset.sp); return; }
+    const o = e.target.closest('[data-so]'); if (!o || $('dash').classList.contains('hidden')) return;
+    const k = o.dataset.so;
+    if (k === 'logout') $('logout').click(); else go('mod-' + k);
+  });
+
+  document.querySelector('[data-qpdf]').onclick = () => monthlyPDF(repMonth);
+  $('tb-refresh').onclick = () => $('refresh').click();
+  $('tb-q').addEventListener('input', () => { $('f-q').value = $('tb-q').value; if (page !== 'orders') go('orders'); draw(); });
+  $('f-q').addEventListener('input', () => { $('tb-q').value = $('f-q').value; });
+  $('tb-bell').onclick = () => go('mod-notif');
+  function notifSheet() {
+    const nNew = orders.filter((o) => o.status === 'Baru' || o.status === 'Dikemaskini').length, al = SC_HQ.homeAlerts(extra);
+    openG(`<h2>Notifikasi</h2><div class="hq-alerts" style="margin-top:10px">${nNew ? `<button class="hq-al" type="button" data-sp="orders"><b>${nNew} order baru / dikemas kini</b><small>Semak dan sahkan</small></button>` : ''}${al}</div>
+      ${!nNew && !al ? '<p class="muted">Tiada notifikasi. 👍</p>' : ''}<div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Tutup</button></div>`);
+    document.querySelectorAll('#gsheet-in [data-hq]').forEach((b) => b.onclick = () => go('mod-' + b.dataset.hq));
+  }
+
+
+  /* ---------- Lagi on desktop: settings hub with live values ---------- */
+  const HI = {
+    price: '<path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/>', cap: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 14v3"/>',
+    flav: '<circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="14" r="1"/><circle cx="15" cy="9" r="1"/>', hqinfo: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/>',
+    products: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9"/>', materials: '<path d="M6 3h12l-1 6H7L6 3Z"/><path d="M7 9v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9"/>',
+    purchases: '<path d="M3 4h2l2.5 11h11L21 7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>', expenses: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+    approvals: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>', targets: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+    customers: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', sp: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/>',
+    ann: '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM15.5 8.5a5 5 0 0 1 0 7"/>', log: '<path d="M4 5h16M4 10h16M4 15h10M4 20h7"/>',
+    export: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/>', security: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.7-2.5 2-2.5 4M12 17h.01"/>', logout: '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/>' };
+  const ic = (k) => `<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${HI[k]}</svg></i>`;
+  function hcard(key, title, value, sub, opt) {
+    opt = opt || {};
+    return `<button class="hc${opt.warn ? ' warn' : ''}${opt.wide ? ' s2' : ''}" type="button" data-so="${key}"><span class="hc-h">${ic(opt.icon || key)}${esc(title)}<span class="go">›</span></span>
+      <b class="hv">${value}</b>${sub ? `<small>${sub}</small>` : ''}${opt.meter !== undefined ? `<span class="mtr"><i class="${opt.meter >= 100 ? 'full' : opt.meter >= 80 ? 'hi' : ''}" style="width:${Math.min(100, opt.meter)}%"></i></span>` : ''}</button>`;
+  }
+  function drawHub() {
+    const el = $('hub'); if (!el || innerWidth < 1024) return;
+    const S = setts || {}, H = SC_HQ.data(), hp = S.hqPrice || { def: '', items: {} }, hc = S.hqCost || { def: '', items: {} };
+    const pD = hp.def === '' ? null : Number(hp.def), cD = hc.def === '' ? null : Number(hc.def), mg = pD && cD !== null ? (pD - cD) / pD * 100 : null;
+    const tmr = addD(todayIso(), 1), cap = Number(S.capacity) || 0, load2 = ((S.load || {})[tmr]) || 0;
+    const act = FLAVOURS.filter((f) => f.active !== false), off = (S.unavailable || []).filter((id) => act.some((f) => f.id === id)).length, arch = FLAVOURS.length - act.length;
+    const low = H.materials.filter((m) => m.low), pend = H.requests.filter((r) => r.status === 'Menunggu').length;
+    const ap = H.purchases.filter((p) => p.status !== 'Dibatalkan' && p.pay !== 'Dibayar').reduce((x, p) => x + p.amount, 0);
+    const exM = H.expenses.filter((e) => e.status !== 'Dibatalkan' && monthOf(e.date) === monthOf(todayIso())).reduce((x, e) => x + e.amount, 0);
+    const tg = S.targets || {}, nT = Object.keys(tg).length, spA = sps.filter((x) => x.status === 'Aktif'), spPin = spA.filter((x) => x.hasPin).length;
+    el.innerHTML = `<p class="hub-h">Tetapan HQ</p>
+      ${hcard('price', 'Harga HQ & kos', pD === null ? 'Belum diset' : `${RM(pD)} <small style="display:inline">/ biji</small>`, `Kos bahan ${cD === null ? '–' : RM(cD)} · margin ${mg === null ? '–' : mg.toFixed(0) + '%'}${Object.keys(hp.items || {}).length ? ` · ${Object.keys(hp.items).length} perisa harga khas` : ''}`, { warn: pD === null })}
+      ${hcard('cap', 'Kapasiti & tutup', cap ? `${cap} biji / hari` : 'Tiada had', `Tutup ${S.cutoffHour || '—'} · order ${S.cutoffDays ?? 1} hari awal · esok ${load2}${cap ? '/' + cap : ''} biji`, cap ? { meter: load2 / cap * 100, warn: load2 > cap } : {})}
+      ${hcard('flav', 'Perisa', `${act.length - off} ada`, `${off} habis · ${arch} diarkib`, { warn: !!off })}
+      ${hcard('hqinfo', 'Maklumat HQ', S.hqPhone ? esc(S.hqPhone) : 'Telefon belum diset', S.hqPhone ? 'WhatsApp untuk butang "Hubungi HQ" ✓' : 'Salesperson tak boleh hubungi HQ dari app', { warn: !S.hqPhone })}
+      <p class="hub-h">Operasi &amp; rangkaian</p>
+      ${hcard('products', 'Produk', `${act.length} aktif`, `${FLAVOURS.length} jumlah · ${H.products.filter((x) => Object.keys(x.recipe || {}).length).length} ada resipi`)}
+      ${hcard('materials', 'Bahan & stok', low.length ? `${low.length} stok rendah` : `${H.materials.length} bahan`, low.length ? esc(low.slice(0, 3).map((x) => x.name).join(', ')) : 'Semua bahan di atas paras minimum', { warn: !!low.length })}
+      ${hcard('purchases', 'Pembekal & belian', RM(ap), `hutang kepada pembekal · ${H.suppliers.length} pembekal`, { warn: ap > 0.004 })}
+      ${hcard('expenses', 'Perbelanjaan', RM(exM), 'bulan ini')}
+      ${hcard('approvals', 'Kelulusan', pend ? `${pend} menunggu` : 'Tiada', pend ? 'Permintaan salesperson perlu keputusan' : 'Semua permintaan dah diputuskan', { warn: !!pend })}
+      ${hcard('targets', 'Sasaran bulanan', nT ? `${nT} salesperson` : 'Belum diset', nT ? `Jumlah ${Object.values(tg).reduce((x, v) => x + v, 0)} biji sebulan` : 'Set biji sebulan setiap salesperson')}
+      ${hcard('sp', 'Akaun salesperson', `${spA.length} aktif`, `${spPin}/${spA.length} dah set PIN`, { warn: spPin < spA.length })}
+      ${hcard('customers', 'Pelanggan', 'Semua rangkaian', 'Pelanggan salesperson &amp; agent')}
+      <p class="hub-h">Komunikasi &amp; laporan</p>
+      ${hcard('ann', 'Pengumuman', annList.length ? `${annList.length} aktif` : 'Tiada', annList[0] ? esc(annList[0].text.slice(0, 70)) + (annList[0].text.length > 70 ? '…' : '') : 'Hantar pengumuman ke salesperson / agent')}
+      ${hcard('log', 'Log aktiviti', 'Siapa buat apa', 'Rekod setiap perubahan order, harga &amp; tetapan')}
+      <div class="hc s2" role="group" aria-label="Laporan dan export"><span class="hc-h">${ic('export')}Laporan &amp; export</span><small>${esc($('filter-sum').textContent)}</small>
+        <span class="hc-btns"><button class="btn btn-p btn-sm" type="button" data-pdf>PDF kilang</button><button class="btn btn-o btn-sm" type="button" data-hubpdf>PDF bulanan</button><button class="btn btn-o btn-sm" type="button" data-hubcsv>Export CSV</button><button class="btn btn-o btn-sm" type="button" data-hubfilter>Tapisan</button></span></div>
+      <p class="hub-h">Akaun</p>
+      ${hcard('security', 'Keselamatan', extra.pwDefault ? 'Kata laluan asal!' : 'Kata laluan & backup', extra.pwDefault ? 'Tukar kata laluan admin sekarang' : 'Tukar kata laluan · muat turun backup', { warn: extra.pwDefault })}
+      <div class="hc" role="group" aria-label="Bantuan"><span class="hc-h">${ic('help')}Bantuan</span><small>Pasang app di skrin utama, atau baca panduan ringkas admin.</small>
+        <span class="hc-btns"><button class="btn btn-o btn-sm" type="button" data-hubinst>Pasang app</button><button class="btn btn-o btn-sm" type="button" data-hubguide>Cara guna</button></span></div>
+      ${hcard('logout', 'Keluar', 'Log keluar', esc($('upd').textContent), { icon: 'logout' })}`;
+    el.querySelectorAll('[data-pdf]').forEach((b) => b.onclick = () => exportPDF());
+    el.querySelector('[data-hubpdf]').onclick = () => monthlyPDF(repMonth);
+    el.querySelector('[data-hubcsv]').onclick = () => $('export').click();
+    el.querySelector('[data-hubfilter]').onclick = openFilter;
+    el.querySelector('[data-hubinst]').onclick = () => $('open-install').click();
+    el.querySelector('[data-hubguide]').onclick = () => $('open-guide').click();
+  }
+  addEventListener('resize', () => { if (innerWidth >= 1024 && !$('hub').innerHTML) drawHub(); });
+
+
+  /* ---------- Invois & bayaran: every HQ invoice with its payment status ---------- */
+  let invF = { st: 'open', sp: '', q: '' };
+  function invoicesSheet() {
+    const al = SC_FIN.allocate(invs, hqp), T = SC_MET.term(), t0 = todayIso();
+    const rows = invs.map((v) => { const a = al[v.code] || { paid: 0, due: v.amount, status: 'Belum bayar' }, due = SC_MET.addDays(v.date, T), late = a.due > 0.004 ? Math.max(0, SC_MET.days(due, t0)) : 0;
+      return Object.assign({}, v, { paid: a.paid, bal: a.due, pst: a.status, dueDate: due, late, over: late > 0 }); });
+    const cnt = { all: rows.length, open: rows.filter((x) => x.bal > 0.004).length, over: rows.filter((x) => x.over).length, part: rows.filter((x) => x.pst === 'Separa').length, paid: rows.filter((x) => x.pst === 'Lunas').length };
+    const q = invF.q.toLowerCase();
+    const list = rows.filter((x) => (invF.st === 'all' || (invF.st === 'open' && x.bal > 0.004) || (invF.st === 'over' && x.over) || (invF.st === 'part' && x.pst === 'Separa') || (invF.st === 'paid' && x.pst === 'Lunas')) &&
+      (!invF.sp || x.phone === invF.sp) && (!q || [x.code, (spOf(x.phone) || {}).name, x.phone].join(' ').toLowerCase().includes(q)))
+      .sort((a, b) => b.late - a.late || b.date.localeCompare(a.date));
+    const rc = SC_MET.receivables(), chip = (k, l) => `<button type="button" class="${invF.st === k ? 'on' : ''}" data-ivst="${k}">${l} <b>${cnt[k]}</b></button>`;
+    openG(`<h2>Invois &amp; bayaran</h2><p class="muted" style="margin:2px 0 10px">Bayaran salesperson melunaskan invois paling lama dahulu. Tempoh bayar ${T} hari dari tarikh order (tukar di Maklumat HQ).</p>
+      <div class="st-grid" style="margin-bottom:12px"><div class="st-t"><small>Belum bayar</small><b>${RM(rc.total)}</b><em>${rc.count} invois</em></div><div class="st-t"><small>Tertunggak</small><b class="${rc.overdue > 0.004 ? 'neg' : ''}">${RM(rc.overdue)}</b><em>${rc.overdueCount} invois</em></div><div class="st-t"><small>Dikutip bulan ini</small><b>${RM(SC_MET.cashIn(SC_MET.monthRange(monthOf(t0))))}</b><em>bayaran diterima</em></div></div>
+      <div class="pchips iv-chips">${chip('open', 'Belum bayar')}${chip('over', 'Tertunggak')}${chip('part', 'Separa')}${chip('paid', 'Lunas')}${chip('all', 'Semua')}</div>
+      <div class="iv-tools"><input class="inp" id="iv-q" type="search" placeholder="Cari kod order atau salesperson…" value="${esc(invF.q)}"><select class="inp" id="iv-sp"><option value="">Semua salesperson</option>${sps.filter((x) => x.phone).map((x) => `<option value="${esc(x.phone)}"${invF.sp === x.phone ? ' selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+      <div class="dtbl iv-t"><div class="dt-h"><span>Invois</span><span>Jumlah</span><span>Dibayar</span><span>Baki</span><span>Status</span></div>
+      ${list.slice(0, 200).map((x) => `<div class="dt-r" data-ivsp="${esc(x.phone)}"><span><b>${esc(x.code)} · ${esc((spOf(x.phone) || {}).name || x.phone)}</b><small>${esc(fmtDate(x.date))} · tempoh ${esc(fmtDate(x.dueDate))}${x.disc ? ' · diskaun ' + RM(x.disc) : ''}</small></span>
+        <span>${RM(x.amount)}</span><span>${RM(x.paid)}</span><span class="${x.over ? 'neg' : ''}">${x.bal > 0.004 ? RM(x.bal) : '–'}</span>
+        <span>${x.over ? `<span class="pill st-Dibatalkan" style="text-decoration:none;background:#FDECEC;color:var(--bad)">Lewat ${x.late} hari</span>` : SC_FIN.payPill(x.pst)}</span></div>`).join('') || '<div class="ch-empty" style="margin-top:8px">Tiada invois untuk tapisan ini.</div>'}</div>
+      <p class="muted" style="font-size:12px;margin:10px 0 0">Tekan satu invois untuk rekod bayaran salesperson itu.</p>`);
+    document.querySelectorAll('[data-ivst]').forEach((b) => b.onclick = () => { invF.st = b.dataset.ivst; invoicesSheet(); });
+    $('iv-sp').onchange = () => { invF.sp = $('iv-sp').value; invoicesSheet(); };
+    $('iv-q').oninput = () => { invF.q = $('iv-q').value; clearTimeout(invoicesSheet.t); invoicesSheet.t = setTimeout(() => { invoicesSheet(); const i = $('iv-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 300); };
+    document.querySelectorAll('[data-ivsp]').forEach((r) => r.onclick = () => hqPaySheet(r.dataset.ivsp));
+  }
+
+  /* ---------- Jadual pengeluaran: month calendar of pieces to bake vs capacity ---------- */
+  let schedMonth = monthOf(todayIso());
+  function dayLoad(d) { const os = orders.filter((o) => o.date === d && o.status !== 'Dibatalkan'); return { os, pcs: os.reduce((a, o) => a + o.total, 0) }; }
+  function scheduleSheet() {
+    const cap = Number((setts || {}).capacity) || 0, [y, m] = schedMonth.split('-').map(Number), first = new Date(y, m - 1, 1), last = new Date(y, m, 0).getDate(), lead = (first.getDay() + 6) % 7, t0 = todayIso();
+    let tot = 0, over = 0; const cells = [];
+    for (let i = 0; i < lead; i++) cells.push('<span class="sc-x off"></span>');
+    for (let d = 1; d <= last; d++) { const iso = `${schedMonth}-${String(d).padStart(2, '0')}`, L = dayLoad(iso), pct = cap ? L.pcs / cap * 100 : 0; tot += L.pcs; if (cap && L.pcs > cap) over++;
+      cells.push(`<button type="button" class="sc-x${iso === t0 ? ' today' : ''}${iso < t0 ? ' past' : ''}${cap && L.pcs > cap ? ' over' : ''}" data-sday="${iso}" aria-label="${esc(fmtDate(iso))}: ${L.pcs} biji">
+        <span class="sc-d">${d}</span>${L.pcs ? `<b>${L.pcs}<small> biji</small></b><small>${L.os.length} order</small>` : '<small class="sc-0">–</small>'}
+        ${cap && L.pcs ? `<span class="mtr"><i class="${pct > 100 ? 'full' : pct >= 80 ? 'hi' : ''}" style="width:${Math.min(100, pct)}%"></i></span>` : ''}${cap && L.pcs > cap ? '<span class="sc-warn">Lebih kapasiti</span>' : ''}</button>`); }
+    openG(`<h2>Jadual pengeluaran</h2><p class="muted" style="margin:2px 0 10px">${cap ? `Kapasiti ${cap} biji sehari` : 'Kapasiti belum diset (Lagi → Kapasiti)'} · ikut tarikh ambil / hantar · tanpa order batal.</p>
+      <div class="rp-month"><button class="ibtn2" type="button" data-smv="-1" aria-label="Bulan sebelum">‹</button><b>${esc(monthName(schedMonth))} · ${tot} biji${over ? ` · <span class="neg">${over} hari lebih kapasiti</span>` : ''}</b><button class="ibtn2" type="button" data-smv="1" aria-label="Bulan seterusnya">›</button></div>
+      <div class="sc-g">${['Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab', 'Ahd'].map((w) => `<small class="sc-w">${w}</small>`).join('')}${cells.join('')}</div>`);
+    document.querySelectorAll('[data-smv]').forEach((b) => b.onclick = () => { const d = new Date(y, m - 1 + Number(b.dataset.smv), 1); schedMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; scheduleSheet(); });
+    document.querySelectorAll('[data-sday]').forEach((b) => b.onclick = () => scheduleDay(b.dataset.sday));
+  }
+  function scheduleDay(d) {
+    const L = dayLoad(d), cap = Number((setts || {}).capacity) || 0, tot = {};
+    L.os.forEach((o) => FLAVOURS.forEach((f) => { if (o.items[f.id]) tot[f.id] = (tot[f.id] || 0) + o.items[f.id]; }));
+    openG(`<h2>${esc(fmtDate(d))}</h2><p class="muted" style="margin:2px 0 10px">${L.pcs} biji · ${L.os.length} order${cap ? ` · kapasiti ${cap} (${Math.round(L.pcs / cap * 100)}%)` : ''}</p>
+      <div class="acts" style="position:static;background:none;padding:0;margin:0 0 12px"><button class="btn btn-p" type="button" id="sd-pdf"${L.os.length ? '' : ' disabled'}>PDF kilang hari ini</button><button class="btn btn-o" type="button" id="sd-orders">Buka di Order</button></div>
+      ${Object.keys(tot).length ? `<p class="sec-h">Perlu bake</p><div class="bake">${FLAVOURS.filter((f) => tot[f.id]).map((f) => `<div class="bk"><img src="${f.img}" alt=""><span class="nm">${esc(f.name)}</span><span class="n">${tot[f.id]}</span></div>`).join('')}</div>` : ''}
+      <p class="sec-h">Order</p><div class="clist">${L.os.map((o) => `<div class="payrow"><span><b>${esc(o.code)} · ${esc((spOf(o.phone) || {}).name || o.name)}</b><small>${esc(o.method)}${o.time ? ' · ' + esc(o.time) : ''} · ${o.total} biji</small></span><span class="pill st-${esc(o.status)}">${esc(o.status)}</span></div>`).join('') || '<p class="muted">Tiada order untuk hari ini.</p>'}</div>`);
+    $('sd-pdf').onclick = () => exportPDF(L.os);
+    $('sd-orders').onclick = () => { $('f-from').value = $('f-to').value = d; $('f-preset').value = 'custom'; $('f-status').value = 'aktif'; draw(); go('orders'); };
+  }
+
+  /* ---------- sidebar: collapsible groups, icon-only mode ---------- */
+  const sideStore = { get(k, d) { try { return JSON.parse(localStorage.getItem('sc-side-' + k)) ?? d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('sc-side-' + k, JSON.stringify(v)); } catch (e) {} } };
+  function applySide() {
+    const shut = sideStore.get('shut', innerHeight < 900 ? ['operasi', 'rangkaian', 'sistem'] : []);
+    document.querySelectorAll('.sgrp').forEach((g) => { const active = !!g.querySelector('.si.on'), closed = shut.includes(g.dataset.g) && !active;
+      g.classList.toggle('shut', closed); g.querySelector('.sg').setAttribute('aria-expanded', String(!closed)); });
+    document.body.classList.toggle('side-mini', !!sideStore.get('mini', false));
+  }
+  document.querySelectorAll('.sgrp > .sg').forEach((b) => b.onclick = () => { const g = b.parentElement.dataset.g, shut = sideStore.get('shut', innerHeight < 900 ? ['operasi', 'rangkaian', 'sistem'] : []);
+    sideStore.set('shut', shut.includes(g) ? shut.filter((x) => x !== g) : shut.concat(g)); applySide(); });
+  $('side-min').onclick = () => { sideStore.set('mini', !sideStore.get('mini', false)); applySide(); };
+  applySide();
+
+  /* ---------- quick search (Ctrl+K) ---------- */
+  function cmdItems() {
+    const P = [['home', 'Dashboard'], ['orders', 'Order'], ['kanban', 'Papan order'], ['agents', 'Salesperson & agent'], ['report', 'Laporan'], ['more', 'Tetapan']].map(([k, l]) => ({ t: l, s: 'Halaman', go: () => go(k) }))
+      .concat(Object.keys(TITLES).filter((k) => k.startsWith('mod-')).map((k) => ({ t: TITLES[k], s: 'Halaman', go: () => go(k) })));
+    const O = orders.slice().sort((a, b) => b.code.localeCompare(a.code)).map((o) => ({ t: `${o.code} · ${(spOf(o.phone) || {}).name || o.name}`, s: `Order · ${o.status} · ${fmtDate(o.date)} · ${o.total} biji`, k: [o.code, o.name, o.phone].join(' '),
+      go: () => { $('f-q').value = $('tb-q').value = o.code; $('f-status').value = ''; applyPreset(''); go('orders'); } }));
+    const SP = sps.map((x) => ({ t: x.name, s: `Salesperson · ${x.code}${x.phone ? ' · ' + x.phone : ''}`, k: [x.name, x.code, x.phone].join(' '), go: () => (x.phone ? hqPayGo(x.phone) : go('mod-sp')) }));
+    const AG = tree.agents.map((a) => ({ t: a.name, s: `Agent · ${a.code}`, k: [a.name, a.code, a.phone].join(' '), go: () => go('agents') }));
+    const PR = FLAVOURS.map((f) => ({ t: f.name, s: 'Produk' + (f.active === false ? ' · diarkib' : ''), go: () => go('mod-products') }));
+    const MT = SC_HQ.data().materials.map((m2) => ({ t: m2.name, s: `Bahan · ada ${m2.onHand} ${m2.unit}`, go: () => go('mod-materials') }));
+    return P.concat(O, SP, AG, PR, MT);
+  }
+  function hqPayGo(phone) { go('mod-invoices'); setTimeout(() => hqPaySheet(phone), 0); }
+  let cmdSel = 0, cmdList = [];
+  function openCmd() {
+    if ($('dash').classList.contains('hidden')) return;
+    $('cmdk').classList.remove('hidden'); $('cmd-q').value = ''; drawCmd(); setTimeout(() => $('cmd-q').focus(), 20);
+  }
+  const closeCmd = () => $('cmdk').classList.add('hidden');
+  function drawCmd() {
+    const q = $('cmd-q').value.trim().toLowerCase(), all = cmdItems();
+    cmdList = (q ? all.filter((x) => (x.t + ' ' + x.s + ' ' + (x.k || '')).toLowerCase().includes(q)) : all.filter((x) => x.s === 'Halaman')).slice(0, 12);
+    cmdSel = Math.min(cmdSel, Math.max(0, cmdList.length - 1));
+    $('cmd-r').innerHTML = cmdList.map((x, i) => `<button type="button" class="cmd-i${i === cmdSel ? ' on' : ''}" data-ci="${i}"><b>${esc(x.t)}</b><small>${esc(x.s)}</small></button>`).join('') || '<p class="muted" style="padding:14px">Tiada hasil.</p>';
+  }
+  const runCmd = (i) => { const x = cmdList[i]; if (!x) return; closeCmd(); x.go(); };
+  $('cmd-q').addEventListener('input', () => { cmdSel = 0; drawCmd(); });
+  $('cmd-q').addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); cmdSel = Math.min(cmdList.length - 1, cmdSel + 1); drawCmd(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); cmdSel = Math.max(0, cmdSel - 1); drawCmd(); }
+    else if (e.key === 'Enter') { e.preventDefault(); runCmd(cmdSel); }
+  });
+  $('cmd-r').addEventListener('click', (e) => { const b = e.target.closest('[data-ci]'); if (b) runCmd(+b.dataset.ci); });
+  $('cmdk').addEventListener('click', (e) => { if (e.target === $('cmdk')) closeCmd(); });
+  document.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('cmdk').classList.contains('hidden') ? openCmd() : closeCmd(); } else if (e.key === 'Escape') closeCmd(); });
+  $('side-k').onclick = openCmd;
+
+  SC_MET.init({ state: () => ({ orders, invs, hqp, setts, sps, tree }), hq: () => SC_HQ.data(), costPer: (f) => SC_HQ.costPer(f) });
+  SC_HQ.init({ API, pw: () => pw, setPw: (v) => { pw = v; sess.set(v); }, openG, closeG, toast, esc, RM, fmtDate, monthName, pIn, saveSettings,
+    state: () => ({ orders, invs, hqp, setts, sps, tree }), reload: () => load(true), onData: () => { if (!$('dash').classList.contains('hidden')) draw(); } });
+  ['products', 'expenses', 'materials', 'purchases', 'approvals', 'targets', 'customers', 'security'].forEach((k) => { $('open-' + k).onclick = () => go('mod-' + k); });
+  $('hq-alerts').addEventListener('click', (e) => { const b = e.target.closest('[data-hq]'); if (b) go('mod-' + b.dataset.hq); });
 
   let tt;
   function toast(msg, err) { const t = $('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3000); }
 
-  if (pw) load(); else show(false);
+  if (pw) { $('boot').classList.remove('hidden'); load().finally(() => $('boot').classList.add('hidden')); } else show(false);
 })();
 </script>
 </body>

@@ -68,3 +68,36 @@ npm run redeploy            # push + kemas kini deployment (URL /exec kekal)
 - Kod agent boleh dinyahaktif oleh salesperson; kod salesperson oleh admin.
 
 Panduan hosting: [NETLIFY.md](NETLIFY.md).
+
+
+## Modul HQ (back office)
+
+| Modul | Di mana | Sheet / data |
+|---|---|---|
+| Produk (tambah, arkib, resipi) | Admin → Lagi → Produk | Script Property `PRODUCTS`; setiap produk = satu lajur di tab Orders |
+| Bahan mentah & lejar stok | Admin → Lagi → Bahan mentah & stok | `Bahan`, `PergerakanStok` (append-only; baki = jumlah pergerakan) |
+| Pembekal & belian | Admin → Lagi → Pembekal & belian | `Pembekal`, `Belian` (belian = stok Masuk; batal = Pembetulan) |
+| Perbelanjaan HQ | Admin → Lagi → Perbelanjaan | `Perbelanjaan` (tidak dipadam, hanya Dibatalkan) |
+| P&L bulanan, status bayaran invois | Admin → Laporan; Salesperson → Profil → Invois | dikira dari Invois, BayaranHQ, Perbelanjaan, resipi |
+| Kelulusan (batal order dikunci, diskaun invois) | Salesperson → Profil → Permintaan; Admin → Lagi → Kelulusan | `Permintaan` |
+| Sasaran bulanan HQ | Admin → Lagi → Sasaran | `SETTINGS.targets` |
+| Kata laluan admin, tamat sesi, backup JSON | Admin → Lagi → Keselamatan / Salesperson | — |
+
+Andaian (boleh diubah): revenue dikira ikut tarikh order (invois); kos bahan = resipi × kos purata berwajaran, atau "kos bahan" di tetapan jika tiada resipi; stok bahan tidak boleh negatif (boleh dibuka di Bahan mentah); bake menolak bahan sekali sahaja, dan dipulangkan jika status kembali ke Baru/Disahkan/Dikemaskini. Angka P&L untuk pengurusan — sahkan dengan akauntan sebelum lapor cukai / SST.
+
+## Kamus metrik Dashboard (frontend/src/metrics.js)
+
+Semua kad, carta, Laporan dan PDF guna formula yang sama dari `SC_MET`.
+
+| Metrik | Formula | Asas tarikh |
+|---|---|---|
+| Revenue (invois HQ) | Invois HQ selepas diskaun diluluskan, order tidak batal | Tarikh order |
+| Kos bahan | Biji × (resipi × kos purata bahan, atau "kos bahan" di tetapan) | Tarikh order |
+| Perbelanjaan | Kos bahan + perbelanjaan operasi (tidak termasuk "Bahan mentah", yang masuk stok) | Tarikh order / rekod |
+| Untung bersih | Revenue − kos bahan − perbelanjaan operasi | — |
+| Tunai masuk / keluar | Bayaran HQ diterima / perbelanjaan + belian pembekal yang dibayar | Tarikh bayaran |
+| Baki tunai | Baki pembukaan (Lagi → Maklumat HQ) + masuk − keluar sejak tarikh pembukaan | Sehingga tarikh |
+| Invois belum bayar | Invois − bayaran (FIFO, invois paling lama dahulu) | Sehingga hari ini |
+| Tertunggak | Belum bayar & melebihi tempoh bayar (lalai 14 hari, Maklumat HQ) | Tarikh order + tempoh |
+
+Angka ini untuk pengurusan, bukan lejar perakaunan rasmi — sahkan dengan akauntan sebelum lapor cukai / SST.

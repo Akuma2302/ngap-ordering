@@ -9,6 +9,7 @@ function doGet() {
 function doPost(e) {
   try {
     var req = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    FLAVOURS = products_();                 // live product list (admin can add / archive products)
     var handlers = {
       create: create_, get: get_, update: update_, cancel: cancel_, myOrders: myOrders_,
       agentGet: agentGet_, agentSaveProfile: agentSaveProfile_, agentSaveSales: agentSaveSales_,
@@ -22,7 +23,13 @@ function doPost(e) {
       publicSettings: publicSettings_, adminGetSettings: adminGetSettings_, adminSetSettings: adminSetSettings_,
       adminAddHQPayment: adminAddHQPayment_, adminDeleteHQPayment: adminDeleteHQPayment_, adminLog: adminLog_,
       adminListAnnouncements: adminListAnnouncements_, adminAddAnnouncement: adminAddAnnouncement_, adminDeleteAnnouncement: adminDeleteAnnouncement_,
-      adminList: adminList_, adminSetStatus: adminSetStatus_, adminDelete: adminDelete_
+      adminList: adminList_, adminSetStatus: adminSetStatus_, adminDelete: adminDelete_,
+      // HQ modules: products, finance, raw materials, suppliers, approvals, targets, security
+      adminHQ: adminHQ_, adminSaveProduct: adminSaveProduct_, adminSaveExpense: adminSaveExpense_, adminVoidExpense: adminVoidExpense_,
+      adminSaveMaterial: adminSaveMaterial_, adminStockMove: adminStockMove_, adminSaveSupplier: adminSaveSupplier_,
+      adminAddPurchase: adminAddPurchase_, adminVoidPurchase: adminVoidPurchase_, adminPayPurchase: adminPayPurchase_,
+      adminDecide: adminDecide_, adminChangePassword: adminChangePassword_, adminEndSession: adminEndSession_, adminBackup: adminBackup_,
+      spRequests: spRequests_, spAddRequest: spAddRequest_, spCancelRequest: spCancelRequest_, spLogoutAll: spLogoutAll_
     };
     var fn = handlers[req.action];
     if (!fn) throw new Error('Tindakan tidak dikenali.');
@@ -39,4 +46,5 @@ function json_(obj) {
 }
 
 var SP_ACTIONS = { create: 1, get: 1, update: 1, cancel: 1, myOrders: 1, agentGet: 1, agentSaveProfile: 1, agentSaveSales: 1, spAgents: 1, spAddAgent: 1, spUpdateAgent: 1,
-                   spDistribute: 1, spUpdateDist: 1, spDeleteDist: 1, spAddPayment: 1, spDeletePayment: 1 };
+                   spDistribute: 1, spUpdateDist: 1, spDeleteDist: 1, spAddPayment: 1, spDeletePayment: 1,
+                   spRequests: 1, spAddRequest: 1, spCancelRequest: 1, spLogoutAll: 1 };

@@ -397,7 +397,7 @@ a.btn.btn-p{color:#fff}
 .cu-dates label{display:flex;flex-direction:column;gap:3px;font-size:11px;font-weight:700;color:var(--muted)}
 .cu-dates .inp{height:42px;font-size:15px}
 .cu-sel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.cu-sel .inp{height:40px;font-size:13px;padding:0 24px 0 10px;background-position:right 8px center;min-width:0;text-overflow:ellipsis}
+.cu-sel .inp{height:44px;font-size:16px;padding:0 24px 0 10px;background-position:right 8px center;min-width:0;text-overflow:ellipsis}
 @media (max-width:360px){.cu-sel{grid-template-columns:1fr 1fr}.cu-sel select:last-child{grid-column:1/-1}}
 .cu-sortrow{display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 .cu-sortrow > span{font-weight:700;margin-right:2px}
@@ -424,3 +424,129 @@ div.pf-head{cursor:default}
 .pf-k span{font-size:11.5px;color:var(--burgundy);font-weight:600}
 .pf-k b.neg{color:var(--bad)} .pf-k b.pos{color:var(--good,#2F7A4B)}
 .pf-out{margin-top:18px}
+
+/* HQ target (from admin) */
+#tg-hq .tg-bar{background:#EFE2CF;margin-top:6px}
+#tg-hq .tg-bar i{background:var(--burgundy)}
+
+/* ---------- mobile polish (sales + agent) ---------- */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,[role=button],label,select,summary{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.lt-bar #profile-btn{margin-left:auto}
+/* iOS zooms the page when a focused field is under 16px */
+input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{font-size:16px}
+.qty input{min-width:40px;height:38px}
+.pillnav button{font-size:11px}
+@media (max-width:360px){
+  .pillnav{padding:5px 6px}
+  .pillnav button{width:54px}
+  .pillnav button.center{width:58px;height:58px;margin:-20px 3px 0}
+  .lt-bar h1{font-size:28px}
+  .lt-bar{padding-left:14px;padding-right:14px}
+  .gcard{padding:14px}
+}
+/* customer filters: bigger, thumb-friendly chips */
+.fchip{min-height:40px}
+.cu-sort button,.cu-sortrow button{min-height:34px;padding-inline:12px}
+.cu-sel select,.cu-tools select{min-height:44px}
+/* press feedback for the main tappable cards and buttons */
+.gcard[role=button]:active,button.gcard:active,.menu2 button:active,.btn:active{transform:scale(.98)}
+.menu2 button{min-height:52px}
+/* sheets: keep action buttons reachable on small screens */
+.sheet .acts{position:sticky;bottom:calc(-18px - var(--safe-b));background:linear-gradient(transparent,var(--paper) 30%);padding:14px 0 6px;margin-bottom:-6px;z-index:2}
+/* boot splash while a saved session is restored */
+.boot{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--cream)}
+.boot img{width:min(200px,55vw);height:auto}
+.boot p{margin:0;font-size:14px;color:var(--muted);font-weight:600}
+.boot .spin{width:28px;height:28px;border-radius:50%;border:3px solid rgba(122,30,44,.18);border-top-color:var(--burgundy);animation:bootspin .8s linear infinite}
+@keyframes bootspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.boot .spin{animation-duration:2.4s}}
+.oweC{display:flex;align-items:center;gap:12px;font:inherit;color:inherit}
+.oweC > div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.oweC small{display:block;font-size:12.5px;color:var(--muted)}
+.oweC b{display:block;font-size:22px;line-height:1.2}
+.nextc .nx{min-width:0;flex:1}
+.nextc .nx b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+@media (max-width:360px){
+  .qa{grid-template-columns:1fr 80px;gap:8px}
+  .qa-main{gap:8px;padding:8px 10px 8px 8px}
+  .qa-main img{width:42px;height:42px}
+  .qa-main b{font-size:16px;white-space:nowrap}
+  .qa-main small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .qa-main i{width:36px;height:36px;line-height:36px;font-size:22px}
+  .nextc{gap:8px}
+  .nextc .pill{font-size:10.5px;padding:3px 8px}
+}
+.cu-sortrow{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.cu-sortrow::-webkit-scrollbar{display:none}
+.cu-sortrow > *{flex-shrink:0;white-space:nowrap}
+.banner button,.banner .banner-a{height:40px;padding:0 16px;font-size:13px}
+.demo button,.demo .btn{min-height:36px}
+.demo a{display:inline-block;padding:6px 2px}
+.cu-dates button,.cu-dates .fchip{min-height:40px}
+.cu-sort button,.cu-sortrow button{min-height:38px}
+
+/* ---------- Profil destinations as full pages (sheet in page mode) ---------- */
+#modal.as-page{position:fixed;inset:0;z-index:25;display:block;background:var(--cream);animation:none;overflow-y:auto;overscroll-behavior:contain;
+  padding:calc(var(--safe-t) + 70px) 0 calc(var(--safe-b) + 100px)}
+#modal.as-page.hidden{display:none}
+#modal.as-page .sheet{max-width:720px;margin:0 auto;border-radius:0;background:transparent;max-height:none;overflow:visible;animation:none;padding:6px 18px 20px;box-shadow:none}
+#modal.as-page .sheet::before{display:none}
+#modal.as-page .sheet .kicker{display:none}
+#modal.as-page .sheet h2{font-family:'Bodoni Moda',Georgia,serif;font-size:24px}
+#modal.as-page .acts.one:has(> [data-close]:only-child){display:none}
+#modal.as-page .sheet .acts{bottom:-20px}
+#modal.as-page .sheet .clist,#modal.as-page .sheet .hp-guide{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:4px 16px}
+#modal.as-page .sheet .hp-guide{padding:14px 16px}
+
+/* ---------- tablet: a little more room ---------- */
+@media (min-width:768px) and (max-width:1023px){
+  .lt-bar,.wrap{max-width:820px}
+  #modal.as-page .sheet{max-width:820px}
+  [data-tab="home"]:not(.hidden){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;align-items:start}
+  [data-tab="home"] > :empty{display:none}
+  [data-tab="home"] > .hello,[data-tab="home"] > #h-ann,[data-tab="home"] > #h-remind,[data-tab="home"] > #h-recv{grid-column:1/-1}
+}
+
+/* ---------- desktop web-app layout: sidebar instead of the floating pill ---------- */
+@media (min-width:1024px){
+  body{background:var(--cream);padding-bottom:0}
+  .pillnav{left:0;top:0;bottom:0;translate:none;width:232px;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:4px;
+    padding:96px 14px 16px;border-radius:0;background:#fff;box-shadow:none;border-right:1px solid var(--line);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .pillnav::before{content:'';position:absolute;top:26px;left:26px;width:120px;height:40px;background:url(../img/logo-ngap.webp) left center/contain no-repeat}
+  .pillnav button,.pillnav button.center{width:100%;height:46px;margin:0;flex-direction:row;justify-content:flex-start;gap:12px;padding:0 14px;font-size:14px;font-weight:600;
+    border-radius:12px;border:0;background:transparent;color:var(--brown);box-shadow:none}
+  .pillnav button svg,.pillnav button.center svg{width:20px;height:20px;color:#9A8076}
+  .pillnav button:hover{background:var(--paper)}
+  .pillnav button[aria-selected="true"],.pillnav button.center[aria-selected="true"]{background:#F6E7E2;color:var(--burgundy);box-shadow:none}
+  .pillnav button[aria-selected="true"] svg{color:var(--burgundy)}
+  .pillnav button.center{order:-1}
+  .pillnav button.center::after{content:'Utama'}
+  .lt-bar{max-width:none;margin:0 0 0 232px;padding:22px 32px 14px;background:rgba(242,228,207,.96)}
+  .lt-bar .lt-logo{display:none}
+  .lt-bar h1.hidden{display:block;visibility:hidden}
+  .wrap{max-width:none;margin:0 0 0 232px;padding:6px 32px 48px}
+  .wrap > *{max-width:1120px}
+  .bar{left:232px;bottom:20px}
+  .has-bar{padding-bottom:110px}
+  .toast{left:calc(50% + 116px)}
+  #modal.as-page{left:232px;padding:90px 0 40px}
+  #modal.as-page .sheet{max-width:900px;margin:0;padding:6px 32px 20px}
+  #modal.as-page .sheet .acts{max-width:440px;bottom:-40px}
+  .modal:not(.as-page){align-items:center}
+  /* home: two-column dashboard */
+  [data-tab="home"]:not(.hidden){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;align-items:start}
+  [data-tab="home"] > :empty{display:none}
+  [data-tab="home"] > .hello,[data-tab="home"] > #h-ann,[data-tab="home"] > #h-remind,[data-tab="home"] > #h-recv{grid-column:1/-1}
+  /* profil: two balanced columns */
+  [data-tab="me"]:not(.hidden){columns:2;column-gap:24px}
+  [data-tab="me"] > *{break-inside:avoid}
+  [data-tab="me"] > .sec-h{break-after:avoid}
+  [data-tab="me"] > .pf-head,[data-tab="me"] > .pf-stats{column-span:all}
+  /* lists: cards in a grid */
+  .wrap .cu-list,.wrap .olist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+  .wrap .cu-list > *,.wrap .olist > *{margin:0}
+}
+.items{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.items span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;white-space:nowrap}
+.items b{font-weight:700}
