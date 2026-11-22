@@ -17,6 +17,15 @@ function spTable_() {
     var rows = SP_SEED.map(function (nm) { return ['sales' + nm, nm, phones[nm.toLowerCase()] || '', 'Aktif', stamp_(), '', '', '']; });
     t.sh.getRange(2, 1, rows.length, SP_H.length).setNumberFormat('@').setValues(rows);
     t = table_('Salesperson', SP_H);
+  } else {
+    // codes added to SP_SEED later (e.g. salesUmar) are appended once; existing rows are never changed
+    var have = {}; t.rows.forEach(function (r) { have[String(r[0]).toLowerCase()] = 1; });
+    var add = SP_SEED.filter(function (nm) { return !have[('sales' + nm).toLowerCase()]; })
+                     .map(function (nm) { return ['sales' + nm, nm, '', 'Aktif', stamp_(), '', '', '']; });
+    if (add.length) {
+      t.sh.getRange(t.sh.getLastRow() + 1, 1, add.length, SP_H.length).setNumberFormat('@').setValues(add);
+      t = table_('Salesperson', SP_H);
+    }
   }
   return t;
 }

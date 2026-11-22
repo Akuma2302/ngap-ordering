@@ -28,4 +28,4 @@ var STATUSES = ['Baru', 'Disahkan', 'Dibakar', 'Siap', 'Selesai', 'Dikemaskini',
 
 var TZ = 'Asia/Kuala_Lumpur';
 
-var SP_SEED = ['Akmal', 'Harris', 'Izz', 'Najman', 'Faiz', 'Nik', 'Adi', 'Khairul'];
+var SP_SEED = ['Akmal', 'Harris', 'Izz', 'Najman', 'Faiz', 'Nik', 'Adi', 'Khairul', 'Umar'];

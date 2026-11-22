@@ -38,7 +38,7 @@ ngap-ordering/
 
 ## Link
 
-- Salesperson: `/sales` — log masuk `salesNama` + PIN (`salesAkmal`, `salesHarris`, `salesIzz`, `salesNajman`, `salesFaiz`, `salesNik`, `salesAdi`, `salesKhairul`)
+- Salesperson: `/sales` — log masuk `salesNama` + PIN (`salesAkmal`, `salesHarris`, `salesIzz`, `salesNajman`, `salesFaiz`, `salesNik`, `salesAdi`, `salesKhairul`, `salesUmar`)
 - Agent: `/agent` — kod daripada salesperson (`agentNama`)
 - Admin / director: `/admin`
 - Demo tanpa data sebenar: tambah `?demo=1` (salesperson `salesDemo`, agent `agentAli`, admin `admin`)
