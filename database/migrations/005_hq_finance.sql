@@ -1,0 +1,5 @@
+-- v5: HQ finance and control.
+--   Invois    (HQ price snapshot per order), BayaranHQ (salesperson -> HQ payments), Log (activity log).
+--   Script Properties: SETTINGS (prices, ingredient cost, capacity, cut-off, flavours out of stock, stock-age days),
+--                      ANNOUNCEMENTS (targeted list; the old single ANNOUNCEMENT is migrated automatically).
+--   Order statuses: Baru → Disahkan → Dibakar → Siap → Selesai (+ Dikemaskini, Dibatalkan).

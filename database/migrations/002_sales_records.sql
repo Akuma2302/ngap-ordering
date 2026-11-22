@@ -1,0 +1,4 @@
+-- v2: salesperson sales tracking synced from the phone.
+--   Jualan    (per order: cost, sales lines with customer, extra costs)
+--   AgentData (per person: default prices, monthly target)
+-- Created on first use by dataSheet_().

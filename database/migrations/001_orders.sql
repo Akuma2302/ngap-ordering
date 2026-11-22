@@ -1,0 +1,3 @@
+-- v1: Orders tab with one column per flavour. Created by setup() / sheet_().
+-- Order codes became sequential (SC-0001 ...) using Script Property LAST_ORDER_NO.
+-- See ../schema.sql → Orders.

@@ -1,0 +1,52 @@
+# Setup Netlify
+
+Frontend ialah laman statik (HTML + JS + CSS). Netlify bina daripada folder `frontend/` dan terbitkan `frontend/dist`.
+Semua tetapan ini sudah ada dalam `netlify.toml` di root repo, jadi Netlify akan membacanya secara automatik.
+
+## 1. Sambung repo (kali pertama)
+1. Log masuk https://app.netlify.com → **Add new site → Import an existing project**.
+2. Pilih **GitHub** → repo **Akuma2302/ngap-ordering** → branch `main`.
+3. Di skrin **Build settings**, isi (atau biarkan, kerana `netlify.toml` akan mengatasi):
+
+   | Medan | Nilai |
+   |---|---|
+   | Base directory | `frontend` |
+   | Build command | `npm run build` |
+   | Publish directory | `frontend/dist` |
+   | Functions directory | *(kosongkan)* |
+
+4. **Environment variables → Add variable**
+   - Key: `SCRIPT_URL`
+   - Value: URL web app Apps Script (berakhir dengan `/exec`). Rujuk `frontend/.env.example`.
+5. Tekan **Deploy**.
+
+## 2. Sudah ada site Netlify dari versi lama?
+Struktur repo telah berubah (fail tidak lagi di root). Kemas kini tetapan:
+1. **Site configuration → Build & deploy → Build settings → Edit settings**
+   - Base directory: `frontend`
+   - Build command: `npm run build`
+   - Publish directory: `frontend/dist`
+2. **Site configuration → Environment variables** → tambah `SCRIPT_URL`.
+3. **Deploys → Trigger deploy → Clear cache and deploy site**.
+
+## 3. Link yang perlu dikongsi
+| Untuk | Link |
+|---|---|
+| Salesperson | `https://<nama-site>.netlify.app/sales.html` (juga `/`) |
+| Agent | `https://<nama-site>.netlify.app/agent.html` |
+| Admin / director | `https://<nama-site>.netlify.app/admin.html` |
+| Cuba tanpa data sebenar | tambah `?demo=1` pada mana-mana link |
+
+Link lama `order.html` akan terus ke `sales.html`.
+
+## 4. Selepas setiap perubahan
+- **Frontend** (`frontend/`): `git push` ke `main` → Netlify build & terbit sendiri (±30 saat).
+- **Backend** (`backend/`): Netlify tidak terlibat. Jalankan `cd backend && npm run redeploy`. URL `/exec` kekal sama, jadi `SCRIPT_URL` tidak perlu ditukar.
+
+## 5. Domain sendiri (pilihan)
+**Domain management → Add a domain** → ikut arahan DNS. HTTPS diberi automatik.
+
+## Semak jika ada masalah
+- Build gagal "SCRIPT_URL does not look like…" → nilai `SCRIPT_URL` salah; mesti `https://script.google.com/macros/s/.../exec`.
+- Halaman kosong / 404 → semak Publish directory = `frontend/dist` (atau `dist` jika Base directory = `frontend`).
+- Data tak keluar → buka link dengan `?demo=1`; jika demo berfungsi, masalah pada `SCRIPT_URL` atau deployment Apps Script.

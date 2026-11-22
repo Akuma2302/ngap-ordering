@@ -1,0 +1,3 @@
+-- v4: Salesperson tab. Seeded with 8 codes (see ../seeds/salespersons.csv); phone taken from their latest order.
+-- v4.1: added columns "Terakhir Aktif", "PIN" (SHA-256 hash) and "Token" (session). spTable_() adds the
+--       missing headers automatically on older sheets.

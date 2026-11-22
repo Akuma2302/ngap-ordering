@@ -1,0 +1,1364 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Salesperson · ngap soft cookies</title>
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="img/icons/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#7A1E2C">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest-sales.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ngap Sales">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ordering/ordering.css?v=5">
+<link rel="stylesheet" href="ordering/agent.css?v=20">
+</head>
+<body class="glass">
+<header class="lt-bar">
+  <button class="rbtn hidden" id="back-btn" type="button" aria-label="Kembali"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button>
+  <img class="lt-logo" id="lt-logo" src="img/logo-ngap-mark.webp" alt="ngap soft cookies">
+  <h1 id="lt" class="hidden">Utama</h1>
+  <button class="rbtn" id="profile-btn" type="button" aria-label="Profil"><span class="av" id="av">?</span></button>
+</header>
+
+<div class="wrap">
+  <div id="demo" class="demo hidden">Mod demo: order hanya disimpan dalam browser ini.</div>
+
+  <!-- ============ LOG MASUK ============ -->
+  <section id="sp-login" class="gcard login-card hidden">
+    <img class="brand-logo" src="img/logo-ngap.webp" alt="ngap soft cookies malaysia">
+    <h2 style="font-size:26px;font-weight:900;margin:4px 0 6px">Log masuk salesperson</h2>
+    <p class="muted" style="margin:0 0 14px;font-size:14px">Masukkan kod salesperson anda, contoh <b>salesAkmal</b>.</p>
+    <form id="sp-form" class="fields">
+      <input class="inp" id="sp-code" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="salesNama" aria-label="Kod salesperson">
+      <input class="inp" id="sp-pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" enterkeyhint="go" placeholder="PIN (kosongkan kali pertama)" aria-label="PIN">
+      <button class="btn btn-p btn-block" type="submit" id="sp-btn">Masuk</button>
+    </form>
+  </section>
+
+  <!-- ============ UTAMA ============ -->
+  <section data-tab="home" class="hidden">
+    <div class="hello"><b id="hello">Hai!</b><span id="hello-sub">Ringkasan bulan ini</span></div>
+    <div id="h-ann"></div>
+    <div id="h-remind"></div>
+
+    <button class="hero" type="button" data-go="stats">
+      <span class="hero-k" id="hero-k">Untung bersih bulan ini</span>
+      <b class="hero-v" id="h-profit">–</b>
+      <span class="hero-s" id="hero-s">Set harga untuk kira untung</span>
+      <span class="hero-tg hidden" id="hero-tg"><span class="tg-bar"><i id="tg-fill"></i></span><small id="tg-txt"></small></span>
+      <span class="hero-row">
+        <span><b id="h-sale">–</b><small>Jualan</small></span>
+        <span><b id="h-margin">–</b><small>Margin</small></span>
+        <span><b id="h-sold">0</b><small>Terjual</small></span>
+      </span>
+    </button>
+
+    <div class="qa">
+      <button class="qa-main" type="button" data-go="new"><img src="img/chocolate-chip.webp" alt=""><span><b>Order Baru</b><small>Pilih perisa &amp; hantar</small></span><i>+</i></button>
+      <button class="qa-side" type="button" id="tile-price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg>Harga<br>saya</button>
+    </div>
+
+    <div class="minis">
+      <div class="mini"><b id="h-orders">0</b><span>Order</span></div>
+      <div class="mini"><b id="h-pcs">0</b><span>Biji diambil</span></div>
+      <div class="mini"><b id="h-left">0</b><span>Belum terjual</span></div>
+    </div>
+
+    <div id="h-hq"></div>
+    <div id="h-net"></div>
+    <div id="h-next"></div>
+    <div id="h-todo"></div>
+    <div id="h-best"></div>
+  </section>
+
+  <!-- ============ ORDER SAYA ============ -->
+  <section data-tab="mine" class="hidden">
+    <div id="mine-list">
+      <button class="btn btn-p btn-block" type="button" data-go="new" style="margin-bottom:12px">+ Order stok baru dari HQ</button>
+      <div id="stock-card"></div>
+      <div class="segp" id="mine-seg">
+        <button type="button" data-f="active" aria-pressed="true">Aktif</button>
+        <button type="button" data-f="all" aria-pressed="false">Semua</button>
+      </div>
+      <div class="olist" id="olist"></div>
+      <section class="gcard" style="margin-top:14px">
+        <div class="panel-h" style="margin-bottom:10px"><h2>Cari ikut kod</h2></div>
+        <form id="lookup-form" class="fields">
+          <input class="inp" id="lk-code" autocomplete="off" autocapitalize="characters" enterkeyhint="search" placeholder="SC-0001 atau 1" aria-label="Kod order">
+          <button class="btn btn-p btn-block" type="submit" id="lk-btn">Buka order</button>
+        </form>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ PROFIL ============ -->
+  <section data-tab="me" class="hidden">
+    <div class="prof">
+      <div class="bigav" id="p-av">?</div>
+      <div class="gcard">
+        <div class="prof-h"><div><b id="p-name">Belum set profil</b><span id="p-phone">Tekan Edit untuk isi</span></div><button class="badge2" type="button" id="p-edit">Edit profil</button></div>
+        <div class="stats3">
+          <div><b id="p-orders">0</b><span>Order</span></div>
+          <div><b id="p-pcs">0</b><span>Biji</span></div>
+          <div><b id="p-sold">0</b><span>Terjual</span></div>
+        </div>
+        <div class="banner"><div><b id="bn-t">Margin –</b><span id="bn-s">Set harga untuk kira untung</span></div><button type="button" id="bn-btn">Harga saya</button></div>
+      </div>
+    </div>
+
+    <section class="gcard" style="padding:0">
+      <div class="menu2">
+        <button type="button" data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V12M12 20V5M19 20v-9"/></svg>Laporan untung</button>
+        <button type="button" data-go="mine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Order saya &amp; rekod jualan</button>
+        <button type="button" id="m-price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg>Harga kos &amp; harga jual</button>
+        <button type="button" id="m-cust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>Pelanggan saya</button>
+        <button type="button" id="m-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Tukar PIN</button>
+        <button type="button" id="m-hq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13M9 21v-6h6v6"/></svg>Invois &amp; bayaran HQ</button>
+        <button type="button" id="m-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>Log keluar</button>
+        <button type="button" id="m-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Edit profil</button>
+      </div>
+    </section>
+    <p class="foot" id="sync-st">Rekod jualan, harga dan kos disimpan ke Google Sheet.</p>
+  </section>
+
+  <!-- ============ UNTUNG SAYA ============ -->
+  <!-- ============ AGENT SAYA ============ -->
+  <section data-tab="agents" class="hidden">
+    <div id="net-sum"></div>
+    <button class="btn btn-p btn-block" type="button" id="add-agent" style="margin-bottom:12px">+ Daftar agent baru</button>
+    <div class="olist" id="alist"></div>
+  </section>
+  <section data-tab="agent" class="hidden"><div id="agentd"></div></section>
+
+  <section data-tab="stats" class="hidden">
+    <section class="gcard">
+      <div class="panel-h" style="margin-bottom:8px"><h2>Sasaran bulan ini</h2><span class="r" id="tg-pct"></span></div>
+      <div class="tg-bar big"><i id="tg-fill2"></i></div>
+      <p class="muted" id="tg-msg" style="margin:8px 0 10px;font-size:13px"></p>
+      <form id="tg-form" class="tg-form"><label>Sasaran untung bersih (RM)<input class="inp" id="tg-in" inputmode="decimal" placeholder="cth. 500"></label><button class="btn btn-p btn-sm" type="submit">Simpan</button></form>
+    </section>
+    <section class="gcard">
+      <div class="panel-h" style="margin-bottom:4px"><h2>Trend 6 bulan</h2><span class="r">Untung bersih</span></div>
+      <div class="trend" id="trend"></div>
+    </section>
+    <section class="gcard">
+      <div class="segp" id="per-seg">
+        <button type="button" data-p="this" aria-pressed="true">Bulan ini</button>
+        <button type="button" data-p="last" aria-pressed="false">Bulan lepas</button>
+        <button type="button" data-p="all" aria-pressed="false">Semua</button>
+      </div>
+      <div class="warnbox hidden" id="pl-warn">Ada SKU tanpa harga. Set harga asas di <b>Harga saya</b>, atau isi harga dalam setiap order.</div>
+      <div class="pl" id="pl"></div>
+      <button class="btn btn-p btn-block" type="button" id="upd-sales" style="margin-top:12px">Kemas kini jualan</button>
+    </section>
+
+  </section>
+
+  <!-- ============ BUTIRAN ORDER (per SKU) ============ -->
+  <section data-tab="detail" class="hidden"><div id="detail"></div></section>
+
+  <!-- Editing banner -->
+  <div id="editing" class="editing hidden">
+    <div><span class="kicker">Mengedit</span><br><b id="ed-code"></b> <span id="ed-status" class="pill"></span></div>
+    <button class="btn btn-o btn-sm" id="ed-close" type="button">Tutup</button>
+  </div>
+
+  <!-- ============ ORDER FORM (new + edit) ============ -->
+  <form id="order-form" class="hidden" novalidate>
+    <section class="panel">
+      <div class="panel-h"><span class="step">01</span><h2>Pilih perisa</h2><span class="r">Tekan + untuk tambah</span></div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><span class="step">02</span><h2>Butiran salesperson</h2></div>
+      <div class="who hidden" id="who">
+        <span class="av av-lg" id="who-av"></span>
+        <div class="who-tx"><b id="who-name"></b><span id="who-phone"></span></div>
+        <button class="btn btn-o btn-sm" type="button" id="who-edit">Tukar</button>
+      </div>
+      <div class="fields two stack" id="who-fields">
+        <label class="f">Nama salesperson
+          <input class="inp" id="f-name" autocomplete="name" required placeholder="Nama penuh">
+        </label>
+        <label class="f">Nombor telefon
+          <input class="inp" id="f-phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="012-345 6789">
+        </label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-h"><span class="step">03</span><h2>Ambil atau hantar</h2></div>
+      <div class="fields">
+        <div class="seg" role="radiogroup" aria-label="Kaedah">
+          <label><input type="radio" name="method" value="Ambil" checked><span>Ambil sendiri<small>Ambil di dapur HQ</small></span></label>
+          <label><input type="radio" name="method" value="Hantar"><span>Hantar<small>Team hantar ke alamat</small></span></label>
+        </div>
+        <div class="fields two">
+          <label class="f"><span id="date-label">Tarikh ambil</span>
+            <input class="inp" id="f-date" type="date" required>
+          </label>
+          <label class="f">Masa <small>Pilihan</small>
+            <input class="inp" id="f-time" type="time">
+          </label>
+        </div>
+        <p class="cap-info" id="cap-info"></p>
+        <label class="f hidden" id="addr-wrap">Alamat penghantaran
+          <textarea class="inp" id="f-address" rows="3" placeholder="No. rumah, jalan, taman, poskod, bandar"></textarea>
+        </label>
+        <label class="f">Nota <small>Pilihan</small>
+          <textarea class="inp" id="f-notes" rows="2" placeholder="Contoh: bungkus berasingan, nak siap awal"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <div class="bar"><div class="bar-in">
+      <div class="sum"><b id="total">0</b><span>biji · <span id="nflav">0</span> perisa</span></div>
+      <div class="acts">
+        <button class="btn btn-d hidden" type="button" id="cancel-btn">Batal</button>
+        <button class="btn btn-p" type="submit" id="submit-btn">Semak &amp; hantar</button>
+      </div>
+    </div></div>
+  </form>
+</div>
+
+<nav class="pillnav" role="tablist" aria-label="Menu">
+  <button role="tab" data-tab-btn="mine" aria-selected="false" aria-label="Stok &amp; order"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9"/></svg><span>Stok</span></button>
+  <button role="tab" data-tab-btn="agents" aria-selected="false" aria-label="Agent saya"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg><span>Agent</span></button>
+  <button role="tab" class="center" data-tab-btn="home" aria-selected="true" aria-label="Utama"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8Z"/></svg></button>
+  <button role="tab" data-tab-btn="stats" aria-selected="false" aria-label="Untung Saya"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V12M12 20V5M19 20v-9"/></svg><span>Untung</span></button>
+  <button role="tab" data-tab-btn="me" aria-selected="false" aria-label="Profil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Profil</span></button>
+</nav>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script src="ordering/config.js?v=10"></script>
+<script src="ordering/api.js?v=10"></script>
+<script src="ordering/txsales.js?v=1"></script>
+<script>
+(function () {
+  const { FLAVOURS } = window.SC_CONFIG;
+  const API = window.SC_API;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // In ?demo=1 every device key gets its own prefix, so demo data never mixes with the agent's real data.
+  const NS = window.SC_CONFIG.DEMO_RUN ? 'demo-' : '';
+  const store = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(NS + k)) ?? d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) {} },
+    del(k) { try { localStorage.removeItem(NS + k); } catch (e) {} }
+  };
+  if (window.SC_CONFIG.DEMO_RUN && !store.get('seeded', false)) seedDemo();
+  function seedDemo() {
+    const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const day = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return iso(d); };
+    const lastMonth = (() => { const d = new Date(); d.setDate(0); d.setDate(Math.min(18, d.getDate())); return iso(d); })();
+    const thisMonth = (n) => { const d = new Date(); const t = new Date(d.getFullYear(), d.getMonth(), n); return iso(t > d ? d : t); };
+    const P = { name: 'Aina Demo', phone: '0123456789' };
+    const mk = (code, status, method, date, items, extra) => Object.assign({ code, status, method, date, time: '', address: '', notes: '', createdAt: date + ' 09:00', updatedAt: date + ' 09:00', items: Object.assign(Object.fromEntries(FLAVOURS.map((f) => [f.id, 0])), items), total: Object.values(items).reduce((a, b) => a + b, 0) }, P, extra || {});
+    const orders = [
+      mk('SC-0001', 'Selesai', 'Ambil', lastMonth, { 'chochocunk': 24, 'seasalt': 24 }),
+      mk('SC-0002', 'Selesai', 'Ambil', thisMonth(3), { 'chocolate-chip': 20, 'seasalt': 20, 'tiramisu': 10 }, { notes: 'Untuk bazar sekolah' }),
+      mk('SC-0003', 'Siap', 'Hantar', thisMonth(12), { 'matcha-white': 15, 'choco-duo': 15, 'smores': 10 }, { address: 'No 12, Jalan Mawar, Taman Bunga, 43000 Kajang', time: '15:00' }),
+      mk('SC-0004', 'Dibatalkan', 'Ambil', thisMonth(15), { 'tiramisu': 6 }),
+      mk('SC-0005', 'Baru', 'Ambil', day(2), { 'dark-seasalt': 12, 'matcha-strawberry': 12, 'matcha-smores': 6 }, { time: '10:30' })
+    ];
+    try { localStorage.setItem('sc-demo-orders', JSON.stringify(orders)); localStorage.setItem('sc-demo-orders-last', '5'); } catch (e) {}
+    store.set('sc-agent', P);
+    store.set('sc-prices', { cost: 3.5, sell: 6, items: { 'tiramisu': { cost: 4, sell: 7 }, 'matcha-strawberry': { cost: 4, sell: 7 } } });
+    store.set('sc-sales', {
+      'SC-0001': { items: { 'chochocunk': { cost: 3.5, lines: [{ qty: 20, price: 6 }, { qty: 4, price: 5 }] }, 'seasalt': { cost: 3.5, lines: [{ qty: 24, price: 6, cust: 'Encik Hafiz', cphone: '0198887777' }] } },
+                   extras: [{ name: 'Packaging', amount: 18 }, { name: 'Sticker', amount: 6 }] },
+      'SC-0002': { items: { 'chocolate-chip': { cost: 3.5, lines: [{ qty: 15, price: 6, cust: 'Cikgu Rosnah', cphone: '0129876543' }, { qty: 5, price: 5, cust: 'Kak Mira' }] }, 'seasalt': { cost: 3.5, lines: [{ qty: 20, price: 6 }] }, 'tiramisu': { cost: 4, lines: [{ qty: 8, price: 7 }, { qty: 2, price: 5 }] } },
+                   extras: [{ name: 'Packaging', amount: 20 }, { name: 'Sewa meja bazar', amount: 30 }] },
+      'SC-0003': { items: { 'matcha-white': { cost: 3.5, lines: [{ qty: 9, price: 6.5, cust: 'Cikgu Rosnah', cphone: '0129876543' }] }, 'choco-duo': { cost: 3.5, lines: [{ qty: 6, price: 6 }] }, 'smores': { cost: 3.5, lines: [] } },
+                   extras: [{ name: 'Penghantaran', amount: 10 }] }
+    });
+    // two agents under this salesperson, with stock given from SC-0003
+    const net0 = { agents: [
+        { code: 'agentAli', sp: P.phone, name: 'Ali Agent', phone: '0134445555', status: 'Aktif', createdAt: thisMonth(1) + ' 10:00', note: '' },
+        { code: 'agentSiti', sp: P.phone, name: 'Siti Agent', phone: '0145556666', status: 'Aktif', createdAt: thisMonth(1) + ' 10:05', note: '' }],
+      dists: [{ code: 'DS-0001', sp: P.phone, agent: 'agentAli', date: thisMonth(13), status: 'Diterima', createdAt: thisMonth(13) + ' 11:00', updatedAt: thisMonth(13) + ' 11:00', note: '',
+        items: { 'smores': { qty: 10, price: 4.5 }, 'choco-duo': { qty: 5, price: 4.5 } }, total: 15, value: 67.5, alloc: { 'SC-0003': { 'smores': 10, 'choco-duo': 5 } } },
+        { code: 'DS-0002', sp: P.phone, agent: 'agentSiti', date: thisMonth(14), status: 'Dihantar', createdAt: thisMonth(14) + ' 09:00', updatedAt: thisMonth(14) + ' 09:00', note: '',
+        items: { 'matcha-white': { qty: 4, price: 5 } }, total: 4, value: 20, alloc: { 'SC-0003': { 'matcha-white': 4 } } }],
+      pays: [{ id: 'PY-0001', sp: P.phone, agent: 'agentAli', date: thisMonth(15), amount: 30, note: 'Tunai', createdAt: thisMonth(15) + ' 18:00' }],
+      jsales: { 'DS-0001': { items: { 'smores': { lines: [{ qty: 6, price: 6, cust: 'Puan Lina' }] }, 'choco-duo': { lines: [{ qty: 5, price: 6 }] } }, extras: [{ name: 'Packaging', amount: 3 }], updatedAt: new Date().toISOString() } },
+      aprof: { 'agentAli': { prices: { sell: 6, items: {} }, target: { amount: 100 }, updatedAt: new Date().toISOString() } }, n: { dist: 2, pay: 1 } };
+    try { localStorage.setItem('sc-demo-orders-net', JSON.stringify(net0)); } catch (e) {}
+    store.set('seeded', true);
+  }
+  const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+  const fmtDate = (iso) => { if (!iso) return '-'; const [y, m, d] = iso.split('-'); return new Date(+y, m - 1, +d).toLocaleDateString('ms-MY', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); };
+  const fmtShort = (iso) => { if (!iso) return '-'; const [y, m, d] = iso.split('-'); return new Date(+y, m - 1, +d).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' }); };
+  const RM = (n) => (n < 0 ? '-' : '') + 'RM' + Math.abs(n).toLocaleString('ms-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const RMs = (n) => (n < 0 ? '-' : '') + 'RM' + (Math.abs(n) >= 1000 ? (Math.abs(n) / 1000).toFixed(1) + 'k' : Math.round(Math.abs(n)));
+  const TITLES = { home: 'Utama', new: 'Order Stok', mine: 'Stok & Order', me: 'Profil', stats: 'Untung Saya', detail: 'Butiran Order', agents: 'Agent Saya', agent: 'Agent' };
+
+  if (API.DEMO) $('demo').classList.remove('hidden');
+  if (window.SC_CONFIG.DEMO_RUN) {
+    $('demo').innerHTML = '<b>Mod demo</b> · log masuk dengan <b>salesDemo</b>. Data contoh sahaja, tiada apa dihantar ke Google Sheet. <button class="btn btn-o btn-sm" type="button" id="demo-reset" style="margin-left:6px;min-height:30px">Reset demo</button>';
+    $('demo-reset').onclick = () => {
+      ['seeded', 'sc-agent', 'sc-prices', 'sc-sales', 'sp-code'].forEach((k) => store.del(k));
+      try { ['sc-demo-orders', 'sc-demo-orders-last', 'sc-demo-orders-net', 'sc-demo-orders-agent', 'sc-demo-orders-sps', 'sc-demo-orders-set', 'sc-demo-orders-inv', 'sc-demo-orders-log', 'sc-demo-orders-hqpay', 'sc-demo-orders-hqn', 'sc-demo-orders-anns'].forEach((k) => localStorage.removeItem(k)); ['demo-ag-code', 'demo-ag-sales', 'demo-ag-prof'].forEach((k) => localStorage.removeItem(k)); } catch (e) {}
+      location.reload();
+    };
+  }
+
+  /* ---------- flavour grid ---------- */
+  $('grid').innerHTML = FLAVOURS.map((f) => `
+    <div class="fl" data-id="${f.id}">
+      <div class="imgbox"><img src="${f.img}" alt="" loading="lazy"></div>
+      <div class="tx"><h3>${esc(f.name)}</h3><p>${esc(f.desc)}</p></div>
+      <div class="qty">
+        <button type="button" class="minus" aria-label="Kurang ${esc(f.name)}">−</button>
+        <input type="number" min="0" max="9999" inputmode="numeric" value="0" aria-label="Kuantiti ${esc(f.name)}">
+        <button type="button" class="plus" aria-label="Tambah ${esc(f.name)}">+</button>
+      </div>
+    </div>`).join('');
+
+  const qtyInput = (id) => document.querySelector(`.fl[data-id="${id}"] input`);
+  let hqSet = { unavailable: [], earliest: '', capacity: 0, load: {}, hqPrice: { def: '', items: {} } };
+  async function fetchSettings() { try { hqSet = (await API.publicSettings()).settings || hqSet; } catch (e) {} applySettings(); }
+  function applySettings() {
+    const keep = tab === 'mine' && editing && drafts.edit ? drafts.edit.items || {} : {};
+    FLAVOURS.forEach((f) => {
+      const off = (hqSet.unavailable || []).includes(f.id), card = document.querySelector(`.fl[data-id="${f.id}"]`);
+      const cur = Number(qtyInput(f.id).value) || 0, max = off ? (keep[f.id] || 0) : 9999;
+      card.classList.toggle('off', off); card.dataset.max = max;
+      card.querySelector('.plus').disabled = cur >= max;
+      let tag = card.querySelector('.offtag'); if (off && !tag) { tag = document.createElement('span'); tag.className = 'offtag'; tag.textContent = 'Habis'; card.querySelector('.tx').appendChild(tag); } else if (!off && tag) tag.remove();
+    });
+    if (tab === 'new' && hqSet.earliest) $('f-date').min = hqSet.earliest;
+    capInfo();
+  }
+  function capInfo() {
+    const el = $('cap-info'); if (!el) return;
+    const d = $('f-date').value, cap = Number(hqSet.capacity) || 0;
+    if (!d) { el.textContent = hqSet.earliest ? `Tarikh terawal boleh order: ${fmtDate(hqSet.earliest)}` : ''; el.className = 'cap-info'; return; }
+    if (!cap) { el.textContent = ''; return; }
+    const own = tab === 'mine' && editing && drafts.edit && drafts.edit.date === d ? drafts.edit.total || 0 : 0;
+    const left = cap - ((hqSet.load || {})[d] || 0) + own, want = Number($('total').textContent) || 0;
+    el.textContent = left <= 0 ? `Kapasiti ${fmtDate(d)} dah penuh. Pilih tarikh lain.` : `Baki kapasiti ${fmtDate(d)}: ${left} biji${want > left ? ` — order anda (${want}) melebihi baki` : ''}`;
+    el.className = 'cap-info' + (left <= 0 || want > left ? ' bad' : '');
+  }
+  function setQty(id, v) {
+    const card = document.querySelector(`.fl[data-id="${id}"]`), max = card.dataset.max !== undefined ? Number(card.dataset.max) : 9999;
+    const n = Math.max(0, Math.min(max, Math.floor(Number(v) || 0)));
+    card.querySelector('input').value = n;
+    card.querySelector('.minus').disabled = n === 0;
+    card.querySelector('.plus').disabled = n >= max;
+    card.classList.toggle('on', n > 0);
+  }
+  $('grid').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    const id = b.closest('.fl').dataset.id, cur = Number(qtyInput(id).value) || 0;
+    setQty(id, cur + (b.classList.contains('plus') ? 1 : -1)); updateTotal();
+  });
+  $('grid').addEventListener('input', (e) => {
+    if (e.target.matches('input')) { const id = e.target.closest('.fl').dataset.id; setQty(id, e.target.value); updateTotal(); }
+  });
+  $('f-date').addEventListener('change', () => capInfo());
+  $('grid').addEventListener('focusin', (e) => { if (e.target.matches('input')) e.target.select(); });
+  function updateTotal() {
+    let t = 0, n = 0;
+    FLAVOURS.forEach((f) => { const q = Number(qtyInput(f.id).value) || 0; t += q; if (q) n++; });
+    $('total').textContent = t; $('nflav').textContent = n; capInfo();
+  }
+
+  /* ---------- method / date ---------- */
+  const methodVal = () => document.querySelector('input[name="method"]:checked').value;
+  function syncMethod() {
+    const m = methodVal();
+    $('date-label').textContent = m === 'Hantar' ? 'Tarikh hantar' : 'Tarikh ambil';
+    $('addr-wrap').classList.toggle('hidden', m !== 'Hantar');
+  }
+  document.querySelectorAll('input[name="method"]').forEach((r) => r.addEventListener('change', syncMethod));
+
+  /* ---------- read / write form ---------- */
+  function readForm() {
+    const items = {};
+    FLAVOURS.forEach((f) => { items[f.id] = Number(qtyInput(f.id).value) || 0; });
+    return { items, name: $('f-name').value.trim(), phone: $('f-phone').value.trim(), method: methodVal(),
+             date: $('f-date').value, time: $('f-time').value, address: $('f-address').value.trim(), notes: $('f-notes').value.trim() };
+  }
+  function fillForm(o) {
+    o = o || {};
+    FLAVOURS.forEach((f) => setQty(f.id, (o.items || {})[f.id] || 0));
+    $('f-name').value = o.name || ''; $('f-phone').value = o.phone || '';
+    document.querySelector(`input[name="method"][value="${o.method === 'Hantar' ? 'Hantar' : 'Ambil'}"]`).checked = true;
+    $('f-date').value = o.date || ''; $('f-time').value = o.time || '';
+    $('f-address').value = o.address || ''; $('f-notes').value = o.notes || '';
+    syncMethod(); updateTotal(); whoEditing = false; syncWho();
+  }
+  function validate(o) {
+    const total = Object.values(o.items).reduce((a, b) => a + b, 0);
+    if (!total) return ['Sila pilih sekurang-kurangnya 1 cookie.', 'grid'];
+    if (!o.name) return ['Sila isi nama.', 'f-name'];
+    if (!validPhone(o.phone)) return ['Nombor telefon tidak sah.', 'f-phone'];
+    if (!o.date) return [`Sila pilih tarikh ${o.method.toLowerCase()}.`, 'f-date'];
+    if (o.method === 'Hantar' && !o.address) return ['Sila isi alamat penghantaran.', 'f-address'];
+    return null;
+  }
+
+  /* ---------- agent profile (device) ---------- */
+  let whoEditing = false;
+  const initials = (n) => String(n || '').trim().replace(/[^\p{L}\s]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+  const validPhone = (p) => { const d = API.normPhone(p); return d.length >= 9 && d.length <= 12; };
+  const getProfile = () => store.get('sc-agent', {});
+  const spSess = () => store.get('sp-code', '');
+  function syncWho() {
+    const n = $('f-name').value.trim(), p = $('f-phone').value.trim();
+    const compact = !whoEditing && n && validPhone(p);
+    $('who').classList.toggle('hidden', !compact);
+    $('who-fields').classList.toggle('hidden', !!compact);
+    $('who-name').textContent = n; $('who-phone').textContent = p; $('who-av').textContent = initials(n);
+  }
+  function syncProfileUI() {
+    const pr = getProfile();
+    $('av').textContent = pr.name ? initials(pr.name) : '?';
+    $('p-av').textContent = pr.name ? initials(pr.name) : '?';
+    $('p-name').textContent = pr.name || 'Belum set profil';
+    $('p-phone').textContent = pr.phone || 'Tekan Edit untuk isi';
+    $('hello').textContent = pr.name ? `Hai, ${pr.name.split(' ')[0]}!` : 'Hai!';
+  }
+  $('who-edit').onclick = () => { whoEditing = true; syncWho(); $('f-name').focus(); };
+  $('profile-btn').onclick = () => go('me');
+  $('p-edit').onclick = $('m-profile').onclick = () => profileSheet();
+  function profileSheet(first) {
+    const pr = getProfile();
+    openModal(`<span class="kicker">Profil salesperson</span><h2>${first ? 'Selamat datang!' : 'Siapa anda?'}</h2>
+      <p class="muted" style="margin:4px 0 14px">${first ? 'Sila sahkan nama dan isi nombor telefon anda. ' : ''}Disimpan dalam akaun <b>${esc(spSess())}</b> dan diisi automatik setiap kali anda buat order.</p>
+      <form id="pf" class="fields" novalidate>
+        <label class="f">Nama salesperson<input class="inp" id="pf-name" autocomplete="name" placeholder="Nama penuh" value="${esc(pr.name || '')}"></label>
+        <label class="f">Nombor telefon<input class="inp" id="pf-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="012-345 6789" value="${esc(pr.phone || '')}"></label>
+        <div class="acts">${first ? '<button class="btn btn-o" type="button" id="pf-clear">Log keluar</button>' : '<button class="btn btn-o" type="button" data-close>Batal</button>'}
+        <button class="btn btn-p" type="submit">Simpan</button></div>
+      </form>`);
+    $('pf-name').focus();
+    $('pf').onsubmit = async (e) => {
+      e.preventDefault();
+      const name = $('pf-name').value.trim(), phone = $('pf-phone').value.trim();
+      if (!name) return toast('Sila isi nama.', true);
+      if (!validPhone(phone)) return toast('Nombor telefon tidak sah.', true);
+      try { const r = await API.spSetProfile(spSess(), { name, phone }); store.set('sc-agent', { name: r.sp.name, phone: r.sp.phone }); }
+      catch (err) { return toast(err.message, true); }
+      drafts.new = Object.assign(drafts.new || {}, { name, phone });
+      if (tab === 'new') fillForm(drafts.new);
+      syncProfileUI(); closeModal(); toast('Profil disimpan.'); fetchMine();
+    };
+    const c = $('pf-clear'); if (c) c.onclick = () => { closeModal(); spLogout(); };
+  }
+
+  /* ---------- prices & sales records (kept on the device and synced to Google Sheet) ---------- */
+  const getPrices = () => store.get('sc-prices', { cost: '', sell: '', items: {} });
+  const getSales = () => store.get('sc-sales', {});
+  function priceOf(id) {
+    const p = getPrices(), it = (p.items || {})[id] || {};
+    const n = (v) => (v === undefined || v === null || v === '' ? NaN : Number(v)); // empty = not set (not RM0)
+    const c = it.cost !== undefined && it.cost !== '' && it.cost !== null ? n(it.cost) : n(p.cost);
+    const s = it.sell !== undefined && it.sell !== '' && it.sell !== null ? n(it.sell) : n(p.sell);
+    return { cost: isFinite(c) ? c : NaN, sell: isFinite(s) ? s : NaN };
+  }
+  // Price for one SKU in one order: the order's own price if set, otherwise the agent's default price.
+  const setv_ = (v) => v !== undefined && v !== null && v !== '';
+  // Cost of one SKU: the price typed in the order, else the HQ invoice price for that order, else the default price.
+  function orderPrice(rec, id, code) {
+    const r = rec[id] || {}, g = priceOf(id), iv = code ? invPrice(code, id) : null;
+    return { cost: setv_(r.cost) ? Number(r.cost) : iv !== null ? iv : g.cost, sell: setv_(r.sell) ? Number(r.sell) : g.sell };
+  }
+  // A SKU can be sold in several batches at different prices: lines = [{ qty, price }].
+  function salesLines(rec, id) {
+    const r = rec[id] || {};
+    if (Array.isArray(r.lines)) return r.lines;
+    return r.sold ? [{ qty: r.sold, price: setv_(r.sell) ? Number(r.sell) : '' }] : []; // older single-price records
+  }
+  const linePrice = (l, id) => (setv_(l.price) ? Number(l.price) : priceOf(id).sell);
+  const hasPrices = () => { const p = getPrices(); return (p.cost !== '' && p.sell !== '') || Object.values(p.items || {}).some((x) => x.cost !== '' && x.sell !== ''); };
+
+  function calc(list) {
+    const r = { orders: 0, pcs: 0, sold: 0, lost: 0, left: 0, cost: 0, sale: 0, extra: 0, lostVal: 0, missing: false };
+    const sales = getSales();
+    list.filter((o) => o.status !== 'Dibatalkan').forEach((o) => {
+      r.orders++; r.pcs += o.total;
+      const rec = (sales[o.code] || {}).items || {};
+      r.extra += ((sales[o.code] || {}).extras || []).reduce((a, x) => a + (Number(x.amount) || 0), 0);
+      FLAVOURS.forEach((f) => {
+        const q = o.items[f.id] || 0; if (!q) return;
+        const pr = orderPrice(rec, f.id, o.code), lines = distLines(o.code, f.id).concat(salesLines(rec, f.id));
+        let sold = 0, sale = 0;
+        lines.forEach((l) => { const n = Math.max(0, Math.min(q - sold, Math.floor(Number(l.qty)) || 0)); if (!n) return;
+          const price = linePrice(l, f.id); if (isNaN(price)) r.missing = true; sold += n; sale += n * (price || 0); });
+        if (isNaN(pr.cost)) r.missing = true;
+        r.sold += sold; r.left += q - sold;
+        r.cost += q * (pr.cost || 0); r.sale += sale;
+      });
+    });
+    r.gross = r.sale - r.cost;                 // untung kasar (jualan - kos produk)
+    r.profit = r.gross - r.extra;             // untung bersih (selepas kos lain)
+    r.margin = r.sale ? r.profit / r.sale * 100 : null;
+    r.grossMargin = r.sale ? r.gross / r.sale * 100 : null;
+    r.totalCost = r.cost + r.extra;
+    r.avgSell = r.sold ? r.sale / r.sold : null;
+    r.roi = r.totalCost ? r.profit / r.totalCost * 100 : null;
+    return r;
+  }
+  function inPeriod(o, p) {
+    if (p === 'all') return true;
+    const d = new Date(), y = d.getFullYear(), m = d.getMonth();
+    const t = p === 'this' ? [y, m] : (m === 0 ? [y - 1, 11] : [y, m - 1]);
+    const key = `${t[0]}-${String(t[1] + 1).padStart(2, '0')}`;
+    return String(o.date || '').slice(0, 7) === key;
+  }
+
+  /* ---------- sync with Google Sheet (sheets "Jualan" and "AgentData") ---------- */
+  const syncQ = new Set(); let syncT = null, profileDirty = false;
+  const nowISO = () => new Date().toISOString();
+  const agentData = () => ({ prices: getPrices(), target: store.get('sc-target', null), updatedAt: store.get('sc-agent-upd', '') });
+  function setSync(st) {
+    $('sync-st').textContent = { pending: 'Menyimpan ke Google Sheet…', ok: 'Semua rekod disimpan ke Google Sheet ✓', err: 'Belum disimpan ke Sheet (tiada internet?). Data selamat di peranti, akan dicuba semula.' }[st];
+  }
+  function queueSales(code) { syncQ.add(code); scheduleSync(); }
+  function queueProfile() { store.set('sc-agent-upd', nowISO()); profileDirty = true; scheduleSync(); }
+  function scheduleSync() { clearTimeout(syncT); syncT = setTimeout(flushSync, 1200); setSync('pending'); }
+  async function flushSync() {
+    const ph = getProfile().phone; if (!ph) return;
+    try {
+      if (profileDirty) { profileDirty = false; await API.agentSaveProfile(ph, agentData()); }
+      for (const code of [...syncQ]) { const rec = getSales()[code]; if (rec) await API.agentSaveSales(ph, code, rec); syncQ.delete(code); }
+      setSync('ok');
+    } catch (err) { setSync('err'); clearTimeout(syncT); syncT = setTimeout(flushSync, 30000); }
+  }
+  // Server copy wins when it is newer (e.g. agent changed phone); local copy is pushed up when it is newer.
+  function mergeAgent(ag, orders) {
+    const all = getSales(); let changed = false;
+    Object.entries(ag.sales || {}).forEach(([code, rec]) => {
+      const loc = all[code];
+      if (!loc || String(rec.updatedAt || '') > String(loc.updatedAt || '')) { all[code] = rec; changed = true; }
+    });
+    if (changed) store.set('sc-sales', all);
+    orders.forEach((o) => { const loc = all[o.code], srv = (ag.sales || {})[o.code];
+      if (loc && (!srv || String(loc.updatedAt || '') > String(srv.updatedAt || ''))) syncQ.add(o.code); });
+    const srvP = ag.profile, locU = store.get('sc-agent-upd', '');
+    if (srvP && String(srvP.updatedAt || '') > String(locU)) {
+      if (srvP.prices) store.set('sc-prices', srvP.prices);
+      store.set('sc-target', srvP.target || null); store.set('sc-agent-upd', srvP.updatedAt || '');
+    } else if (locU && (!srvP || String(locU) > String(srvP.updatedAt || ''))) profileDirty = true;
+    if (syncQ.size || profileDirty) scheduleSync(); else setSync('ok');
+  }
+
+  /* ---------- announcement from admin ---------- */
+  let anns = [];
+  async function fetchAnn() { try { anns = (await API.getAnnouncements({ role: 'sales', sp: spSess() })).announcements || []; } catch (e) { anns = []; } renderHome(); }
+
+  /* ---------- my orders (from server by phone) ---------- */
+  let mine = [], mineFilter = 'active', period = 'this', loadingMine = false;
+  let hq = { invoices: [], payments: [] };
+  const invOf = (code) => hq.invoices.find((v) => v.code === code);
+  function invPrice(code, id) { const v = invOf(code); const p = v && v.prices ? v.prices[id] : null; return p === null || p === undefined ? null : Number(p); }
+  const hqOwe = () => hq.invoices.reduce((a, v) => a + v.amount, 0) - hq.payments.reduce((a, y) => a + y.amount, 0);
+  let net = { agents: [], dists: [], payments: [], sales: {} };
+  // Stock given to agents, attributed to the order it came from (FIFO by order date).
+  function distLines(code, id) {
+    return net.dists.filter((d) => d.alloc && d.alloc[code] && d.alloc[code][id])
+      .map((d) => ({ qty: d.alloc[code][id], price: (d.items[id] || {}).price, dist: d.code, agent: d.agent }));
+  }
+  const distQ = (code, id) => distLines(code, id).reduce((a, l) => a + l.qty, 0);
+  const ownSold = (o, id) => { const rec = (getSales()[o.code] || {}).items || {}; return salesLines(rec, id).reduce((a, l) => a + (Math.floor(Number(l.qty)) || 0), 0); };
+  // How much of each flavour the salesperson still has in hand, per order (oldest first).
+  function stockByOrder() {
+    return mine.filter((o) => o.status !== 'Dibatalkan').sort((a, b) => (a.date + a.code).localeCompare(b.date + b.code)).map((o) => {
+      const left = {}; FLAVOURS.forEach((f) => { const q = o.items[f.id] || 0; if (q) left[f.id] = Math.max(0, q - ownSold(o, f.id) - distQ(o.code, f.id)); });
+      return { o, left };
+    });
+  }
+  function stockLeft() { const t = {}; stockByOrder().forEach(({ left }) => Object.entries(left).forEach(([k, v]) => (t[k] = (t[k] || 0) + v))); return t; }
+  const agentName = (code) => (net.agents.find((a) => a.code === code) || {}).name || code;
+  function agentStats(a) {
+    const ds = net.dists.filter((d) => d.agent === a.code), pays = net.payments.filter((y) => y.agent === a.code);
+    let given = 0, value = 0, sold = 0, sale = 0, last = '';
+    ds.forEach((d) => {
+      given += d.total; value += d.value;
+      const rec = (net.sales[d.code] || {}).items || {};
+      FLAVOURS.forEach((f) => { const q = (d.items[f.id] || {}).qty || 0; let s2 = 0;
+        salesLines(rec, f.id).forEach((l) => { const n = Math.max(0, Math.min(q - s2, Math.floor(Number(l.qty)) || 0)); s2 += n; sale += n * (Number(l.price) || 0); });
+        sold += s2; });
+      const u = (net.sales[d.code] || {}).updatedAt || d.updatedAt || d.createdAt; if (String(u) > last) last = String(u);
+    });
+    const paid = pays.reduce((x, y) => x + y.amount, 0);
+    return { ds, pays, given, value, sold, left: given - sold, sale, paid, owe: value - paid, last };
+  }
+  async function fetchNet() {
+    const pr = getProfile(); if (!pr.phone) return;
+    try { const r = await API.spAgents(pr.phone); net = { agents: r.agents || [], dists: r.dists || [], payments: r.payments || [], sales: r.sales || {} }; }
+    catch (err) { toast(err.message, true); }
+    if (tab === 'agents') renderAgents(); else if (tab === 'agent') renderAgent();
+    renderMine(); renderStats();
+  }
+  async function fetchMine() {
+    const pr = getProfile();
+    if (!pr.phone) { mine = []; renderMine(); renderStats(); return; }
+    loadingMine = true; renderMine();
+    try {
+      const [res, ag] = await Promise.all([API.myOrders(pr.phone), API.agentGet(pr.phone).catch(() => null), fetchNet()]);
+      mine = res.orders || [];
+      hq = { invoices: res.invoices || [], payments: res.hqPayments || [] };
+      if (res.settings) { hqSet = res.settings; applySettings(); }
+      if (ag) mergeAgent(ag, mine);
+    }
+    catch (err) { toast(err.message, true); }
+    finally { loadingMine = false; renderMine(); renderStats(); if (detail) detail = mine.find((x) => x.code === detail.code) || detail; }
+  }
+  function renderStockCard() {
+    const st = stockLeft(), tot = Object.values(st).reduce((a, b) => a + b, 0), fl = FLAVOURS.filter((f) => st[f.id]);
+    $('stock-card').innerHTML = mine.length ? `<section class="gcard"><div class="panel-h" style="margin-bottom:8px"><h2>Stok di tangan</h2><span class="r">${tot} biji</span></div>
+      ${fl.length ? `<div class="items">${fl.map((f) => `<span>${esc(f.name)} <b>×${st[f.id]}</b></span>`).join('')}</div>` : '<p class="muted" style="margin:0;font-size:13px">Semua stok dah dijual atau diagih.</p>'}
+      ${fl.length && net.agents.some((a) => a.status === 'Aktif') ? '<button class="btn btn-o btn-sm" type="button" data-go="agents" style="margin-top:10px">Agih ke agent →</button>' : ''}</section>` : '';
+  }
+  function renderMine() {
+    renderStockCard();
+    const pr = getProfile();
+    if (!pr.phone) { $('olist').innerHTML = '<div class="gcard empty2">Set profil dahulu supaya order anda dipaparkan di sini.<br><br><button class="btn btn-p btn-sm" type="button" id="set-prof">Set profil</button></div>'; $('set-prof').onclick = () => profileSheet(); return; }
+    if (loadingMine && !mine.length) { $('olist').innerHTML = '<div class="empty2">Memuatkan order…</div>'; return; }
+    const sales = getSales();
+    const list = mine.filter((o) => mineFilter === 'all' || !['Dibatalkan', 'Selesai'].includes(o.status) || !isSettled(o, sales))
+      .sort((a, b) => (b.date + b.code).localeCompare(a.date + a.code));
+    if (!list.length) { $('olist').innerHTML = `<div class="gcard empty2">${mine.length ? 'Tiada order aktif. Tekan "Semua" untuk lihat semua.' : 'Belum ada order dengan nombor ' + esc(pr.phone) + '.'}</div>`; return; }
+    $('olist').innerHTML = list.map((o) => {
+      const c = calc([o]);
+      const sp = o.total ? c.sold / o.total * 100 : 0, lp = 0;
+      const pl = o.status === 'Dibatalkan' || c.missing ? '' : `<span class="${c.profit >= 0 ? 'pos' : 'neg'}">${c.sold ? (c.profit >= 0 ? '+' : '') + RM(c.profit) : ''}</span>`;
+      return `<button class="oitem" type="button" data-code="${esc(o.code)}">
+        <div class="r1"><b>${esc(o.code)}</b><span class="pill st-${esc(o.status)}">${esc(o.status)}</span></div>
+        <div class="r2">${esc(o.method)} · ${esc(fmtDate(o.date))}${o.time ? ' · ' + esc(o.time) : ''}${invOf(o.code) && o.status !== 'Dibatalkan' ? ' · invois ' + RM(invOf(o.code).amount) : ''}</div>
+        ${o.status === 'Dibatalkan' ? '' : `<div class="prog"><i class="s" style="width:${sp}%"></i><i class="l" style="width:${lp}%"></i></div>`}
+        <div class="r3"><span>${o.total} biji${o.status === 'Dibatalkan' ? '' : ` · ${c.sold} terjual${c.left ? ` · ${c.left} belum terjual` : ''}`}</span>${pl}</div>
+      </button>`;
+    }).join('');
+  }
+  const isSettled = (o, sales) => { const c = calc([o]); return c.left === 0; };
+  $('mine-seg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    mineFilter = b.dataset.f;
+    $('mine-seg').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    renderMine();
+  });
+  $('olist').addEventListener('click', (e) => {
+    const b = e.target.closest('.oitem'); if (!b) return;
+    const o = mine.find((x) => x.code === b.dataset.code); if (o) openDetail(o);
+  });
+
+  /* ---------- order detail page: each SKU with its cost and sales (qty × price, several prices allowed) ---------- */
+  let detail = null;
+  function openDetail(o) {
+    if (tab === 'new') drafts.new = readForm();
+    detail = o; editing = null; tab = 'detail';
+    render(); window.scrollTo({ top: 0 });
+  }
+  const recOf = (code) => (getSales()[code] || {}).items || {};
+  const num = (v) => { v = String(v ?? '').replace(',', '.').trim(); return v === '' ? '' : (isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : null); };
+  const money = (v) => (v === '' || v === null || isNaN(v) ? '' : Number(v).toFixed(2));
+
+  function renderDetail() {
+    const o = detail; if (!o) return;
+    const cancelled = o.status === 'Dibatalkan';
+    const fl = FLAVOURS.filter((f) => o.items[f.id]);
+    const dis = cancelled ? 'disabled' : '';
+    // working copy of this order's records: { id: { cost, lines: [{qty, price}] } }
+    const rec0 = recOf(o.code), work = {};
+    fl.forEach((f) => { work[f.id] = { cost: money(orderPrice(rec0, f.id, o.code).cost), lines: salesLines(rec0, f.id).map((l) => ({ qty: l.qty, price: money(l.price), cust: l.cust || '', cphone: l.cphone || '', tx: l.tx || '' })) }; });
+    const extras = ((getSales()[o.code] || {}).extras || []).map((x) => ({ name: x.name, amount: money(x.amount) }));
+
+    const skuHTML = (f) => `
+        <div class="gcard sku" data-id="${f.id}">
+          <div class="sku-h"><span class="imgbox"><img src="${f.img}" alt=""></span>
+            <div class="tx"><b>${esc(f.name)}</b><span>Order ${o.items[f.id]} biji · <span class="pl-t"></span></span></div>
+            <span class="left-pill"></span></div>
+          <label class="sku-cost"><span>Kos / biji (RM)</span><input class="inp" data-k="cost" inputmode="decimal" placeholder="0.00" value="${esc(work[f.id].cost)}" ${dis}></label>
+          ${distLines(o.code, f.id).map((l) => `<div class="dline">↳ Agih ke <b>${esc(agentName(l.agent))}</b> (${esc(l.dist)}): ${l.qty} × ${RM(Number(l.price) || 0)}</div>`).join('')}
+        </div>`;
+
+    $('detail').innerHTML = `
+      <div class="gcard dhead">
+        <div class="r1"><span class="kicker">${esc(o.method)} · ${esc(fmtDate(o.date))}${o.time ? ' · ' + esc(o.time) : ''}</span><span class="pill st-${esc(o.status)}">${esc(o.status)}</span></div>
+        <div class="dstat" id="d-stat"></div>
+        ${invOf(o.code) ? `<div class="r2">🧾 Invois HQ: <b>${RM(invOf(o.code).amount)}</b>${invOf(o.code).missing ? ' (harga HQ belum lengkap)' : ''}</div>` : ''}
+        <div class="kpis" id="d-kpi"></div>
+        ${o.method === 'Hantar' && o.address ? `<div class="r2">📍 ${esc(o.address)}</div>` : ''}
+        ${o.notes ? `<div class="r2">📝 ${esc(o.notes)}</div>` : ''}
+        <div class="dacts"><button class="btn btn-o btn-sm" type="button" id="d-edit">Edit order</button><button class="btn btn-o btn-sm" type="button" id="d-again">Order semula</button><button class="btn btn-o btn-sm" type="button" id="d-share">Kongsi WhatsApp</button>${cancelled ? '' : '<button class="btn btn-o btn-sm" type="button" id="d-def">Guna harga asas</button>'}</div>
+      </div>
+      ${cancelled ? '<div class="warnbox">Order ini dibatalkan, jadi tidak dikira dalam untung.</div>' : ''}
+      <p class="sec-h">Jualan ikut pelanggan</p>
+      <div class="gcard txbox" id="txbox"></div>
+      <div class="gcard xcost">
+        <div class="panel-h" style="margin-bottom:6px"><h2>Kos lain</h2><span class="r" id="x-total"></span></div>
+        <p class="muted" style="margin:0 0 10px;font-size:12px">Contoh: packaging, sticker, penghantaran, minyak. Kos ini ditolak daripada untung.</p>
+        <div id="xlist"></div>
+        ${cancelled ? '' : `<div class="xsug">${['Packaging', 'Sticker', 'Penghantaran', 'Minyak / tol', 'Iklan'].map((n) => `<button class="fchip" type="button" data-x="${n}">+ ${n}</button>`).join('')}</div>
+        <button class="btn btn-o btn-sm addline" type="button" id="x-add">+ Tambah kos</button>`}
+      </div>
+      <p class="sec-h">Ringkasan perisa · ${fl.length} SKU · ${o.total} biji</p>
+      <div id="skus">${fl.map(skuHTML).join('')}</div>`;
+
+    const card = (id) => document.querySelector(`.sku[data-id="${id}"]`);
+    const soldOf = (id) => work[id].lines.reduce((a, l) => a + (Math.floor(Number(l.qty)) || 0), 0);
+    function save() {
+      const all = getSales(), items = {};
+      fl.forEach((f) => { items[f.id] = { cost: num(work[f.id].cost) ?? '', lines: work[f.id].lines.map((l) => ({ qty: Math.floor(Number(l.qty)) || 0, price: num(l.price) ?? '', cust: String(l.cust || '').slice(0, 60), cphone: String(l.cphone || '').slice(0, 20), tx: l.tx || '' })) }; });
+      all[o.code] = { items, extras: extras.filter((x) => x.name || num(x.amount)).map((x) => ({ name: String(x.name || '').slice(0, 60), amount: num(x.amount) || 0 })), updatedAt: new Date().toISOString() };
+      store.set('sc-sales', all); queueSales(o.code);
+    }
+    function drawExtras() {
+      $('xlist').innerHTML = extras.map((x, i) => `<div class="xrow" data-i="${i}">
+          <input class="inp" data-x="name" placeholder="Nama kos" value="${esc(x.name)}" ${dis}>
+          <input class="inp" data-x="amount" inputmode="decimal" placeholder="0.00" value="${esc(x.amount)}" ${dis}>
+          ${cancelled ? '' : '<button class="ldel" type="button" aria-label="Buang kos ini">×</button>'}
+        </div>`).join('') || '<p class="none">Tiada kos lain.</p>';
+    }
+    function addExtra(name) {
+      extras.push({ name: name || '', amount: '' }); drawExtras(); save(); update();
+      const rows = document.querySelectorAll('#xlist .xrow'), last = rows[rows.length - 1];
+      if (last) (name ? last.querySelector('[data-x=amount]') : last.querySelector('[data-x=name]')).focus();
+    }
+    const xc = document.querySelector('.xcost');
+    xc.addEventListener('click', (e) => {
+      if (cancelled) return;
+      if (e.target.closest('#x-add')) addExtra('');
+      else if (e.target.closest('.xsug [data-x]')) addExtra(e.target.closest('[data-x]').dataset.x);
+      else if (e.target.closest('.ldel')) { extras.splice(Number(e.target.closest('.xrow').dataset.i), 1); drawExtras(); save(); update(); }
+    });
+    xc.addEventListener('change', (e) => {
+      const row = e.target.closest('.xrow'); if (!row) return;
+      const x = extras[row.dataset.i];
+      if (e.target.dataset.x === 'name') x.name = e.target.value.trim();
+      else { const v = num(e.target.value); if (v === null) toast('Jumlah tidak sah.', true); x.amount = v === null ? '' : money(v); e.target.value = x.amount; }
+      save(); update();
+    });
+    drawExtras();
+
+    function update() {
+      const rec = recOf(o.code);
+      fl.forEach((f) => {
+        const c = card(f.id), q = o.items[f.id], sold = Math.min(q, soldOf(f.id) + distQ(o.code, f.id)), left = q - sold;
+        const one = calc([{ status: o.status, total: q, items: { [f.id]: q }, code: o.code }]);
+        const lp = c.querySelector('.left-pill');
+        lp.textContent = left ? `${left} belum terjual` : 'Habis dijual';
+        lp.className = 'left-pill' + (left ? '' : ' done');
+        c.querySelector('.pl-t').innerHTML = one.missing ? 'isi harga untuk kira untung' : `${sold} terjual · untung kasar <b class="${one.gross >= 0 ? 'pos' : 'neg'}">${RM(one.gross)}</b>`;
+      });
+      const t = calc([o]);
+      $('d-stat').innerHTML = t.left ? `<b>${t.left}</b> belum terjual · ${t.sold} terjual` : `<b>Habis dijual</b> · ${t.sold} terjual`;
+      const m = t.missing, f2 = (v) => (m ? '–' : RM(v)), pc = (v) => (m || v === null ? '–' : v.toFixed(1) + '%');
+      const need = !m && t.profit < 0 && t.left && t.avgSell ? Math.ceil(-t.profit / t.avgSell) : null;
+      $('x-total').textContent = t.extra ? RM(t.extra) : '';
+      $('d-kpi').innerHTML = `
+        <div class="kpi hl"><span>Untung bersih</span><b class="${!m && t.profit < 0 ? 'neg' : 'pos'}">${f2(t.profit)}</b><small>Margin ${pc(t.margin)}</small></div>
+        <div class="kpi"><span>Jualan (revenue)</span><b>${f2(t.sale)}</b><small>${t.sold} biji terjual</small></div>
+        <div class="kpi"><span>Kos produk</span><b>${f2(t.cost)}</b><small>${t.pcs} biji × kos</small></div>
+        <div class="kpi"><span>Kos lain</span><b>${RM(t.extra)}</b><small>${extras.filter((x) => num(x.amount)).length} item</small></div>
+        <div class="kpi"><span>Untung kasar</span><b>${f2(t.gross)}</b><small>Margin kasar ${pc(t.grossMargin)}</small></div>
+        <div class="kpi"><span>Jumlah modal</span><b>${f2(t.totalCost)}</b><small>Pulangan (ROI) ${pc(t.roi)}</small></div>
+        <div class="kpi"><span>Purata harga jual</span><b>${m || t.avgSell === null ? '–' : RM(t.avgSell)}</b><small>seunit</small></div>
+        <div class="kpi"><span>Untung / biji terjual</span><b>${m || !t.sold ? '–' : RM(t.profit / t.sold)}</b><small>selepas semua kos</small></div>
+        ${m ? '<p class="kpi-note">Isi harga kos dan jual setiap perisa untuk lihat kiraan penuh.</p>' :
+          need !== null ? `<p class="kpi-note">Belum pulang modal. Jual lebih kurang <b>${need}</b> biji lagi pada harga purata untuk pulang modal.</p>` :
+          t.profit >= 0 && t.sold ? `<p class="kpi-note ok">Dah pulang modal${t.left ? `, baki ${t.left} biji untuk untung tambahan` : ''}.</p>` : ''}`;
+    }
+    $('skus').addEventListener('change', (e) => {
+      const c = e.target.closest('.sku'); if (!c) return;
+      const id = c.dataset.id, w = work[id];
+      if (e.target.matches('[data-k=cost]')) {
+        const v = num(e.target.value); if (v === null) toast('Harga tidak sah.', true);
+        w.cost = v === null ? '' : money(v); e.target.value = w.cost;
+      }
+      save(); update();
+    });
+    $('skus').addEventListener('focusin', (e) => { if (e.target.matches('input')) e.target.select(); });
+    $('d-edit').onclick = () => loadEdit(o);
+    $('d-again').onclick = () => {
+      const pr = getProfile();
+      drafts.new = { items: Object.assign({}, o.items), method: o.method, address: o.address, notes: o.notes, time: o.time, date: '', name: pr.name || o.name, phone: pr.phone || o.phone };
+      detail = null; tab = 'new'; render(); window.scrollTo({ top: 0 });
+      toast('Perisa & kuantiti disalin. Pilih tarikh baru.');
+    };
+    $('d-share').onclick = () => {
+      const t = calc([o]), lines = FLAVOURS.filter((f) => o.items[f.id]).map((f) => `• ${f.name} × ${o.items[f.id]}`).join('\n');
+      const text = `*ngap soft cookies · ${o.code}*\n${o.method} · ${fmtDate(o.date)}${o.time ? ' · ' + o.time : ''}\n${lines}\nJumlah: ${o.total} biji` +
+        (cancelled ? '\n(Dibatalkan)' : `\nTerjual: ${t.sold} · Belum terjual: ${t.left}`);
+      if (navigator.share) navigator.share({ text }).catch(() => {});
+      else window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+    };
+    const tx = SC_TX.mount($('txbox'), {
+      flavours: fl, qty: o.items, reserved: (id) => distQ(o.code, id), disabled: cancelled,
+      getLines: (id) => work[id].lines, setLines: (id, ls) => { work[id].lines = ls; },
+      defPrice: (id) => priceOf(id).sell, sender: () => getProfile().name || 'ngap soft cookies', customers,
+      onChange: () => { save(); update(); },
+      h: { esc, RM, money, num, validPhone, normPhone: API.normPhone, toast }
+    });
+    const def = $('d-def'); if (def) def.onclick = () => {
+      if (!hasPrices()) return toast('Harga asas belum diset di Harga Saya.', true);
+      fl.forEach((f) => { const g = priceOf(f.id); work[f.id].cost = money(g.cost); card(f.id).querySelector('[data-k=cost]').value = work[f.id].cost;
+        work[f.id].lines.forEach((l) => { if (!setv_(l.price)) l.price = money(g.sell); }); });
+      save(); tx.refresh(); update(); toast('Harga asas digunakan.');
+    };
+    update();
+  }
+
+  function priceSheet() {
+    const p = getPrices();
+    openModal(`<span class="kicker">Harga saya</span><h2>Harga kos &amp; jual</h2>
+      <p class="muted" style="margin:2px 0 10px">Harga seunit (RM). Isi harga asas untuk semua perisa; isi perisa tertentu hanya jika harganya berbeza.</p>
+      <div class="prow hd"><span></span><span style="text-align:right">Kos</span><span style="text-align:right">Jual</span></div>
+      <div class="prow"><b>Semua perisa</b><input class="inp" id="pp-cost" inputmode="decimal" placeholder="0.00" value="${esc(p.cost)}"><input class="inp" id="pp-sell" inputmode="decimal" placeholder="0.00" value="${esc(p.sell)}"></div>
+      <div id="pp-items">${FLAVOURS.map((f) => { const it = (p.items || {})[f.id] || {}; return `<div class="prow" data-id="${f.id}"><span>${esc(f.name)}</span><input class="inp" data-k="cost" inputmode="decimal" placeholder="asas" value="${esc(it.cost ?? '')}"><input class="inp" data-k="sell" inputmode="decimal" placeholder="asas" value="${esc(it.sell ?? '')}"></div>`; }).join('')}</div>
+      <div class="acts" style="margin-top:14px"><button class="btn btn-o" type="button" data-close>Batal</button><button class="btn btn-p" type="button" id="pp-save">Simpan</button></div>`);
+    const num = (v) => { v = String(v).replace(',', '.').trim(); return v === '' ? '' : (isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : null); };
+    $('pp-save').onclick = () => {
+      const cost = num($('pp-cost').value), sell = num($('pp-sell').value);
+      if (cost === null || sell === null) return toast('Harga tidak sah.', true);
+      const items = {}; let bad = false;
+      document.querySelectorAll('#pp-items .prow').forEach((r) => {
+        const c = num(r.querySelector('[data-k=cost]').value), s = num(r.querySelector('[data-k=sell]').value);
+        if (c === null || s === null) bad = true;
+        if (c !== '' || s !== '') items[r.dataset.id] = { cost: c, sell: s };
+      });
+      if (bad) return toast('Ada harga perisa yang tidak sah.', true);
+      store.set('sc-prices', { cost, sell, items }); queueProfile();
+      closeModal(); toast('Harga disimpan.'); renderMine(); renderStats();
+    };
+  }
+  $('tile-price').onclick = $('m-price').onclick = $('bn-btn').onclick = priceSheet;
+
+  function customers() {
+    const sales = getSales(), map = new Map();
+    mine.filter((o) => o.status !== 'Dibatalkan').forEach((o) => {
+      const rec = (sales[o.code] || {}).items || {};
+      FLAVOURS.forEach((f) => salesLines(rec, f.id).forEach((l) => {
+        const name = String(l.cust || '').trim(), ph = API.normPhone(l.cphone || '');
+        if (!name && !validPhone(ph)) return;
+        const key = validPhone(ph) ? ph : name.toLowerCase();
+        const c = map.get(key) || { name, phone: validPhone(ph) ? ph : '', pcs: 0, spent: 0, last: '', fav: {} };
+        const n = Math.floor(Number(l.qty)) || 0, pr = linePrice(l, f.id);
+        c.name = c.name || name; c.pcs += n; c.spent += isNaN(pr) ? 0 : n * pr; c.fav[f.name] = (c.fav[f.name] || 0) + n;
+        if (o.date > c.last) c.last = o.date;
+        map.set(key, c);
+      }));
+    });
+    return [...map.values()].sort((a, b) => b.spent - a.spent || b.pcs - a.pcs);
+  }
+  $('m-cust').onclick = () => {
+    const list = customers();
+    openModal(`<span class="kicker">Pelanggan saya</span><h2>${list.length} pelanggan</h2>
+      <p class="muted" style="margin:2px 0 10px">Dari nama/telefon yang diisi dalam setiap jualan. Tekan WhatsApp untuk follow up.</p>
+      ${list.length ? `<div class="clist">${list.map((c) => { const fav = Object.entries(c.fav).sort((a, b) => b[1] - a[1])[0];
+        return `<div class="crow"><span class="av av-lg">${esc(initials(c.name || c.phone))}</span>
+          <div class="ctx"><b>${esc(c.name || c.phone)}</b><small>${c.pcs} biji · ${RM(c.spent)}${fav ? ' · suka ' + esc(fav[0]) : ''}</small><small>Terakhir ${esc(fmtShort(c.last))}</small></div>
+          ${c.phone ? `<a class="wa" target="_blank" rel="noopener" href="https://wa.me/6${esc(c.phone)}?text=${encodeURIComponent('Hai ' + (c.name || '') + '! Soft Cookies ada stok baru minggu ni 🍪 Nak saya simpankan?')}">WhatsApp</a>` : ''}</div>`; }).join('')}</div>`
+        : '<div class="empty2">Belum ada rekod pelanggan. Isi nama pelanggan semasa rekod jualan dalam halaman order.</div>'}
+      <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-close>Tutup</button></div>`);
+  };
+
+  /* ---------- home dashboard ---------- */
+  function soldByFlavour(list) {
+    const out = {};
+    list.filter((o) => o.status !== 'Dibatalkan').forEach((o) => FLAVOURS.forEach((f) => {
+      const q = o.items[f.id] || 0; if (!q) return;
+      const c = calc([{ code: o.code, status: o.status, total: q, items: { [f.id]: q } }]);
+      out[f.id] = (out[f.id] || 0) + c.sold;
+    }));
+    return out;
+  }
+  function whenLabel(iso) {
+    const [y, m, d] = iso.split('-'), t = new Date(+y, m - 1, +d), now = new Date(); now.setHours(0, 0, 0, 0);
+    const n = Math.round((t - now) / 864e5);
+    return n === 0 ? 'Hari ini' : n === 1 ? 'Esok' : n === 2 ? 'Lusa' : n > 0 ? `Dalam ${n} hari` : `${-n} hari lepas`;
+  }
+  function renderHome() {
+    const seenL = store.get('ann-seen-ids', []);
+    $('h-ann').innerHTML = anns.filter((a) => !seenL.includes(a.id)).map((a) => `<div class="ann"><span class="ann-ic">📣</span><div><b>Pengumuman HQ</b><p>${esc(a.text).replace(/\n/g, '<br>')}</p><small>${esc(a.updatedAt)}</small></div><button type="button" data-ann="${esc(a.id)}" aria-label="Tutup">×</button></div>`).join('');
+    $('h-ann').querySelectorAll('[data-ann]').forEach((b) => b.onclick = () => { store.set('ann-seen-ids', seenL.concat(b.dataset.ann).slice(-50)); renderHome(); });
+    const monthName = new Date().toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' });
+    $('hello-sub').textContent = monthName + ' · ringkasan anda';
+    const mo = mine.filter((o) => inPeriod(o, 'this')), m = calc(mo), last = calc(mine.filter((o) => inPeriod(o, 'last')));
+    const ok = !m.missing && m.orders;
+    $('h-profit').textContent = ok ? RM(m.profit) : '–';
+    $('h-profit').classList.toggle('neg', ok && m.profit < 0);
+    $('h-sale').textContent = ok ? RMs(m.sale) : '–';
+    $('h-margin').textContent = ok && m.margin !== null ? m.margin.toFixed(0) + '%' : '–';
+    $('h-sold').textContent = m.sold;
+    $('hero-s').textContent = !m.orders ? 'Belum ada order bulan ini' : m.missing ? 'Set harga untuk kira untung' :
+      !last.missing && last.orders ? `${m.profit >= last.profit ? '▲' : '▼'} ${RM(Math.abs(m.profit - last.profit))} berbanding bulan lepas` :
+      m.left ? `Termasuk kos ${m.left} biji yang belum terjual` : 'Semua stok dah terjual';
+    $('h-orders').textContent = m.orders; $('h-pcs').textContent = m.pcs; $('h-left').textContent = m.left;
+    const tg = Number((store.get('sc-target', null) || {}).amount) || 0;
+    $('hero-tg').classList.toggle('hidden', !tg || m.missing);
+    if (tg) { const pct = Math.max(0, Math.min(100, m.profit / tg * 100)); $('tg-fill').style.width = pct + '%'; $('tg-txt').textContent = `${Math.round(m.profit / tg * 100)}% daripada sasaran ${RM(tg)}`; }
+
+    // next pickup / delivery
+    const today = todayISO();
+    const next = mine.filter((o) => o.status !== 'Dibatalkan' && o.status !== 'Selesai' && o.date >= today).sort((a, b) => (a.date + (a.time || '99')).localeCompare(b.date + (b.time || '99')))[0];
+    $('h-next').innerHTML = next ? `<p class="sec-h">Seterusnya</p>
+      <button class="gcard nextc" type="button" data-code="${esc(next.code)}">
+        <span class="when"><b>${esc(whenLabel(next.date))}</b><small>${esc(fmtShort(next.date))}${next.time ? ' · ' + esc(next.time) : ''}</small></span>
+        <span class="nx"><b>${esc(next.code)} · ${esc(next.method)}</b><small>${next.total} biji · ${FLAVOURS.filter((f) => next.items[f.id]).length} perisa</small></span>
+        <span class="pill st-${esc(next.status)}">${esc(next.status)}</span>
+      </button>` : '';
+
+    // owed to HQ
+    const ow = hqOwe();
+    $('h-hq').innerHTML = hq.invoices.length ? `<button class="gcard oweC hqc" type="button" id="hq-open"><div><small>${ow > 0.004 ? 'Perlu bayar kepada HQ' : 'Bayaran kepada HQ'}</small><b class="${ow > 0.004 ? 'neg' : 'pos'}">${ow > 0.004 ? RM(ow) : 'Selesai ✓'}</b>
+      <small>Invois ${RM(hq.invoices.reduce((a, v) => a + v.amount, 0))} · dibayar ${RM(hq.payments.reduce((a, y) => a + y.amount, 0))}</small></div><span class="wa">Lihat</span></button>` : '';
+    const ho = $('hq-open'); if (ho) ho.onclick = hqSheet;
+
+    // network summary
+    if (net.agents.length) {
+      const st = net.agents.map(agentStats), owe = st.reduce((a, x) => a + Math.max(0, x.owe), 0), left = st.reduce((a, x) => a + x.left, 0);
+      $('h-net').innerHTML = `<p class="sec-h">Rangkaian agent</p><button class="gcard netc" type="button" data-go="agents">
+        <span><b>${net.agents.filter((a) => a.status === 'Aktif').length}</b><small>Agent aktif</small></span>
+        <span><b>${left}</b><small>Stok di agent</small></span>
+        <span><b class="${owe > 0 ? 'neg' : ''}">${RMs(owe)}</b><small>Belum dibayar</small></span></button>`;
+    } else $('h-net').innerHTML = '';
+
+    // reminder for pickups / deliveries today or tomorrow
+    const soon = mine.filter((o) => o.status !== 'Dibatalkan' && o.status !== 'Selesai' && o.date >= today && ['Hari ini', 'Esok'].includes(whenLabel(o.date)));
+    $('h-remind').innerHTML = soon.map((o) => `<button class="remind" type="button" data-code="${esc(o.code)}">⏰ <span><b>${esc(o.code)}</b> perlu ${o.method === 'Hantar' ? 'dihantar' : 'diambil'} <b>${esc(whenLabel(o.date).toLowerCase())}</b>${o.time ? ', ' + esc(o.time) : ''} · ${o.total} biji</span></button>`).join('');
+
+    // orders with stock still to sell
+    const open = mine.filter((o) => o.status !== 'Dibatalkan' && o.date <= today && calc([o]).left > 0)
+      .map((o) => ({ o, left: calc([o]).left })).sort((a, b) => b.left - a.left);
+    $('h-todo').innerHTML = open.length ? `<p class="sec-h">Perlu kemas kini jualan</p>
+      <div class="gcard todo">${open.slice(0, 3).map(({ o, left }) => `<button class="todo-r" type="button" data-code="${esc(o.code)}">
+        <span><b>${esc(o.code)}</b><small>${esc(fmtShort(o.date))} · ${o.total} biji</small></span><span class="left-pill">${left} belum terjual</span></button>`).join('')}
+        ${open.length > 3 ? `<button class="todo-more" type="button" data-go="mine">Lihat ${open.length - 3} lagi →</button>` : ''}</div>` : '';
+
+    // best sellers this month
+    const sold = soldByFlavour(mo), top = FLAVOURS.filter((f) => sold[f.id]).sort((a, b) => sold[b.id] - sold[a.id]).slice(0, 3);
+    const max = top.length ? sold[top[0].id] : 0;
+    $('h-best').innerHTML = top.length ? `<p class="sec-h">Paling laris bulan ini</p>
+      <div class="gcard best">${top.map((f, i) => `<div class="best-r"><span class="rk">${i + 1}</span><img src="${f.img}" alt=""><span class="bn"><b>${esc(f.name)}</b><i style="width:${sold[f.id] / max * 100}%"></i></span><b class="bq">${sold[f.id]}</b></div>`).join('')}</div>` : '';
+  }
+  document.querySelector('[data-tab="home"]').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-code]'); if (!b) return;
+    const o = mine.find((x) => x.code === b.dataset.code); if (o) openDetail(o);
+  });
+
+  function monthKey(offset) { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - offset); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }
+  function renderTrend() {
+    const months = [5, 4, 3, 2, 1, 0].map((i) => { const k = monthKey(i), c = calc(mine.filter((o) => String(o.date).slice(0, 7) === k));
+      const [y, mm] = k.split('-'); return { k, c, label: new Date(+y, mm - 1, 1).toLocaleDateString('ms-MY', { month: 'short' }) }; });
+    const max = Math.max(1, ...months.map((x) => Math.abs(x.c.missing ? 0 : x.c.profit)));
+    $('trend').innerHTML = months.map((x) => { const v = x.c.missing || !x.c.orders ? null : x.c.profit, h = v === null ? 0 : Math.abs(v) / max * 100;
+      return `<div class="tcol${x.k === monthKey(0) ? ' now' : ''}"><small class="tv ${v !== null && v < 0 ? 'neg' : ''}">${v === null ? '–' : RMs(v)}</small>
+        <div class="tbar"><i class="${v !== null && v < 0 ? 'n' : ''}" style="height:${h}%"></i></div><span>${esc(x.label)}</span><small class="ts">${x.c.orders ? RMs(x.c.sale) : ''}</small></div>`; }).join('');
+  }
+  function renderTarget() {
+    const tg = Number((store.get('sc-target', null) || {}).amount) || 0, m = calc(mine.filter((o) => inPeriod(o, 'this')));
+    $('tg-in').value = tg ? tg.toFixed(2) : '';
+    const pct = tg ? m.profit / tg * 100 : 0;
+    $('tg-fill2').style.width = Math.max(0, Math.min(100, pct)) + '%';
+    $('tg-pct').textContent = tg && !m.missing ? Math.round(pct) + '%' : '';
+    $('tg-msg').textContent = !tg ? 'Set sasaran untung bersih bulan ini untuk jejak kemajuan.' : m.missing ? 'Set harga untuk kira kemajuan.' :
+      m.profit >= tg ? `Tahniah! Sasaran ${RM(tg)} dah dicapai 🎉` : `${RM(m.profit)} daripada ${RM(tg)} · lagi ${RM(tg - m.profit)}${m.avgSell && m.cost / Math.max(1, m.pcs) < m.avgSell ? ` (lebih kurang ${Math.ceil((tg - m.profit) / (m.avgSell))} biji lagi)` : ''}`;
+  }
+  $('tg-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = num($('tg-in').value); if (v === null) return toast('Jumlah tidak sah.', true);
+    store.set('sc-target', v === '' ? null : { amount: v, month: monthKey(0) }); queueProfile();
+    renderStats(); toast(v === '' ? 'Sasaran dibuang.' : 'Sasaran disimpan.');
+  });
+
+  function renderStats() {
+    renderHome(); renderTrend(); renderTarget();
+
+    const all = calc(mine);
+    $('p-orders').textContent = all.orders; $('p-pcs').textContent = all.pcs; $('p-sold').textContent = all.sold;
+
+    const r = calc(mine.filter((o) => inPeriod(o, period)));
+    const priced = r.orders ? !r.missing : hasPrices();
+    $('pl-warn').classList.toggle('hidden', priced);
+    $('bn-t').textContent = priced && r.margin !== null ? `Margin ${r.margin.toFixed(1)}%` : 'Margin –';
+    $('bn-s').textContent = priced ? (r.sale ? `Untung ${RM(r.profit)} · ${({ this: 'bulan ini', last: 'bulan lepas', all: 'keseluruhan' })[period]}` : 'Rekod jualan untuk kira margin') : 'Set harga untuk kira untung';
+    $('pl').innerHTML = `
+      <div class="row"><span>Order</span><b>${r.orders}</b></div>
+      <div class="row"><span>Biji diambil</span><b>${r.pcs}</b></div>
+      <div class="row"><span>Terjual</span><b>${r.sold}</b></div>
+      <div class="row"><span>Belum terjual</span><b>${r.left}</b></div>
+      <div class="row"><span>Jualan (revenue)</span><b>${priced ? RM(r.sale) : '–'}</b></div>
+      <div class="row"><span>Kos produk</span><b>${priced ? RM(r.cost) : '–'}</b></div>
+      <div class="row"><span>Untung kasar</span><b>${priced ? RM(r.gross) : '–'}</b></div>
+      <div class="row"><span>Kos lain</span><b>${RM(r.extra)}</b></div>
+      <div class="row big"><span>Untung bersih</span><b class="${r.profit >= 0 ? 'pos' : 'neg'}">${priced ? RM(r.profit) : '–'}</b></div>
+      <div class="row"><span>Margin</span><b>${priced && r.margin !== null ? r.margin.toFixed(1) + '%' : '–'}</b></div>`;
+  }
+  // Terjual / Belum terjual come from each order's sales record: open it directly when only one order still has stock.
+  $('upd-sales').onclick = () => {
+    const open = mine.filter((o) => o.status !== 'Dibatalkan' && inPeriod(o, period) && calc([o]).left > 0);
+    if (open.length === 1) return openDetail(open[0]);
+    go('mine');
+    toast('Pilih order untuk kemas kini jualan.');
+  };
+  $('per-seg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    period = b.dataset.p;
+    $('per-seg').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    renderStats();
+  });
+
+  /* ---------- agents under this salesperson ---------- */
+  let curAgent = null;
+  const agentLink = (a) => `${location.origin}${location.pathname.replace(/[^/]*$/, '')}agent.html?code=${encodeURIComponent(a.code)}`;
+  const ago = (s) => { if (!s) return 'belum ada aktiviti'; const d = new Date(String(s).replace(' ', 'T')); if (isNaN(d)) return s; const n = Math.floor((Date.now() - d) / 864e5); return n <= 0 ? 'hari ini' : n === 1 ? 'semalam' : `${n} hari lepas`; };
+  function renderAgents() {
+    const pr = getProfile();
+    if (!pr.phone) { $('alist').innerHTML = '<div class="gcard empty2">Set profil dahulu.</div>'; $('net-sum').innerHTML = ''; return; }
+    const rows = net.agents.map((a) => ({ a, s: agentStats(a) })).sort((x, y) => (x.a.status === y.a.status ? y.s.sale - x.s.sale : x.a.status === 'Aktif' ? -1 : 1));
+    const owe = rows.reduce((t, r) => t + Math.max(0, r.s.owe), 0), given = rows.reduce((t, r) => t + r.s.given, 0), sold = rows.reduce((t, r) => t + r.s.sold, 0);
+    $('net-sum').innerHTML = rows.length ? `<div class="minis"><div class="mini"><b>${rows.filter((r) => r.a.status === 'Aktif').length}</b><span>Agent aktif</span></div>
+      <div class="mini"><b>${sold}/${given}</b><span>Terjual / diagih</span></div><div class="mini"><b class="${owe > 0 ? 'neg' : ''}">${RMs(owe)}</b><span>Belum dibayar</span></div></div>` : '';
+    $('alist').innerHTML = rows.length ? rows.map(({ a, s }, i) => `<button class="oitem${a.status !== 'Aktif' ? ' off' : ''}" type="button" data-agent="${esc(a.code)}">
+        <div class="r1"><b>${a.status === 'Aktif' && s.sale ? `<span class="rank">${i + 1}</span>` : ''}${esc(a.name)}</b><span class="pill ${a.status === 'Aktif' ? 'st-Siap' : 'st-Dibatalkan'}">${esc(a.status)}</span></div>
+        <div class="r2">${esc(a.code)}${a.phone ? ' · ' + esc(a.phone) : ''} · aktiviti ${esc(ago(s.last))}</div>
+        ${s.given ? `<div class="prog"><i class="s" style="width:${s.sold / s.given * 100}%"></i></div>` : ''}
+        <div class="r3"><span>${s.sold}/${s.given} terjual · jualan ${RM(s.sale)}</span><span class="${s.owe > 0.004 ? 'neg' : 'pos'}">${s.owe > 0.004 ? 'Hutang ' + RM(s.owe) : s.given ? 'Selesai bayar' : ''}</span></div>
+      </button>`).join('') : '<div class="gcard empty2">Belum ada agent. Tekan <b>Daftar agent baru</b> untuk mula, kemudian beri kod agent kepada mereka.</div>';
+  }
+  $('alist').addEventListener('click', (e) => { const b = e.target.closest('[data-agent]'); if (b) { curAgent = b.dataset.agent; tab = 'agent'; render(); window.scrollTo({ top: 0 }); } });
+
+  function renderAgent() {
+    const a = net.agents.find((x) => x.code === curAgent); if (!a) { $('agentd').innerHTML = ''; return; }
+    const s = agentStats(a), link = agentLink(a);
+    const msg = `Hai ${a.name}! Ini akaun agent Soft Cookies anda.\nKod agent: ${a.code}\nBuka: ${link}`;
+    $('agentd').innerHTML = `
+      <div class="gcard">
+        <div class="r1 dhead" style="display:flex;justify-content:space-between;align-items:center"><span class="kicker">Kod agent</span><span class="pill ${a.status === 'Aktif' ? 'st-Siap' : 'st-Dibatalkan'}">${esc(a.status)}</span></div>
+        <div class="codebox"><b>${esc(a.code)}</b><button class="btn btn-o btn-sm" type="button" id="ag-copy">Salin</button></div>
+        <div class="dacts" style="margin-top:0">
+          <a class="btn btn-o btn-sm" target="_blank" rel="noopener" href="${a.phone ? 'https://wa.me/6' + esc(a.phone) : 'https://wa.me/'}?text=${encodeURIComponent(msg)}">Hantar kod (WhatsApp)</a>
+          <button class="btn btn-o btn-sm" type="button" id="ag-edit">Edit</button>
+        </div>
+        <div class="kpis">
+          <div class="kpi hl"><span>Belum dibayar</span><b>${RM(s.owe)}</b><small>Nilai agihan ${RM(s.value)} · dibayar ${RM(s.paid)}</small></div>
+          <div class="kpi"><span>Stok diagih</span><b>${s.given}</b><small>${s.ds.length} agihan</small></div>
+          <div class="kpi"><span>Terjual oleh agent</span><b>${s.sold}</b><small>baki ${s.left} biji</small></div>
+          <div class="kpi"><span>Jualan agent</span><b>${RM(s.sale)}</b><small>ke pelanggan</small></div>
+          <div class="kpi"><span>Aktiviti terakhir</span><b style="font-size:15px">${esc(ago(s.last))}</b><small>${a.phone ? esc(a.phone) : 'tiada telefon'}</small></div>
+        </div>
+        ${a.status === 'Aktif' ? `<div class="dacts"><button class="btn btn-p btn-sm" type="button" id="ag-dist">+ Agih stok</button><button class="btn btn-o btn-sm" type="button" id="ag-pay">+ Rekod bayaran</button></div>` : ''}
+      </div>
+      <p class="sec-h">Agihan stok</p>
+      <div class="olist">${s.ds.length ? [...s.ds].sort((x, y) => (y.date + y.code).localeCompare(x.date + x.code)).map((d) => {
+        const rec = (net.sales[d.code] || {}).items || {}; let sold = 0;
+        FLAVOURS.forEach((f) => { const q = (d.items[f.id] || {}).qty || 0; let s2 = 0; salesLines(rec, f.id).forEach((l) => { s2 += Math.max(0, Math.min(q - s2, Math.floor(Number(l.qty)) || 0)); }); sold += s2; });
+        return `<div class="gcard dcard"><div class="r1" style="display:flex;justify-content:space-between"><b>${esc(d.code)}</b><span class="pill ${d.status === 'Diterima' ? 'st-Siap' : 'st-Dikemaskini'}">${esc(d.status)}</span></div>
+          <div class="r2">${esc(fmtDate(d.date))} · ${d.total} biji · ${RM(d.value)}</div>
+          <div class="items">${FLAVOURS.filter((f) => d.items[f.id]).map((f) => `<span>${esc(f.name)} <b>×${d.items[f.id].qty}</b> @${RM(d.items[f.id].price)}</span>`).join('')}</div>
+          <div class="r3" style="display:flex;justify-content:space-between;margin-top:8px;font-size:13px"><span>${sold}/${d.total} terjual oleh agent</span><button class="linkbtn" type="button" data-deldist="${esc(d.code)}">Padam</button></div></div>`; }).join('') : '<div class="gcard empty2">Belum ada agihan.</div>'}</div>
+      <p class="sec-h">Bayaran diterima</p>
+      <div class="gcard" style="padding:4px 16px">${s.pays.length ? [...s.pays].sort((x, y) => y.date.localeCompare(x.date)).map((y) => `<div class="payrow"><span><b>${RM(y.amount)}</b><small>${esc(fmtDate(y.date))}${y.note ? ' · ' + esc(y.note) : ''}</small></span><button class="linkbtn" type="button" data-delpay="${esc(y.id)}">Padam</button></div>`).join('') : '<p class="none" style="margin:12px 0;font-size:13px;color:var(--muted)">Belum ada bayaran.</p>'}</div>`;
+    $('ag-copy').onclick = async () => { try { await navigator.clipboard.writeText(a.code); toast('Kod disalin.'); } catch (e) { toast('Tak dapat salin.', true); } };
+    $('ag-edit').onclick = () => agentSheet(a);
+    const dd = $('ag-dist'); if (dd) dd.onclick = () => distSheet(a);
+    const pp = $('ag-pay'); if (pp) pp.onclick = () => paySheet(a, s);
+  }
+  $('agentd').addEventListener('click', async (e) => {
+    const dd = e.target.closest('[data-deldist]'), dp = e.target.closest('[data-delpay]'); if (!dd && !dp) return;
+    if (!confirm(dd ? `Padam agihan ${dd.dataset.deldist}? Stok akan kembali ke stok anda.` : 'Padam rekod bayaran ini?')) return;
+    try { dd ? await API.spDeleteDist(getProfile().phone, dd.dataset.deldist) : await API.spDeletePayment(getProfile().phone, dp.dataset.delpay); toast('Dipadam.'); await fetchNet(); }
+    catch (err) { toast(err.message, true); }
+  });
+
+  function agentSheet(a) {
+    openModal(`<span class="kicker">${a ? 'Edit agent' : 'Daftar agent'}</span><h2>${a ? esc(a.name) : 'Agent baru'}</h2>
+      <form id="af" class="fields" novalidate style="margin-top:12px">
+        <label class="f">Nama agent<input class="inp" id="af-name" value="${esc(a ? a.name : '')}" placeholder="Nama penuh"></label>
+        <label class="f">Nombor telefon <small>Pilihan, untuk hantar kod melalui WhatsApp</small><input class="inp" id="af-phone" type="tel" inputmode="tel" value="${esc(a ? a.phone : '')}" placeholder="012-345 6789"></label>
+        ${a ? `<label class="f">Status<select class="inp" id="af-status"><option${a.status === 'Aktif' ? ' selected' : ''}>Aktif</option><option${a.status !== 'Aktif' ? ' selected' : ''}>Tidak aktif</option></select></label>` : ''}
+        <div class="acts"><button class="btn btn-o" type="button" data-close>Batal</button><button class="btn btn-p" type="submit" id="af-go">${a ? 'Simpan' : 'Daftar'}</button></div>
+      </form>`);
+    $('af-name').focus();
+    $('af').onsubmit = async (e) => {
+      e.preventDefault();
+      const name = $('af-name').value.trim(), phone = $('af-phone').value.trim();
+      if (!name) return toast('Sila isi nama agent.', true);
+      if (phone && !validPhone(phone)) return toast('Nombor telefon tidak sah.', true);
+      busy($('af-go'), true, 'Menyimpan…');
+      try {
+        if (a) { await API.spUpdateAgent(getProfile().phone, { code: a.code, name, agentPhone: phone, status: $('af-status').value }); closeModal(); toast('Agent dikemas kini.'); await fetchNet(); }
+        else {
+          const { agent } = await API.spAddAgent(getProfile().phone, { name, agentPhone: phone });
+          await fetchNet(); curAgent = agent.code; tab = 'agent'; render();
+          openModal(`<span class="kicker">Agent didaftar</span><h2>${esc(agent.name)}</h2><p class="muted" style="margin:4px 0 0">Beri kod ini kepada agent. Mereka log masuk di halaman agent dengan kod ini.</p>
+            <div class="codebox"><b>${esc(agent.code)}</b></div><div class="acts one"><button class="btn btn-p" type="button" data-close>OK</button></div>`);
+        }
+      } catch (err) { busy($('af-go'), false); toast(err.message, true); }
+    };
+  }
+  $('add-agent').onclick = () => { if (!getProfile().phone) return profileSheet(); agentSheet(null); };
+
+  function distSheet(a) {
+    const st = stockLeft(), fl = FLAVOURS.filter((f) => st[f.id]);
+    if (!fl.length) return toast('Tiada stok di tangan untuk diagih. Order stok dari HQ dahulu.', true);
+    const lastPrice = (id) => { const d = net.dists.filter((x) => x.agent === a.code && x.items[id]).sort((x, y) => y.createdAt.localeCompare(x.createdAt))[0]; return d ? d.items[id].price : ''; };
+    openModal(`<span class="kicker">Agih stok</span><h2>Ke ${esc(a.name)}</h2>
+      <p class="muted" style="margin:2px 0 8px">Pilih kuantiti dan harga seunit yang agent perlu bayar kepada anda.</p>
+      <div id="dsrows">${fl.map((f) => `<div class="dsrow" data-id="${f.id}"><div class="nm"><b>${esc(f.name)}</b><span>Ada ${st[f.id]} biji</span></div>
+        <div class="qty"><button type="button" class="minus">−</button><input type="number" inputmode="numeric" min="0" max="${st[f.id]}" value="0"><button type="button" class="plus">+</button></div>
+        <input class="inp" data-p inputmode="decimal" placeholder="RM" value="${esc(money(lastPrice(f.id)))}"></div>`).join('')}</div>
+      <div class="fields two" style="margin-top:10px"><label class="f">Tarikh<input class="inp" id="ds-date" type="date" value="${todayISO()}"></label><label class="f">Nota<input class="inp" id="ds-note" placeholder="Pilihan"></label></div>
+      <div class="ssum" id="ds-sum"></div>
+      <div class="acts"><button class="btn btn-o" type="button" data-close>Batal</button><button class="btn btn-p" type="button" id="ds-go">Agih</button></div>`);
+    const row = (id) => document.querySelector(`.dsrow[data-id="${id}"]`);
+    const qv = (id) => Number(row(id).querySelector('input[type=number]').value) || 0;
+    const setq = (id, v) => { row(id).querySelector('input[type=number]').value = Math.max(0, Math.min(st[id], Math.floor(Number(v)) || 0)); };
+    const sum = () => { let q = 0, v = 0; fl.forEach((f) => { const n = qv(f.id), p = Number(num(row(f.id).querySelector('[data-p]').value)) || 0; q += n; v += n * p; }); $('ds-sum').innerHTML = `<div><b>${q}</b><span>Biji</span></div><div><b>${RM(v)}</b><span>Nilai (hutang agent)</span></div><div><b>${fl.length}</b><span>Perisa ada</span></div>`; };
+    $('dsrows').addEventListener('click', (e) => { const b = e.target.closest('.qty button'); if (!b) return; const id = b.closest('.dsrow').dataset.id; setq(id, qv(id) + (b.classList.contains('plus') ? 1 : -1)); sum(); });
+    $('dsrows').addEventListener('change', (e) => { const r = e.target.closest('.dsrow'); if (!r) return; if (e.target.type === 'number') setq(r.dataset.id, e.target.value); sum(); });
+    $('dsrows').addEventListener('focusin', (e) => { if (e.target.matches('input')) e.target.select(); });
+    sum();
+    $('ds-go').onclick = async () => {
+      const items = {}; let bad = false;
+      fl.forEach((f) => { const n = qv(f.id); if (!n) return; const p = num(row(f.id).querySelector('[data-p]').value); if (p === null || p === '') bad = true; items[f.id] = { qty: n, price: Number(p) || 0 }; });
+      if (!Object.keys(items).length) return toast('Pilih kuantiti untuk diagih.', true);
+      if (bad) return toast('Isi harga seunit untuk setiap perisa yang diagih.', true);
+      // FIFO: take stock from the oldest orders first
+      const alloc = {}, pool = stockByOrder();
+      Object.entries(items).forEach(([id, it]) => { let need = it.qty;
+        pool.forEach(({ o, left }) => { if (!need || !left[id]) return; const t = Math.min(need, left[id]); left[id] -= t; need -= t; (alloc[o.code] = alloc[o.code] || {})[id] = t; }); });
+      busy($('ds-go'), true, 'Mengagih…');
+      try { const { dist } = await API.spDistribute(getProfile().phone, { agent: a.code, items, alloc, date: $('ds-date').value, note: $('ds-note').value.trim() });
+        closeModal(); toast(`${dist.code} diagih kepada ${a.name}.`); await fetchNet(); }
+      catch (err) { busy($('ds-go'), false); toast(err.message, true); }
+    };
+  }
+
+  function paySheet(a, s) {
+    openModal(`<span class="kicker">Rekod bayaran</span><h2>Dari ${esc(a.name)}</h2>
+      <p class="muted" style="margin:2px 0 10px">Baki belum dibayar: <b>${RM(s.owe)}</b></p>
+      <div class="fields">
+        <label class="f">Jumlah (RM)<input class="inp" id="py-amt" inputmode="decimal" placeholder="0.00" value="${s.owe > 0 ? s.owe.toFixed(2) : ''}"></label>
+        <div class="fields two"><label class="f">Tarikh<input class="inp" id="py-date" type="date" value="${todayISO()}"></label><label class="f">Nota<input class="inp" id="py-note" placeholder="cth. tunai / transfer"></label></div>
+        <div class="acts"><button class="btn btn-o" type="button" data-close>Batal</button><button class="btn btn-p" type="button" id="py-go">Simpan</button></div>
+      </div>`);
+    $('py-go').onclick = async () => {
+      const v = num($('py-amt').value); if (!v) return toast('Sila isi jumlah bayaran.', true);
+      busy($('py-go'), true, 'Menyimpan…');
+      try { await API.spAddPayment(getProfile().phone, { agent: a.code, amount: v, date: $('py-date').value, note: $('py-note').value.trim() }); closeModal(); toast('Bayaran direkod.'); await fetchNet(); }
+      catch (err) { busy($('py-go'), false); toast(err.message, true); }
+    };
+  }
+
+  /* ---------- tabs ---------- */
+  const profile = getProfile();
+  const drafts = { new: { name: profile.name, phone: profile.phone }, edit: null };
+  let tab = 'home';
+  let editing = null; // { code, status }
+
+  function go(t) {
+    if (tab === 'new') drafts.new = readForm();
+    else if (tab === 'mine' && editing) drafts.edit = readForm();
+    tab = t;
+    render(); window.scrollTo({ top: 0 });
+    if (['mine', 'me', 'home', 'stats', 'agents'].includes(t)) fetchMine();
+  }
+  document.querySelectorAll('[data-tab-btn]').forEach((b) => b.onclick = () => go(b.dataset.tabBtn));
+  document.addEventListener('click', (e) => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go); });
+
+  function render() {
+    const showForm = tab === 'new' || (tab === 'mine' && !!editing);
+    document.querySelectorAll('[data-tab-btn]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tabBtn === ({ detail: 'mine', new: 'mine', agent: 'agents' }[tab] || tab)));
+    document.querySelectorAll('[data-tab]').forEach((s) => s.classList.toggle('hidden', s.dataset.tab !== tab || (tab === 'mine' && !!editing)));
+    $('order-form').classList.toggle('hidden', !showForm);
+    document.body.classList.toggle('has-bar', showForm);
+    $('lt').textContent = tab === 'mine' && editing ? 'Edit Order' : tab === 'detail' && detail ? detail.code : tab === 'agent' && curAgent ? agentName(curAgent) : TITLES[tab];
+    $('back-btn').classList.toggle('hidden', !(tab === 'detail' || tab === 'agent' || (tab === 'mine' && editing)));
+    $('lt').classList.toggle('code', tab === 'detail');
+    $('lt').classList.toggle('hidden', tab === 'home'); $('lt-logo').classList.toggle('hidden', tab !== 'home');
+    $('editing').classList.toggle('hidden', !(tab === 'mine' && editing));
+    $('cancel-btn').classList.toggle('hidden', !(tab === 'mine' && editing && editing.status !== 'Dibatalkan'));
+    $('submit-btn').textContent = tab === 'new' ? 'Semak & hantar' : (editing && editing.status === 'Dibatalkan' ? 'Aktifkan semula' : 'Simpan perubahan');
+    $('f-date').min = tab === 'new' ? (hqSet.earliest || todayISO()) : '';
+    if (tab === 'new') fillForm(drafts.new);
+    else if (tab === 'mine' && editing) {
+      fillForm(drafts.edit);
+      $('ed-code').textContent = editing.code;
+      $('ed-status').className = 'pill st-' + editing.status; $('ed-status').textContent = editing.status;
+    } else if (tab === 'mine') renderMine();
+    else if (tab === 'detail') renderDetail();
+    else if (tab === 'agents') renderAgents();
+    else if (tab === 'agent') renderAgent();
+    else if (['me', 'home', 'stats'].includes(tab)) renderStats();
+    if (showForm) applySettings();
+  }
+
+  /* ---------- lookup by code ---------- */
+  $('lookup-form').addEventListener('submit', (e) => { e.preventDefault(); openOrder(); });
+  async function openOrder() {
+    const code = API.normCode($('lk-code').value);
+    if (!code) return toast('Isi kod order.', true);
+    busy($('lk-btn'), true, 'Mencari…');
+    try { const { order } = await API.get(code); $('lk-code').value = ''; openDetail(order); }
+    catch (err) { toast(err.message, true); }
+    finally { busy($('lk-btn'), false); }
+  }
+  function loadEdit(order) {
+    if (tab === 'new') drafts.new = readForm();
+    editing = { code: order.code, status: order.status };
+    drafts.edit = order; tab = 'mine';
+    render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $('ed-close').onclick = () => { editing = null; drafts.edit = null; render(); fetchMine(); };
+  $('back-btn').onclick = () => { if (tab === 'mine' && editing) $('ed-close').onclick(); else if (tab === 'agent') go('agents'); else go('mine'); };
+
+  /* ---------- submit ---------- */
+  $('order-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const o = readForm(), bad = validate(o);
+    if (bad) { toast(bad[0], true); const el = $(bad[1]); if (bad[1] === 'f-name' || bad[1] === 'f-phone') { whoEditing = true; syncWho(); } el.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (el.focus && bad[1] !== 'grid') el.focus({ preventScroll: true }); return; }
+    confirmSheet(o);
+  });
+
+  function summaryHTML(o) {
+    const rows = FLAVOURS.filter((f) => o.items[f.id]).map((f) => `<li><span>${esc(f.name)}</span><b>× ${o.items[f.id]}</b></li>`).join('');
+    const total = Object.values(o.items).reduce((a, b) => a + b, 0);
+    return `<ul class="sumlist">${rows}<li><span><b>Jumlah</b></span><b>${total} biji</b></li></ul>
+      <dl class="kv"><dt>Agent</dt><dd>${esc(o.name)}</dd><dt>Telefon</dt><dd>${esc(o.phone)}</dd>
+      <dt>${o.method === 'Hantar' ? 'Hantar' : 'Ambil'}</dt><dd>${esc(fmtDate(o.date))}${o.time ? ', ' + esc(o.time) : ''}</dd>
+      ${o.method === 'Hantar' ? `<dt>Alamat</dt><dd>${esc(o.address)}</dd>` : ''}
+      ${o.notes ? `<dt>Nota</dt><dd>${esc(o.notes)}</dd>` : ''}</dl>`;
+  }
+  function remember(o) { if (!getProfile().name) { store.set('sc-agent', { name: o.name, phone: o.phone }); syncProfileUI(); } }
+
+  function confirmSheet(o) {
+    const isEdit = tab === 'mine' && editing;
+    openModal(`<span class="kicker">${isEdit ? 'Simpan perubahan' : 'Semak order'}</span>
+      <h2>${isEdit ? esc(editing.code) : 'Betul semua?'}</h2>${summaryHTML(o)}
+      <div class="acts"><button class="btn btn-o" data-close>Ubah lagi</button>
+      <button class="btn btn-p" id="go">${isEdit ? 'Simpan' : 'Hantar order'}</button></div>`);
+    $('go').onclick = async () => {
+      busy($('go'), true, 'Menghantar…');
+      try {
+        const { order } = isEdit ? await API.update(editing.code, o) : await API.create(o);
+        remember(order);
+        if (isEdit) { closeModal(); loadEdit(order); toast('Perubahan disimpan.'); }
+        else { drafts.new = { name: order.name, phone: order.phone }; fillForm(drafts.new); successSheet(order); }
+        fetchMine();
+      } catch (err) { busy($('go'), false); toast(err.message, true); }
+    };
+  }
+  function successSheet(order) {
+    openModal(`<span class="kicker">Order diterima</span><h2>Terima kasih, ${esc(order.name.split(' ')[0])}!</h2>
+      <p class="muted" style="margin:6px 0 0">Order ini juga ada di tab <b>Order Saya</b>. Simpan kod ini untuk rujukan.</p>
+      <div class="codebox"><b>${esc(order.code)}</b><button class="btn btn-o btn-sm" id="copy">Salin</button></div>
+      ${summaryHTML(order)}
+      <div class="acts"><button class="btn btn-o" id="see-mine">Order Saya</button><button class="btn btn-p" data-close>Order lain</button></div>`);
+    $('copy').onclick = async () => { try { await navigator.clipboard.writeText(order.code); toast('Kod disalin.'); } catch (e) { toast('Tak dapat salin, sila tulis kod ini.', true); } };
+    $('see-mine').onclick = () => { closeModal(); go('mine'); };
+  }
+
+  /* ---------- cancel ---------- */
+  $('cancel-btn').onclick = () => {
+    openModal(`<span class="kicker">Batal order</span><h2>Batalkan ${esc(editing.code)}?</h2>
+      <p class="muted">Order akan ditanda "Dibatalkan" dan team tidak akan sediakannya. Anda masih boleh aktifkan semula kemudian.</p>
+      <div class="acts"><button class="btn btn-o" data-close>Jangan batal</button><button class="btn btn-p" id="go-cancel" style="background:var(--bad)">Ya, batalkan</button></div>`);
+    $('go-cancel').onclick = async () => {
+      busy($('go-cancel'), true, 'Membatalkan…');
+      try { const { order } = await API.cancel(editing.code); closeModal(); loadEdit(order); toast('Order dibatalkan.'); fetchMine(); }
+      catch (err) { busy($('go-cancel'), false); toast(err.message, true); }
+    };
+  };
+
+  /* ---------- ui helpers ---------- */
+  let modalLocked = false;
+  function openModal(html, locked) { modalLocked = !!locked; $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
+  function closeModal() { $('modal').classList.add('hidden'); }
+  $('modal').addEventListener('click', (e) => { if ((e.target === $('modal') && !modalLocked) || e.target.closest('[data-close]')) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  let tt;
+  function toast(msg, err) { const t = $('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3200); }
+  function busy(btn, on, label) { if (on) { btn.dataset.l = btn.textContent; btn.textContent = label; btn.disabled = true; } else { btn.textContent = btn.dataset.l || btn.textContent; btn.disabled = false; } }
+
+  /* ---------- salesperson session (code such as salesAkmal) ---------- */
+  function showApp(on) {
+    $('sp-login').classList.toggle('hidden', on);
+    document.querySelector('.pillnav').classList.toggle('hidden', !on);
+    $('profile-btn').classList.toggle('hidden', !on);
+    if (!on) { document.querySelectorAll('[data-tab]').forEach((x) => x.classList.add('hidden')); $('order-form').classList.add('hidden'); $('editing').classList.add('hidden');
+      document.body.classList.remove('has-bar'); $('lt').classList.add('hidden'); $('lt-logo').classList.remove('hidden'); $('back-btn').classList.add('hidden'); }
+  }
+  async function spLoginWith(c, quiet) {
+    c = String(c || '').trim(); if (!c) return toast('Isi kod salesperson.', true);
+    busy($('sp-btn'), true, 'Memuatkan…');
+    try {
+      const savedTok = spSess().toLowerCase() === c.toLowerCase() ? store.get('sp-tok', '') : '';
+      const { sp, token, needPin } = await API.spLogin(c, $('sp-pin').value.trim(), savedTok);
+      $('sp-pin').value = '';
+      if (spSess() && spSess().toLowerCase() !== sp.code.toLowerCase()) ['sc-sales', 'sc-prices', 'sc-target', 'sc-agent-upd'].forEach((k) => store.del(k));
+      store.set('sp-code', sp.code); store.set('sp-tok', token); API.setSP(sp.code, token);
+      store.set('sc-agent', { name: sp.name, phone: sp.phone });
+      drafts.new = Object.assign(drafts.new || {}, { name: sp.name, phone: sp.phone });
+      syncProfileUI(); showApp(true); render(); fetchMine(); fetchAnn(); fetchSettings();
+      if (needPin) pinSheet(true, !sp.phone); else if (!sp.phone) profileSheet(true);
+      return true;
+    } catch (err) {
+      if (!quiet || /tidak sah|tidak aktif/i.test(err.message)) toast(err.message, true);
+      if (/tidak sah|tidak aktif|PIN|Sesi tamat/i.test(err.message)) { store.del('sp-tok'); if (/tidak sah|tidak aktif/i.test(err.message)) store.del('sp-code'); showApp(false); if (/PIN/i.test(err.message)) $('sp-pin').focus(); }
+      else if (quiet) { API.setSP(spSess(), store.get('sp-tok', '')); showApp(true); render(); }   // offline: keep the saved session
+      return false;
+    } finally { busy($('sp-btn'), false); }
+  }
+  function hqSheet() {
+    const inv = [...hq.invoices].sort((a, b) => b.date.localeCompare(a.date)), pays = [...hq.payments].sort((a, b) => b.date.localeCompare(a.date)), ow = hqOwe();
+    openModal(`<span class="kicker">Invois & bayaran HQ</span><h2 class="${ow > 0.004 ? 'neg' : 'pos'}">${ow > 0.004 ? 'Baki ' + RM(ow) : 'Tiada hutang ✓'}</h2>
+      <p class="sec-h">Invois</p><div class="clist">${inv.map((v) => `<div class="payrow"><span><b>${esc(v.code)} · ${RM(v.amount)}</b><small>${esc(fmtDate(v.date))} · ${v.total} biji · ${esc(v.status)}${v.missing ? ' · harga HQ belum lengkap' : ''}</small></span></div>`).join('') || '<p class="none">Tiada invois.</p>'}</div>
+      <p class="sec-h">Bayaran direkod oleh HQ</p><div class="clist">${pays.map((y) => `<div class="payrow"><span><b>${RM(y.amount)}</b><small>${esc(fmtDate(y.date))}${y.note ? ' · ' + esc(y.note) : ''}</small></span><span class="pill st-Siap">Diterima</span></div>`).join('') || '<p class="none">Belum ada bayaran.</p>'}</div>
+      <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-close>Tutup</button></div>`);
+  }
+  $('m-hq').onclick = hqSheet;
+  function pinSheet(first, thenProfile) {
+    openModal(`<span class="kicker">Keselamatan akaun</span><h2>${first ? 'Cipta PIN anda' : 'Tukar PIN'}</h2>
+      <p class="muted" style="margin:4px 0 14px">${first ? 'Untuk melindungi akaun <b>' + esc(spSess()) + '</b>, cipta PIN 4–6 digit. Anda perlukannya setiap kali log masuk di peranti baru.' : 'PIN baru akan log keluar peranti lain.'}</p>
+      <form id="pin-f" class="fields" novalidate>
+        <input class="inp" id="pin1" type="password" inputmode="numeric" maxlength="6" placeholder="PIN baru (4–6 digit)" autocomplete="new-password" style="text-align:center;font-size:22px;letter-spacing:6px">
+        <input class="inp" id="pin2" type="password" inputmode="numeric" maxlength="6" placeholder="Ulang PIN" autocomplete="new-password" style="text-align:center;font-size:22px;letter-spacing:6px">
+        <div class="acts${first ? ' one' : ''}">${first ? '' : '<button class="btn btn-o" type="button" data-close>Batal</button>'}<button class="btn btn-p" type="submit" id="pin-go">Simpan PIN</button></div>
+      </form>`, first);
+    $('pin1').focus();
+    $('pin-f').onsubmit = async (e) => {
+      e.preventDefault();
+      const a = $('pin1').value.trim(), b = $('pin2').value.trim();
+      if (!/^\d{4,6}$/.test(a)) return toast('PIN mesti 4 hingga 6 digit.', true);
+      if (a !== b) return toast('PIN tidak sama.', true);
+      busy($('pin-go'), true, 'Menyimpan…');
+      try { const { token } = await API.spSetPin(spSess(), store.get('sp-tok', ''), a); store.set('sp-tok', token); API.setSP(spSess(), token);
+        closeModal(); toast('PIN disimpan.'); if (thenProfile) profileSheet(true); }
+      catch (err) { busy($('pin-go'), false); toast(err.message, true); }
+    };
+  }
+  function spLogout() {
+    ['sp-code', 'sp-tok', 'sc-agent', 'sc-sales', 'sc-prices', 'sc-target', 'sc-agent-upd'].forEach((k) => store.del(k));
+    API.setSP(''); mine = []; net = { agents: [], dists: [], payments: [], sales: {} }; showApp(false); $('sp-code').value = '';
+  }
+  $('sp-form').addEventListener('submit', (e) => { e.preventDefault(); spLoginWith($('sp-code').value); });
+  $('m-pin').onclick = () => pinSheet(false);
+  $('m-logout').onclick = () => { if (confirm('Log keluar dari akaun ' + spSess() + '?')) spLogout(); };
+
+  // Deep links: sales.html?edit=SC-0001, sales.html?tab=new
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('tab') && TITLES[qs.get('tab')]) tab = qs.get('tab');
+  if (spSess()) { API.setSP(spSess(), store.get('sp-tok', '')); $('sp-code').value = spSess(); spLoginWith(spSess(), true).then((ok) => { if (ok && qs.get('edit')) API.get(qs.get('edit')).then(({ order }) => openDetail(order)).catch((err) => toast(err.message, true)); }); }
+  else { showApp(false); if (window.SC_CONFIG.DEMO_RUN) $('sp-code').value = 'salesDemo'; }
+})();
+</script>
+</body>
+</html>

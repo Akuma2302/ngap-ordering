@@ -1,12 +1,16 @@
-# Static site: no build step, publish the repo root.
+# Netlify: build the static site from frontend/ (see docs/NETLIFY.md).
 [build]
-  publish = "."
-  command = ""
+  base    = "frontend"
+  command = "npm run build"
+  publish = "dist"
 
-# Root URL goes straight to the agent order page.
+[build.environment]
+  NODE_VERSION = "20"
+
+# Root URL opens the salesperson app (order.html also redirects there).
 [[redirects]]
   from = "/"
-  to = "/order.html"
+  to = "/sales.html"
   status = 302
 
 # Keep the admin page out of search engines.
@@ -14,3 +18,9 @@
   for = "/admin.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

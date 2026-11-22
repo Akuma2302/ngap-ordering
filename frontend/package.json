@@ -1,0 +1,11 @@
+{
+  "name": "ngap-ordering-frontend",
+  "private": true,
+  "description": "Static pages for admin, salesperson and agent (no framework, no dependencies).",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "start": "node scripts/serve.js 8001",
+    "dev": "node scripts/build.js && node scripts/serve.js 8001"
+  },
+  "engines": { "node": ">=18" }
+}

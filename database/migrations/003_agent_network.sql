@@ -1,0 +1,3 @@
+-- v3: salesperson -> agent network.
+--   Agents, Agihan (stock given to agents, FIFO-allocated to orders), Bayaran (agent payments), JualanAgent.
+-- Agent codes: agentName format (agentAli, agentAli2 ...). Older AG-XXXXXX codes still work.

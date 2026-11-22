@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin · ngap soft cookies</title>
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest-admin.webmanifest">
+<meta name="theme-color" content="#7A1E2C">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ngap Admin">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ordering/ordering.css?v=3">
+<style>
+.login{max-width:420px;margin:24px auto}
+.fbar{display:flex;gap:8px;overflow-x:auto;margin:0 -14px 14px;padding:0 14px;scrollbar-width:none}
+.fbar::-webkit-scrollbar{display:none}
+.fchip{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:#fff;border-radius:999px;height:38px;padding:0 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.fchip.on{border-color:var(--burgundy);color:var(--burgundy);background:#FFF8F4}
+.fchip svg{width:16px;height:16px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:12px 14px}
+.stat b{display:block;font-family:'Bodoni Moda',Georgia,serif;font-size:32px;font-weight:900;line-height:1.1}
+.stat span{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.bake{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:520px){.bake{grid-template-columns:1fr 1fr}}
+.bk{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px 14px 6px 6px}
+.bk img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 3px 4px rgba(30,10,5,.3))}
+.bk .nm{font-size:14px;font-weight:700;line-height:1.2;min-width:0}
+.bk .n{margin-left:auto;flex-shrink:0;padding-left:6px;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.bk.zero{opacity:.4}
+.listhead{display:flex;gap:8px;margin-bottom:12px}
+.listhead .inp{height:44px;font-size:16px}
+.listhead select.inp{width:auto;flex-shrink:0}
+.count{font-size:12px;color:var(--muted);margin:0 2px 8px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.cards{display:flex;flex-direction:column;gap:10px}
+.oc{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px}
+.oc.cancelled{opacity:.6}
+.oc-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.oc-code{font-weight:700;font-size:16px;letter-spacing:.5px}
+.oc-who{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.oc-who b{font-size:16px;min-width:0}
+.oc-who a{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:999px;background:#E7F5EC;color:#1D6B3A;font-size:13px;font-weight:700;text-decoration:none;flex-shrink:0}
+.oc-who a svg{width:16px;height:16px}
+.oc-when{margin-top:6px;font-size:14px}
+.oc-when .sub{display:block;font-size:12px;color:var(--muted)}
+.items{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.items span{background:var(--paper);border-radius:999px;padding:4px 10px;font-size:13px;white-space:nowrap}
+.items b{font-weight:700}
+.oc-note{margin-top:8px;font-size:13px;background:#FFF8EC;border-radius:10px;padding:8px 10px}
+.oc-foot{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.oc-foot .tot{font-family:'Bodoni Moda',Georgia,serif;font-weight:900;font-size:22px;margin-right:auto;white-space:nowrap}
+.oc-foot .tot small{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;color:var(--muted);margin-left:3px}
+select.st{height:40px;border:1.5px solid var(--line);border-radius:999px;padding:0 30px 0 12px;font-size:13px;font-weight:700;cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none' stroke='%233A1F14' stroke-width='2'%3E%3Cpath d='m1 1 4 4 4-4'/%3E%3C/svg%3E") no-repeat right 12px center}
+button.del{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(155,44,44,.3);background:#fff;color:var(--bad);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+button.del svg{width:18px;height:18px}
+button.del:disabled{opacity:.5;cursor:wait}
+.oc .meta2{font-size:11px;color:var(--muted);margin-top:6px}
+.empty{padding:40px 20px;text-align:center;color:var(--muted);background:var(--paper);border-radius:18px;border:1px dashed var(--line)}
+.menu{display:flex;flex-direction:column;gap:10px}
+.mi{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;cursor:pointer;text-align:left;width:100%}
+.mi .ic{width:44px;height:44px;border-radius:14px;background:var(--paper);display:flex;align-items:center;justify-content:center;color:var(--burgundy);flex-shrink:0}
+.mi .ic svg{width:22px;height:22px}
+.mi b{display:block;font-size:15px}
+.mi small{display:block;font-size:12px;color:var(--muted)}
+.mi::after{content:'›';margin-left:auto;font-size:24px;color:var(--muted)}
+.mi.bad .ic{color:var(--bad)}
+.tree{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.tree-h{font-size:12px;font-weight:700;color:var(--burgundy);margin-bottom:4px}
+.tree-r{display:flex;justify-content:space-between;gap:10px;padding:8px 0 8px 12px;border-left:2px solid #E6D3BA;margin-left:4px}
+.tree-r.off{opacity:.5}
+.tree-r span{display:flex;flex-direction:column;min-width:0}
+.tree-r small{font-size:11.5px;color:var(--muted)}
+.tree-n{text-align:right;flex-shrink:0}
+.neg{color:var(--bad)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cday{display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:8px 2px;cursor:pointer;min-width:0}
+.cday.today{border-color:var(--burgundy);box-shadow:inset 0 0 0 1px var(--burgundy)}
+.cday.over{background:#FDECEC}
+.cd-w{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase}
+.cd-d{font-size:16px}
+.cd-n{font-size:13px;font-weight:700;color:var(--burgundy)}
+.cd-bar{width:8px;height:34px;border-radius:4px;background:#F1E4D3;display:flex;align-items:flex-end;overflow:hidden;margin:2px 0}
+.cd-bar i{display:block;width:100%;background:var(--burgundy)}
+.cday small{font-size:9.5px;color:var(--muted);min-height:12px}
+.hqline{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:8px;padding:8px 10px;background:var(--paper);border-radius:12px;font-size:13px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 12px;min-width:0}
+.kpi span{display:block;font-size:11px;font-weight:700;color:var(--muted)}
+.kpi b{display:block;font-size:18px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi small{display:block;font-size:11px;color:var(--muted)}
+.kpi.hl{grid-column:1/-1;background:linear-gradient(110deg,var(--burgundy),#A8394B);color:#fff;border:0}
+.kpi.hl span,.kpi.hl small{color:rgba(255,255,255,.85)}
+.kpi.hl b{font-size:28px}
+.rp-month{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.rp-month b{font-size:17px}
+.ibtn2{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:20px;cursor:pointer}
+.ibtn2:disabled{opacity:.3}
+.trend12{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:end;height:160px}
+.trend12 .tc{display:flex;flex-direction:column;align-items:center;height:100%;gap:3px;min-width:0}
+.trend12 .tc small{font-size:9px;font-weight:700;white-space:nowrap}
+.trend12 .tb{flex:1;width:100%;max-width:22px;display:flex;align-items:flex-end;border-bottom:2px solid #E6D3BA}
+.trend12 .tb i{display:block;width:100%;background:linear-gradient(180deg,#B3475A,var(--burgundy));border-radius:6px 6px 0 0;min-height:1px}
+.trend12 .tc span:last-child{font-size:10px;font-weight:700}
+.trend12 .tc.now span:last-child{color:var(--burgundy)}
+.tg-bar{display:block;height:12px;border-radius:6px;background:#EFE2CF;overflow:hidden}
+.tg-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--burgundy),#B3475A)}
+.minis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mini{background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px;text-align:center}
+.mini b{display:block;font-size:18px}
+.mini span{font-size:11px;color:var(--muted)}
+.best-r{display:flex;align-items:center;gap:10px;padding:6px 0}
+.best-r .rk{width:20px;font-weight:700;color:var(--burgundy);text-align:center}
+.best-r img{width:34px;height:34px;object-fit:contain}
+.best-r .bn{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.best-r .bn b{font-size:13px}
+.best-r .bn i{display:block;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--burgundy),#B3475A)}
+.best-r .bq{font-size:15px}
+.clist{display:flex;flex-direction:column}
+.payrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.payrow:last-child{border-bottom:0}
+.payrow span{display:flex;flex-direction:column;min-width:0}
+.payrow small{font-size:12px;color:var(--muted)}
+.linkbtn{border:0;background:none;color:var(--bad);font-weight:700;font-size:12px;cursor:pointer;padding:4px}
+.warnbox{background:#FFF6E5;border-radius:14px;padding:10px 12px;font-size:13px;color:#6A4A10;margin-bottom:12px}
+.sec-h{margin:14px 2px 6px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--burgundy)}
+.sprow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.sprow.off{opacity:.6}
+.sprow small{display:block;font-size:12px;color:var(--muted)}
+.sp-acts{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.prow{display:grid;grid-template-columns:1fr 90px 90px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.prow.hd{font-size:11px;font-weight:700;color:var(--muted);border:0}
+.prow .inp{height:40px;padding:0 8px;text-align:right}
+.tg-form{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.tg-form label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--muted)}
+.tg-form .inp{height:44px}
+.flist{display:flex;flex-direction:column}
+.frow{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.frow img{width:36px;height:36px;object-fit:contain}
+.frow span{flex:1;font-weight:700;font-size:14px}
+.frow input{position:absolute;opacity:0}
+.frow .sw{width:44px;height:26px;border-radius:13px;background:#D9CFC7;position:relative;transition:background .2s}
+.frow .sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s}
+.frow input:checked+.sw{background:var(--ok)}
+.frow input:checked+.sw::after{left:21px}
+.lglist{max-height:55vh;overflow:auto}
+.lgrow{display:flex;flex-direction:column;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.lgrow small{font-size:11px;color:var(--muted)}
+.lgrow span{color:var(--muted)}
+.pos{color:var(--ok)}
+.pickhead{display:flex;justify-content:space-between;align-items:center;margin:0 2px 8px}
+.linkbtn.pk{color:var(--burgundy);font-size:13px}
+.pick{display:inline-flex;margin-right:8px;cursor:pointer}
+.pick input{position:absolute;opacity:0}
+.pick i{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);background:#fff;display:inline-block;position:relative}
+.pick input:checked+i{background:var(--burgundy);border-color:var(--burgundy)}
+.pick input:checked+i::after{content:'';position:absolute;left:7px;top:3px;width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.oc.picked{border-color:var(--burgundy);box-shadow:0 0 0 2px rgba(122,30,44,.15)}
+.oc-top{justify-content:flex-start}
+.oc-top .pill{margin-left:auto}
+.pickbar{position:fixed;left:0;right:0;bottom:calc(var(--tabbar) + var(--safe-b));z-index:35;padding:8px 12px}
+.pickbar-in{max-width:696px;margin:0 auto;background:var(--brown);color:#fff;border-radius:18px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:6px;box-shadow:0 10px 30px rgba(30,10,5,.3)}
+.pickbar-in span{margin-right:auto;font-size:13px}
+.pickbar .btn-o{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);padding:0 10px}
+.pickbar .btn-p{background:#fff;color:var(--burgundy)}
+body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
+.range2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#print{display:none}
+@media print{
+  @page{size:A4;margin:14mm}
+  html,body{background:#fff !important;padding:0 !important}
+  body > *:not(#print){display:none !important}
+  #print{display:block;color:#000;font-family:'DM Sans',Arial,sans-serif;font-size:11pt}
+  #print h1{font-family:'Bodoni Moda',Georgia,serif;font-size:22pt;margin:0}
+  #print h2{font-family:'DM Sans',Arial,sans-serif;font-size:13pt;margin:18px 0 6px;border-bottom:2px solid #000;padding-bottom:3px}
+  #print .meta{font-size:10pt;margin:4px 0 0}
+  #print table{width:100%;border-collapse:collapse;font-size:10.5pt}
+  #print tr{page-break-inside:avoid}
+  #print th,#print td{border:1px solid #999;padding:5px 7px;text-align:left;vertical-align:top}
+  #print th{background:#eee !important;font-size:9pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print td.n,#print th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #print .big td{font-size:13pt}
+  #print .big td.n{font-weight:700}
+  #print tfoot td{font-weight:700;background:#f4f4f4 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print .sign{display:flex;gap:40px;margin-top:28px;font-size:10pt}
+  #print .sign div{flex:1;border-top:1px solid #000;padding-top:4px}
+  #print img{display:block}
+}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="ttl"><small>ngap soft cookies · Admin</small><b id="app-title">Admin</b></div>
+    <button class="ibtn hidden" id="filter-btn" type="button" aria-label="Tapis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span class="dot hidden" id="filter-dot"></span></button>
+    <button class="ibtn hidden" id="refresh" type="button" aria-label="Muat semula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="demo" class="demo hidden">Mod demo: data datang dari browser ini sahaja. Kata laluan demo: <b>admin</b>.</div>
+
+  <!-- login -->
+  <section id="login" class="panel login hidden">
+    <img src="img/logo-ngap.webp" alt="ngap soft cookies malaysia" style="width:min(240px,75%);height:auto;margin:4px auto 12px;display:block">
+    <span class="kicker">Admin</span>
+    <h2 style="font-size:28px;font-weight:900;margin:4px 0 16px">Tracking order</h2>
+    <form id="login-form" class="fields">
+      <label class="f">Kata laluan
+        <input class="inp" id="pw" type="password" autocomplete="current-password" enterkeyhint="go" required>
+      </label>
+      <button class="btn btn-p btn-block" id="login-btn" type="submit">Masuk</button>
+    </form>
+  </section>
+
+  <main id="dash" class="hidden">
+    <div class="fbar" id="fbar"></div>
+
+    <!-- Ringkasan -->
+    <section data-page="home">
+      <div class="stats">
+        <div class="stat"><b id="s-orders">0</b><span>Order</span></div>
+        <div class="stat"><b id="s-pcs">0</b><span>Jumlah biji</span></div>
+        <div class="stat"><b id="s-agents">0</b><span>Agent</span></div>
+        <div class="stat"><b id="s-hantar">0</b><span>Perlu hantar</span></div>
+      </div>
+      <section class="panel">
+        <div class="panel-h"><h2>Kalendar pengeluaran</h2><span class="r" id="cal-cap"></span></div>
+        <div class="cal" id="cal"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-h"><h2>Perlu bake</h2><span class="r">Tanpa order batal</span></div>
+        <div class="bake" id="bake"></div>
+      </section>
+      <button class="btn btn-p btn-block" type="button" data-pdf><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg>Export PDF untuk kilang</button>
+    </section>
+
+    <!-- Order -->
+    <section data-page="orders" class="hidden">
+      <div class="listhead">
+        <input class="inp" id="f-q" type="search" enterkeyhint="search" placeholder="Cari nama, telefon, kod…">
+        <select class="inp" id="sort" aria-label="Susun">
+          <option value="date">Tarikh ↑</option>
+          <option value="created">Terbaru</option>
+          <option value="code">Kod</option>
+          <option value="name">Agent</option>
+          <option value="total">Biji ↓</option>
+        </select>
+      </div>
+      <div class="pickhead"><p class="count" id="count-o" style="margin:0"></p><button class="linkbtn pk" type="button" id="pick-mode">Pilih order untuk PDF</button></div>
+      <div class="cards" id="orders"></div>
+    </section>
+
+    <!-- Agent -->
+    <section data-page="agents" class="hidden">
+      <p class="count" id="count-a"></p>
+      <div class="cards" id="agents"></div>
+    </section>
+
+    <!-- Laporan director -->
+    <section data-page="report" class="hidden"><div id="report"></div></section>
+
+    <!-- Lagi -->
+    <section data-page="more" class="hidden">
+      <div class="menu">
+        <button class="mi" type="button" data-pdf><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg></span><span><b>Export PDF (kilang)</b><small>Senarai bake ikut tapisan semasa</small></span></button>
+        <button class="mi" type="button" id="export"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span><span><b>Export CSV</b><small>Untuk Excel / Google Sheets</small></span></button>
+        <button class="mi" type="button" id="open-sp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/></svg></span><span><b>Salesperson</b><small>Kod, status, PIN, terakhir aktif</small></span></button>
+        <button class="mi" type="button" id="open-price"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg></span><span><b>Harga HQ &amp; kos bahan</b><small>Harga invois &amp; untung HQ</small></span></button>
+        <button class="mi" type="button" id="open-cap"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 14v3"/></svg></span><span><b>Kapasiti &amp; tarikh tutup</b><small>Had biji sehari, cut-off, amaran stok</small></span></button>
+        <button class="mi" type="button" id="open-flav"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="14" r="1"/><circle cx="15" cy="9" r="1"/></svg></span><span><b>Perisa ada / habis</b><small>Tutup perisa yang habis stok</small></span></button>
+        <button class="mi" type="button" id="open-log"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg></span><span><b>Log aktiviti</b><small>Siapa buat apa, bila</small></span></button>
+        <button class="mi" type="button" id="open-pdfm"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg></span><span><b>Laporan bulanan PDF</b><small>Untuk mesyuarat director</small></span></button>
+        <button class="mi" type="button" id="open-ann"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span><span><b>Pengumuman</b><small id="ann-sum">Ikut sasaran: semua / salesperson / agent</small></span></button>
+        <button class="mi" type="button" id="open-filter2"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><span><b>Tapisan</b><small id="filter-sum">Semua tarikh</small></span></button>
+        <button class="mi bad" type="button" id="logout"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg></span><span><b>Keluar</b><small id="upd">-</small></span></button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar hidden" id="tabbar" role="tablist" aria-label="Menu">
+  <div class="tabbar-in">
+    <button role="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Ringkasan</button>
+    <button role="tab" data-tab="orders" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Order<span class="badge hidden" id="badge"></span></button>
+    <button role="tab" data-tab="agents" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>Sales</button>
+    <button role="tab" data-tab="report" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>Laporan</button>
+    <button role="tab" data-tab="more" aria-selected="false"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>Lagi</button>
+  </div>
+</nav>
+
+<!-- filter sheet -->
+<div id="fsheet" class="modal hidden" role="dialog" aria-modal="true" aria-label="Tapisan">
+  <div class="sheet">
+    <h2>Tapisan</h2>
+    <div class="fields" style="margin-top:12px">
+      <label class="f">Tarikh ambil / hantar
+        <select class="inp" id="f-preset">
+          <option value="">Semua tarikh</option>
+          <option value="today">Hari ini</option>
+          <option value="tomorrow">Esok</option>
+          <option value="week">7 hari akan datang</option>
+          <option value="month">Bulan ini</option>
+          <option value="custom">Julat sendiri</option>
+        </select>
+      </label>
+      <div class="range2">
+        <label class="f">Dari <input class="inp" id="f-from" type="date"></label>
+        <label class="f">Hingga <input class="inp" id="f-to" type="date"></label>
+      </div>
+      <label class="f">Status
+        <select class="inp" id="f-status"><option value="aktif">Semua aktif</option><option value="">Semua status</option></select>
+      </label>
+      <label class="f">Kaedah
+        <select class="inp" id="f-method"><option value="">Ambil &amp; Hantar</option><option>Ambil</option><option>Hantar</option></select>
+      </label>
+      <div class="acts">
+        <button class="btn btn-o" type="button" id="f-reset">Reset</button>
+        <button class="btn btn-p" type="button" id="f-done">Siap</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="gsheet" class="modal hidden" role="dialog" aria-modal="true"><div class="sheet" id="gsheet-in"></div></div>
+
+<div id="toast" class="toast hidden" role="status"></div>
+<div id="pickbar" class="pickbar hidden"><div class="pickbar-in">
+  <span><b id="pick-n">0</b> order · <b id="pick-p">0</b> biji</span>
+  <button class="btn btn-o btn-sm" type="button" id="pick-all">Pilih semua</button>
+  <button class="btn btn-o btn-sm" type="button" id="pick-clear">Batal</button>
+  <button class="btn btn-p btn-sm" type="button" id="pick-pdf">PDF kilang</button>
+</div></div>
+<div id="print" aria-hidden="true"></div>
+
+<script src="ordering/config.js?v=10"></script>
+<script src="ordering/api.js?v=10"></script>
+<script>
+(function () {
+  const { FLAVOURS, STATUSES } = window.SC_CONFIG;
+  const API = window.SC_API;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmtDate = (iso) => { if (!iso) return '-'; const [y, m, d] = iso.split('-'); return new Date(+y, m - 1, +d).toLocaleDateString('ms-MY', { weekday: 'short', day: 'numeric', month: 'short' }); };
+  const sess = { get() { try { return sessionStorage.getItem('sc-admin-pw'); } catch (e) { return null; } },
+                 set(v) { try { v ? sessionStorage.setItem('sc-admin-pw', v) : sessionStorage.removeItem('sc-admin-pw'); } catch (e) {} } };
+  const ICON_WA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>';
+  const ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+  const TITLES = { home: 'Ringkasan', orders: 'Order', agents: 'Salesperson & Agent', report: 'Laporan Director', more: 'Lagi' };
+
+  if (API.DEMO) $('demo').classList.remove('hidden');
+  STATUSES.forEach((s) => $('f-status').insertAdjacentHTML('beforeend', `<option>${s}</option>`));
+
+  let pw = sess.get(), orders = [], page = 'home', timer;
+
+  /* ---------- auth ---------- */
+  $('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    pw = $('pw').value; $('login-btn').disabled = true;
+    const ok = await load();
+    $('login-btn').disabled = false;
+    if (ok) sess.set(pw);
+  });
+  $('logout').onclick = () => { if (!confirm('Keluar dari admin?')) return; sess.set(null); pw = null; clearInterval(timer); show(false); };
+  function show(on) {
+    $('login').classList.toggle('hidden', on); $('dash').classList.toggle('hidden', !on);
+    $('tabbar').classList.toggle('hidden', !on); $('filter-btn').classList.toggle('hidden', !on); $('refresh').classList.toggle('hidden', !on);
+    $('app-title').textContent = on ? TITLES[page] : 'Admin';
+    if (!on) $('pw').value = '';
+  }
+
+  async function load(quiet) {
+    const r = $('refresh'); r.style.opacity = .5;
+    try {
+      const [res, tr, sp] = await Promise.all([API.adminList(pw), API.adminTree(pw).catch(() => null), API.adminSalespersons(pw).catch(() => null)]);
+      if (tr) tree = tr;
+      if (sp) sps = sp.salespersons || [];
+      invs = res.invoices || []; hqp = res.hqPayments || []; setts = res.settings || setts;
+      orders = res.orders; show(true); draw();
+      if (!quiet) $('toast').classList.add('hidden');
+      $('upd').textContent = 'Dikemas kini ' + new Date().toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+      clearInterval(timer); timer = setInterval(() => load(true), 60000);
+      return true;
+    } catch (err) {
+      if (!quiet) toast(err.message, true);
+      if (/kata laluan/i.test(err.message)) { sess.set(null); show(false); }
+      return false;
+    } finally { r.style.opacity = 1; }
+  }
+  $('refresh').onclick = async () => { if (await load()) toast('Dikemas kini'); };
+
+  /* ---------- tabs ---------- */
+  document.querySelectorAll('#tabbar button').forEach((b) => b.onclick = () => go(b.dataset.tab));
+  function go(p) {
+    page = p;
+    document.querySelectorAll('#tabbar button').forEach((x) => x.setAttribute('aria-selected', x.dataset.tab === p));
+    document.querySelectorAll('[data-page]').forEach((s) => s.classList.toggle('hidden', s.dataset.page !== p));
+    $('app-title').textContent = TITLES[p];
+    window.scrollTo({ top: 0 });
+    $('fbar').classList.toggle('hidden', p === 'report' || p === 'more');
+    if (p === 'report') renderReport();
+  }
+
+  /* ---------- filters ---------- */
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d; };
+  function applyPreset(p) {
+    const now = new Date();
+    const r = { '': ['', ''], today: [iso(now), iso(now)], tomorrow: [iso(addDays(1)), iso(addDays(1))],
+                week: [iso(now), iso(addDays(6))],
+                month: [iso(new Date(now.getFullYear(), now.getMonth(), 1)), iso(new Date(now.getFullYear(), now.getMonth() + 1, 0))] }[p];
+    $('f-preset').value = p;
+    if (r) { $('f-from').value = r[0]; $('f-to').value = r[1]; }
+    draw();
+  }
+  $('f-preset').addEventListener('change', () => applyPreset($('f-preset').value));
+  ['f-from', 'f-to'].forEach((id) => $(id).addEventListener('change', () => {
+    const f = $('f-from'), t = $('f-to');
+    if (f.value && t.value && f.value > t.value) (id === 'f-from' ? t : f).value = $(id).value;
+    $('f-preset').value = f.value || t.value ? 'custom' : '';
+    draw();
+  }));
+  ['f-status', 'f-method', 'sort'].forEach((id) => $(id).addEventListener('change', draw));
+  $('f-q').addEventListener('input', draw);
+  const openFilter = () => $('fsheet').classList.remove('hidden');
+  const closeFilter = () => $('fsheet').classList.add('hidden');
+  $('filter-btn').onclick = openFilter; $('open-filter2').onclick = openFilter;
+  $('f-done').onclick = closeFilter;
+  $('f-reset').onclick = () => { $('f-status').value = 'aktif'; $('f-method').value = ''; applyPreset(''); };
+  $('fsheet').addEventListener('click', (e) => { if (e.target === $('fsheet')) closeFilter(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeFilter(); });
+
+  function rangeLabel(longFmt) {
+    const f = $('f-from').value, t = $('f-to').value;
+    const fmt = (d) => { const [y, m, dd] = d.split('-'); return new Date(+y, m - 1, +dd).toLocaleDateString('ms-MY', longFmt ? { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' } : { day: 'numeric', month: 'short' }); };
+    const preset = { today: 'Hari ini', tomorrow: 'Esok', week: '7 hari akan datang', month: 'Bulan ini' }[$('f-preset').value];
+    if (!f && !t) return 'Semua tarikh';
+    if (preset && !longFmt) return preset;
+    if (f && t) return f === t ? fmt(f) : `${fmt(f)} – ${fmt(t)}`;
+    return f ? `Dari ${fmt(f)}` : `Hingga ${fmt(t)}`;
+  }
+  function drawFilterBar() {
+    const s = $('f-status').value, m = $('f-method').value;
+    const statusLbl = s === 'aktif' ? 'Semua aktif' : s || 'Semua status';
+    const dateOn = !!($('f-from').value || $('f-to').value);
+    const cal = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+    const quick = [['', 'Semua'], ['today', 'Hari ini'], ['tomorrow', 'Esok'], ['week', '7 hari']];
+    $('fbar').innerHTML = `<button class="fchip${dateOn ? ' on' : ''}" type="button" data-open>${cal}${esc(rangeLabel())}</button>` +
+      quick.filter(([k]) => k !== $('f-preset').value).map(([k, l]) => `<button class="fchip" type="button" data-p="${k}">${l}</button>`).join('') +
+      `<button class="fchip${s !== 'aktif' ? ' on' : ''}" type="button" data-open>${esc(statusLbl)}</button>` +
+      `<button class="fchip${m ? ' on' : ''}" type="button" data-open>${esc(m || 'Ambil & Hantar')}</button>`;
+    $('filter-dot').classList.toggle('hidden', !(dateOn || s !== 'aktif' || m));
+    $('filter-sum').textContent = `${rangeLabel()} · ${statusLbl}${m ? ' · ' + m : ''}`;
+  }
+  $('fbar').addEventListener('click', (e) => {
+    const b = e.target.closest('.fchip'); if (!b) return;
+    if (b.hasAttribute('data-open')) openFilter(); else applyPreset(b.dataset.p);
+  });
+
+  function filtered(withSearch) {
+    const from = $('f-from').value, to = $('f-to').value, s = $('f-status').value, m = $('f-method').value;
+    const q = withSearch ? $('f-q').value.trim().toLowerCase() : '';
+    return orders.filter((o) =>
+      (!from || o.date >= from) && (!to || o.date <= to) &&
+      (s === '' ? true : s === 'aktif' ? o.status !== 'Dibatalkan' : o.status === s) &&
+      (!m || o.method === m) &&
+      (!q || [o.code, o.name, o.phone].join(' ').toLowerCase().includes(q)));
+  }
+
+  /* ---------- render ---------- */
+  function draw() {
+    drawFilterBar();
+    const list = filtered(false), active = list.filter((o) => o.status !== 'Dibatalkan');
+    $('s-orders').textContent = active.length;
+    $('s-pcs').textContent = active.reduce((a, o) => a + o.total, 0);
+    $('s-agents').textContent = new Set(active.map((o) => o.phone)).size;
+    $('s-hantar').textContent = active.filter((o) => o.method === 'Hantar').length;
+    const nNew = orders.filter((o) => o.status === 'Baru' || o.status === 'Dikemaskini').length;
+    $('badge').textContent = nNew; $('badge').classList.toggle('hidden', !nNew);
+
+    const tot = {}; FLAVOURS.forEach((f) => (tot[f.id] = 0));
+    active.forEach((o) => FLAVOURS.forEach((f) => (tot[f.id] += o.items[f.id] || 0)));
+    $('bake').innerHTML = [...FLAVOURS].sort((a, b) => (tot[b.id] > 0) - (tot[a.id] > 0))
+      .map((f) => `<div class="bk${tot[f.id] ? '' : ' zero'}"><img src="${f.img}" alt=""><span class="nm">${esc(f.name)}</span><span class="n">${tot[f.id]}</span></div>`).join('');
+
+    drawOrders(filtered(true));
+    drawAgents(active);
+    drawCalendar();
+    if (page === 'report') renderReport();
+  }
+
+  const itemsHTML = (items) => '<div class="items">' + FLAVOURS.filter((f) => items[f.id]).map((f) => `<span>${esc(f.name)} <b>×${items[f.id]}</b></span>`).join('') + '</div>';
+
+  function drawOrders(list) {
+    const k = $('sort').value;
+    const key = { date: (o) => o.date + ' ' + (o.time || '99'), created: (o) => o.createdAt, code: (o) => o.code, name: (o) => o.name.toLowerCase(), total: (o) => o.total }[k];
+    const dir = k === 'created' || k === 'total' ? -1 : 1;
+    list = [...list].sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * dir; });
+    $('count-o').textContent = list.length + ' order';
+    if (!list.length) { $('orders').innerHTML = '<div class="empty">Tiada order untuk tapisan ini.</div>'; return; }
+    $('orders').innerHTML = list.map((o) => `
+      <article class="oc${o.status === 'Dibatalkan' ? ' cancelled' : ''}${picked.has(o.code) ? ' picked' : ''}">
+        <div class="oc-top">${pickMode && o.status !== 'Dibatalkan' ? `<label class="pick"><input type="checkbox" data-pick="${esc(o.code)}"${picked.has(o.code) ? ' checked' : ''}><i></i></label>` : ''}<span class="oc-code">${esc(o.code)}</span><span class="pill st-${esc(o.status)}">${esc(o.status)}</span></div>
+        <div class="oc-who"><b>${esc(o.name)}</b><a href="https://wa.me/6${esc(o.phone)}" target="_blank" rel="noopener">${ICON_WA}${esc(o.phone)}</a></div>
+        <div class="oc-when"><b>${esc(o.method)}</b> · ${esc(fmtDate(o.date))}${o.time ? ' · ' + esc(o.time) : ''}${o.method === 'Hantar' && o.address ? `<span class="sub">📍 ${esc(o.address)}</span>` : ''}</div>
+        ${itemsHTML(o.items)}
+        ${o.notes ? `<div class="oc-note">📝 ${esc(o.notes)}</div>` : ''}
+        <div class="oc-foot">
+          <span class="tot">${o.total}<small>biji</small></span>
+          <select class="st" data-code="${esc(o.code)}" aria-label="Status ${esc(o.code)}">${STATUSES.map((s) => `<option${s === o.status ? ' selected' : ''}>${s}</option>`).join('')}</select>
+          <button class="del" type="button" data-code="${esc(o.code)}" aria-label="Padam ${esc(o.code)}">${ICON_DEL}</button>
+        </div>
+        <div class="meta2">${invOf(o.code) ? '🧾 Invois ' + RM(invOf(o.code).amount) + (invOf(o.code).missing ? ' (harga belum lengkap)' : '') + ' · ' : ''}${spOf(o.phone) ? esc(spOf(o.phone).code) + ' · ' : ''}Dicipta ${esc(o.createdAt)}${o.updatedAt !== o.createdAt ? ' · Dikemas kini ' + esc(o.updatedAt) : ''}</div>
+      </article>`).join('');
+  }
+
+  let tree = { agents: [], dists: [], payments: [], sales: {} };
+  function agentSum(a) {
+    const ds = tree.dists.filter((d) => d.agent === a.code); let given = 0, value = 0, sold = 0, sale = 0;
+    ds.forEach((d) => { given += d.total; value += d.value; const rec = (tree.sales[d.code] || {}).items || {};
+      FLAVOURS.forEach((f) => { const q = (d.items[f.id] || {}).qty || 0; let s2 = 0;
+        ((rec[f.id] || {}).lines || []).forEach((l) => { const n = Math.max(0, Math.min(q - s2, Math.floor(Number(l.qty)) || 0)); s2 += n; sale += n * (Number(l.price) || 0); }); sold += s2; }); });
+    const paid = tree.payments.filter((y) => y.agent === a.code).reduce((t, y) => t + y.amount, 0);
+    return { given, value, sold, sale, paid, owe: value - paid };
+  }
+  const RMa = (n) => (n < 0 ? '-' : '') + 'RM' + Math.abs(n).toFixed(2);
+  function drawAgents(active) {
+    const map = new Map();
+    active.forEach((o) => {
+      const a = map.get(o.phone) || { name: o.name, phone: o.phone, orders: 0, total: 0, items: {}, dates: new Set() };
+      a.orders++; a.total += o.total; a.dates.add(o.date); a.name = o.name;
+      FLAVOURS.forEach((f) => (a.items[f.id] = (a.items[f.id] || 0) + (o.items[f.id] || 0)));
+      map.set(o.phone, a);
+    });
+    const list = [...map.values()].sort((a, b) => b.total - a.total);
+    tree.agents.forEach((ag) => { if (!map.has(ag.sp)) map.set(ag.sp, { name: '', phone: ag.sp, orders: 0, total: 0, items: {}, dates: new Set() }); });
+    sps.forEach((s) => { if (s.phone && !map.has(s.phone)) map.set(s.phone, { name: s.name, phone: s.phone, orders: 0, total: 0, items: {}, dates: new Set() }); });
+    list.splice(0, list.length, ...[...map.values()].sort((a, b) => b.total - a.total));
+    $('count-a').textContent = list.length + ' salesperson · ' + tree.agents.length + ' agent';
+    if (!list.length) { $('agents').innerHTML = '<div class="empty">Tiada order aktif untuk tapisan ini.</div>'; return; }
+    $('agents').innerHTML = list.map((a) => `
+      <article class="oc">
+        <div class="oc-who" style="margin:0"><b>${esc((spOf(a.phone) || {}).name || a.name || 'Salesperson')}</b><a href="https://wa.me/6${esc(a.phone)}" target="_blank" rel="noopener">${ICON_WA}${esc(a.phone)}</a></div>
+        ${spOf(a.phone) ? `<div class="meta2" style="margin-top:2px">${esc(spOf(a.phone).code)} · terakhir aktif ${esc(spOf(a.phone).lastActive || 'belum pernah')}${spOf(a.phone).status !== 'Aktif' ? ' · TIDAK AKTIF' : ''}</div>` : ''}
+        ${(() => { const h = spHQ(a.phone); return `<div class="hqline"><span>Invois <b>${RM(h.billed)}</b> · dibayar <b>${RM(h.paid)}</b> · baki <b class="${h.owe > 0.004 ? 'neg' : ''}">${RM(h.owe)}</b></span><button class="btn btn-o btn-sm" type="button" data-hqpay="${esc(a.phone)}">Bayaran HQ</button></div>`; })()}
+        <div class="oc-when">${a.orders} order${a.dates.size ? ' · ' + [...a.dates].sort().map((d) => esc(fmtDate(d))).join(', ') : ''}</div>
+        ${itemsHTML(a.items)}
+        <div class="oc-foot"><span class="tot">${a.total}<small>biji diorder</small></span></div>
+        ${(() => { const ags = tree.agents.filter((g) => g.sp === a.phone); if (!ags.length) return '<div class="meta2">Belum ada agent.</div>';
+          const sums = ags.map((g) => ({ g, s: agentSum(g) }));
+          const t = sums.reduce((x, y) => ({ given: x.given + y.s.given, sold: x.sold + y.s.sold, owe: x.owe + Math.max(0, y.s.owe) }), { given: 0, sold: 0, owe: 0 });
+          return `<div class="tree"><div class="tree-h">${ags.length} agent · ${t.sold}/${t.given} terjual · belum bayar ${RMa(t.owe)}</div>` +
+            sums.map(({ g, s }) => `<div class="tree-r${g.status !== 'Aktif' ? ' off' : ''}"><span><b>${esc(g.name)}</b><small>${esc(g.code)}${g.phone ? ' · ' + esc(g.phone) : ''}${g.status !== 'Aktif' ? ' · tidak aktif' : ''}</small></span>
+              <span class="tree-n"><b>${s.sold}/${s.given}</b><small>jualan ${RMa(s.sale)}</small><small class="${s.owe > 0.004 ? 'neg' : ''}">${s.owe > 0.004 ? 'hutang ' + RMa(s.owe) : s.given ? 'selesai bayar' : ''}</small></span></div>`).join('') + '</div>'; })()}
+      </article>`).join('');
+  }
+
+  /* ---------- status change ---------- */
+  $('orders').addEventListener('change', async (e) => {
+    const sel = e.target.closest('select.st'); if (!sel) return;
+    const code = sel.dataset.code, status = sel.value, o = orders.find((x) => x.code === code), prev = o.status;
+    sel.disabled = true;
+    try {
+      await API.adminSetStatus(pw, code, status);
+      o.status = status; toast(`${code} → ${status}`); draw();
+    } catch (err) { sel.value = prev; sel.disabled = false; toast(err.message, true); }
+  });
+
+  /* ---------- delete ---------- */
+  $('orders').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button.del'); if (!btn) return;
+    const code = btn.dataset.code, o = orders.find((x) => x.code === code);
+    if (!confirm(`Padam order ${code} (${o ? o.name + ', ' + o.total + ' biji' : ''}) secara kekal?\n\nOrder ini akan dibuang dari Google Sheet dan tidak boleh dibuka semula oleh agent.`)) return;
+    btn.disabled = true;
+    try {
+      await API.adminDelete(pw, code);
+      orders = orders.filter((x) => x.code !== code);
+      toast(`${code} dipadam`); draw();
+    } catch (err) { btn.disabled = false; toast(err.message, true); }
+  });
+
+  /* ---------- export CSV ---------- */
+  function fileTag() {
+    const f = $('f-from').value, t = $('f-to').value;
+    return !f && !t ? 'semua' : f === t ? f : `${f || 'awal'}_${t || 'akhir'}`;
+  }
+  $('export').onclick = () => {
+    const list = filtered(false);
+    const head = ['Kod', 'Status', 'Dicipta', 'Dikemaskini', 'Nama Agent', 'Telefon', 'Kaedah', 'Tarikh', 'Masa', 'Alamat', 'Nota', ...FLAVOURS.map((f) => f.name), 'Jumlah'];
+    const rows = list.map((o) => [o.code, o.status, o.createdAt, o.updatedAt, o.name, o.phone, o.method, o.date, o.time, o.address, o.notes, ...FLAVOURS.map((f) => o.items[f.id] || 0), o.total]);
+    const csv = [head, ...rows].map((r) => r.map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = `soft-cookies-orders-${fileTag()}.csv`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+
+  /* ---------- PDF for the bakery (browser print → Save as PDF) ---------- */
+  document.querySelectorAll('[data-pdf]').forEach((b) => b.onclick = exportPDF);
+  function exportPDF(chosen) {
+    const fromPick = Array.isArray(chosen);
+    const list = (fromPick ? chosen : filtered(false)).filter((o) => o.status !== 'Dibatalkan')
+      .sort((a, b) => (a.date + (a.time || '99') + a.code).localeCompare(b.date + (b.time || '99') + b.code));
+    if (!list.length) return toast('Tiada order aktif untuk julat ini.', true);
+    const tot = {}; FLAVOURS.forEach((f) => (tot[f.id] = 0));
+    list.forEach((o) => FLAVOURS.forEach((f) => (tot[f.id] += o.items[f.id] || 0)));
+    const grand = list.reduce((a, o) => a + o.total, 0);
+    const dates = [...new Set(list.map((o) => o.date))].sort();
+    const now = new Date().toLocaleString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const used = FLAVOURS.filter((f) => tot[f.id]);
+    const dayQty = (d, id) => list.filter((o) => o.date === d).reduce((a, o) => a + (o.items[id] || 0), 0);
+
+    const totalTable = `<table class="big"><thead><tr><th>Perisa</th><th class="n">Kuantiti (biji)</th></tr></thead><tbody>
+      ${used.map((f) => `<tr><td>${esc(f.name)}</td><td class="n">${tot[f.id]}</td></tr>`).join('')}
+      </tbody><tfoot><tr><td>JUMLAH</td><td class="n">${grand}</td></tr></tfoot></table>`;
+    const byDay = dates.length > 1 ? `<h2>Ikut tarikh ambil / hantar</h2>
+      <table><thead><tr><th>Perisa</th>${dates.map((d) => `<th class="n">${esc(fmtDate(d))}</th>`).join('')}<th class="n">Jumlah</th></tr></thead><tbody>
+      ${used.map((f) => `<tr><td>${esc(f.name)}</td>${dates.map((d) => `<td class="n">${dayQty(d, f.id) || '–'}</td>`).join('')}<td class="n"><b>${tot[f.id]}</b></td></tr>`).join('')}
+      </tbody><tfoot><tr><td>JUMLAH</td>${dates.map((d) => `<td class="n">${list.filter((o) => o.date === d).reduce((a, o) => a + o.total, 0)}</td>`).join('')}<td class="n">${grand}</td></tr></tfoot></table>` : '';
+    const orderTable = `<h2>Senarai order (${list.length})</h2>
+      <table><thead><tr><th>Kod</th><th>Agent</th><th>Ambil / Hantar</th><th>Pecahan</th><th class="n">Biji</th></tr></thead><tbody>
+      ${list.map((o) => `<tr><td><b>${esc(o.code)}</b></td><td>${esc(o.name)}</td>
+        <td>${esc(o.method)} · ${esc(fmtDate(o.date))}${o.time ? ' · ' + esc(o.time) : ''}</td>
+        <td>${FLAVOURS.filter((f) => o.items[f.id]).map((f) => `${esc(f.name)} ×${o.items[f.id]}`).join(', ')}${o.notes ? `<br><i>Nota: ${esc(o.notes)}</i>` : ''}</td>
+        <td class="n">${o.total}</td></tr>`).join('')}
+      </tbody></table>`;
+
+    $('print').innerHTML = `
+      <img src="img/logo-ngap.webp" alt="ngap soft cookies" style="height:64px;width:auto;margin-bottom:8px">
+      <h1>Senarai Bake</h1>
+      <p class="meta">${fromPick ? `<b>Order dipilih:</b> ${list.map((o) => esc(o.code)).join(', ')}` : `<b>Tarikh ambil / hantar:</b> ${esc(rangeLabel(true))}${$('f-method').value ? ' · ' + esc($('f-method').value) + ' sahaja' : ''}`}<br>
+      <b>${list.length}</b> order · <b>${grand}</b> biji · Dijana ${esc(now)} · Order dibatalkan tidak dikira</p>
+      <h2>Jumlah perlu bake</h2>${totalTable}${byDay}${orderTable}
+      <div class="sign"><div>Disediakan oleh</div><div>Diterima oleh (kilang)</div></div>`;
+    const title = document.title;
+    document.title = `ngap-bake-${fromPick ? list.length + '-order-' + todayIso() : fileTag()}`;
+    window.addEventListener('afterprint', () => {
+      document.title = title;
+      if (fromPick) afterPickPDF(list);
+    }, { once: true });
+    window.print();
+  }
+
+  /* ---------- choose which orders go into the bakery PDF ---------- */
+  let pickMode = false;
+  const picked = new Set();
+  function syncPick() {
+    const sel = orders.filter((o) => picked.has(o.code));
+    $('pick-n').textContent = sel.length; $('pick-p').textContent = sel.reduce((a, o) => a + o.total, 0);
+    $('pickbar').classList.toggle('hidden', !pickMode);
+    $('pick-pdf').disabled = !sel.length;
+    $('pick-mode').textContent = pickMode ? 'Tutup pilihan' : 'Pilih order untuk PDF';
+    document.body.classList.toggle('picking', pickMode);
+  }
+  function setPickMode(on) { pickMode = on; if (!on) picked.clear(); draw(); syncPick(); }
+  $('pick-mode').onclick = () => setPickMode(!pickMode);
+  $('pick-clear').onclick = () => setPickMode(false);
+  $('pick-all').onclick = () => { filtered(true).filter((o) => o.status !== 'Dibatalkan').forEach((o) => picked.add(o.code)); draw(); syncPick(); };
+  $('orders').addEventListener('change', (e) => { const c = e.target.closest('[data-pick]'); if (!c) return;
+    c.checked ? picked.add(c.dataset.pick) : picked.delete(c.dataset.pick); c.closest('.oc').classList.toggle('picked', c.checked); syncPick(); });
+  $('pick-pdf').onclick = () => { const sel = orders.filter((o) => picked.has(o.code)); if (sel.length) exportPDF(sel); };
+  // after the PDF is made, offer to move those orders forward so nothing gets baked twice
+  async function afterPickPDF(list) {
+    const todo = list.filter((o) => ['Baru', 'Disahkan', 'Dikemaskini'].includes(o.status));
+    if (!todo.length || !confirm(`Tukar status ${todo.length} order ini kepada "Dibakar"?`)) return;
+    for (const o of todo) { try { await API.adminSetStatus(pw, o.code, 'Dibakar'); o.status = 'Dibakar'; } catch (err) { toast(err.message, true); break; } }
+    toast(`${todo.length} order ditanda Dibakar.`); setPickMode(false); load(true);
+  }
+
+
+  /* ================= HQ / director tools ================= */
+  let invs = [], hqp = [], setts = null, sps = [];
+  const RM = (n) => (n < 0 ? '-' : '') + 'RM' + Math.abs(n).toLocaleString('ms-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const RMk = (n) => (n < 0 ? '-' : '') + 'RM' + (Math.abs(n) >= 1000 ? (Math.abs(n) / 1000).toFixed(1) + 'k' : Math.round(Math.abs(n)));
+  const isoOf = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const todayIso = () => isoOf(new Date());
+  const addD = (iso, n) => { const [y, m, d] = iso.split('-'); const t = new Date(+y, m - 1, +d); t.setDate(t.getDate() + n); return isoOf(t); };
+  const invOf = (code) => invs.find((v) => v.code === code);
+  const spOf = (phone) => sps.find((s) => s.phone === phone);
+  const spLabel = (phone) => { const s = spOf(phone); return s ? `${s.name} (${s.code})` : phone; };
+  const pIn = (m, id) => { if (!m) return null; const it = (m.items || {})[id], v = it !== undefined && it !== '' && it !== null ? it : m.def; return v === '' || v === null || v === undefined ? null : Number(v); };
+  const numv = (v) => { v = String(v ?? '').replace(',', '.').trim(); return v === '' ? '' : isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : null; };
+  function openG(html) { $('gsheet-in').innerHTML = html; $('gsheet').classList.remove('hidden'); }
+  function closeG() { $('gsheet').classList.add('hidden'); }
+  $('gsheet').addEventListener('click', (e) => { if (e.target === $('gsheet') || e.target.closest('[data-gclose]')) closeG(); });
+  async function saveSettings(patch, msg) {
+    try { setts = (await API.adminSetSettings(pw, patch)).settings; closeG(); toast(msg || 'Tetapan disimpan.'); await load(true); }
+    catch (err) { toast(err.message, true); }
+  }
+
+  /* ---------- #15 production calendar (next 7 days) ---------- */
+  function drawCalendar() {
+    const cap = setts ? Number(setts.capacity) || 0 : 0, t0 = todayIso(), days = [...Array(7)].map((_, i) => addD(t0, i));
+    $('cal').innerHTML = days.map((d) => {
+      const os = orders.filter((o) => o.date === d && o.status !== 'Dibatalkan'), pcs = os.reduce((a, o) => a + o.total, 0);
+      const pct = cap ? Math.min(100, pcs / cap * 100) : 0, [y, m, dd] = d.split('-');
+      const lbl = new Date(+y, m - 1, +dd).toLocaleDateString('ms-MY', { weekday: 'short' });
+      return `<button class="cday${d === t0 ? ' today' : ''}${cap && pcs > cap ? ' over' : ''}" type="button" data-day="${d}">
+        <span class="cd-w">${esc(lbl)}</span><b class="cd-d">${+dd}</b><span class="cd-n">${pcs || '–'}</span>
+        ${cap ? `<span class="cd-bar"><i style="height:${pct}%"></i></span>` : ''}<small>${os.length ? os.length + ' order' : ''}</small></button>`; }).join('');
+    $('cal-cap').textContent = cap ? `Kapasiti ${cap} biji/hari` : 'Kapasiti belum diset';
+  }
+  $('cal').addEventListener('click', (e) => { const b = e.target.closest('[data-day]'); if (!b) return;
+    $('f-from').value = $('f-to').value = b.dataset.day; $('f-preset').value = 'custom'; $('f-status').value = 'aktif'; draw(); go('orders'); });
+
+  /* ---------- #1 #11 salesperson accounts ---------- */
+  function spSheet() {
+    openG(`<h2>Salesperson</h2><p class="muted" style="margin:2px 0 10px">Kod log masuk, status, PIN dan bila kali terakhir aktif.</p>
+      <div class="clist">${sps.map((s) => `<div class="sprow${s.status !== 'Aktif' ? ' off' : ''}">
+        <div><b>${esc(s.name)}</b> <span class="pill ${s.status === 'Aktif' ? 'st-Siap' : 'st-Dibatalkan'}">${esc(s.status)}</span>
+          <small>${esc(s.code)} · ${s.phone ? esc(s.phone) : 'tiada telefon'} · ${s.hasPin ? 'PIN diset' : 'belum ada PIN'}</small>
+          <small>Terakhir aktif: ${esc(s.lastActive || 'belum pernah')}</small></div>
+        <div class="sp-acts"><button class="btn btn-o btn-sm" type="button" data-spedit="${esc(s.code)}">Edit</button>${s.hasPin ? `<button class="btn btn-o btn-sm" type="button" data-sppin="${esc(s.code)}">Reset PIN</button>` : ''}</div></div>`).join('')}</div>
+      <form id="spadd" class="tg-form" style="margin-top:14px"><label>Tambah salesperson (nama)<input class="inp" id="spadd-name" placeholder="cth. Hakim" style="text-align:left"></label><button class="btn btn-p btn-sm" type="submit">Tambah</button></form>
+      <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Tutup</button></div>`);
+    $('spadd').onsubmit = async (e) => { e.preventDefault(); const name = $('spadd-name').value.trim(); if (!name) return toast('Isi nama.', true);
+      try { const r = await API.adminSaveSalesperson(pw, { name }); toast(`Kod baru: ${r.code}`); sps = (await API.adminSalespersons(pw)).salespersons; spSheet(); } catch (err) { toast(err.message, true); } };
+  }
+  $('gsheet').addEventListener('click', async (e) => {
+    const ed = e.target.closest('[data-spedit]'), rp = e.target.closest('[data-sppin]');
+    if (rp) { if (!confirm(`Reset PIN ${rp.dataset.sppin}? Mereka perlu cipta PIN baru semasa log masuk.`)) return;
+      try { await API.adminResetPin(pw, rp.dataset.sppin); toast('PIN direset.'); sps = (await API.adminSalespersons(pw)).salespersons; spSheet(); } catch (err) { toast(err.message, true); } }
+    if (ed) { const s = sps.find((x) => x.code === ed.dataset.spedit);
+      openG(`<h2>${esc(s.code)}</h2><div class="fields" style="margin-top:10px">
+        <label class="f">Nama<input class="inp" id="se-name" value="${esc(s.name)}"></label>
+        <label class="f">Telefon<input class="inp" id="se-phone" type="tel" value="${esc(s.phone)}"></label>
+        <label class="f">Status<select class="inp" id="se-status"><option${s.status === 'Aktif' ? ' selected' : ''}>Aktif</option><option${s.status !== 'Aktif' ? ' selected' : ''}>Tidak aktif</option></select></label>
+        <div class="acts"><button class="btn btn-o" type="button" id="se-back">Kembali</button><button class="btn btn-p" type="button" id="se-save">Simpan</button></div></div>`);
+      $('se-back').onclick = spSheet;
+      $('se-save').onclick = async () => { try { await API.adminSaveSalesperson(pw, { code: s.code, name: $('se-name').value.trim(), phone: $('se-phone').value.trim(), status: $('se-status').value });
+        toast('Disimpan.'); sps = (await API.adminSalespersons(pw)).salespersons; spSheet(); draw(); } catch (err) { toast(err.message, true); } };
+    }
+  });
+
+  /* ---------- #2 #9 HQ price list + ingredient cost ---------- */
+  function priceSheet() {
+    const hp = (setts && setts.hqPrice) || { def: '', items: {} }, hc = (setts && setts.hqCost) || { def: '', items: {} }, v = (x) => (x === '' || x === undefined || x === null ? '' : Number(x).toFixed(2));
+    openG(`<h2>Harga HQ &amp; kos bahan</h2><p class="muted" style="margin:2px 0 10px"><b>Harga HQ</b> = harga seunit kepada salesperson (masuk invois). <b>Kos bahan</b> = kos HQ untuk buat sebiji (untuk kira untung HQ). Harga dikunci dalam invois bila order dibuat.</p>
+      <div class="prow hd"><span></span><span style="text-align:right">Harga HQ</span><span style="text-align:right">Kos bahan</span></div>
+      <div class="prow"><b>Semua perisa</b><input class="inp" id="hp-def" inputmode="decimal" value="${v(hp.def)}" placeholder="0.00"><input class="inp" id="hc-def" inputmode="decimal" value="${v(hc.def)}" placeholder="0.00"></div>
+      <div id="hp-items">${FLAVOURS.map((f) => `<div class="prow" data-id="${f.id}"><span>${esc(f.name)}</span><input class="inp" data-k="p" inputmode="decimal" placeholder="asas" value="${v((hp.items || {})[f.id])}"><input class="inp" data-k="c" inputmode="decimal" placeholder="asas" value="${v((hc.items || {})[f.id])}"></div>`).join('')}</div>
+      <div class="acts" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Batal</button><button class="btn btn-p" type="button" id="hp-save">Simpan</button></div>`);
+    $('hp-save').onclick = () => {
+      const P = { def: numv($('hp-def').value), items: {} }, C = { def: numv($('hc-def').value), items: {} }; let bad = P.def === null || C.def === null;
+      document.querySelectorAll('#hp-items .prow').forEach((r) => { const p = numv(r.querySelector('[data-k=p]').value), c = numv(r.querySelector('[data-k=c]').value);
+        if (p === null || c === null) bad = true; if (p !== '' && p !== null) P.items[r.dataset.id] = p; if (c !== '' && c !== null) C.items[r.dataset.id] = c; });
+      if (bad) return toast('Ada harga yang tidak sah.', true);
+      saveSettings({ hqPrice: P, hqCost: C }, 'Harga HQ disimpan.');
+    };
+  }
+
+  /* ---------- #4 capacity + cut-off, #8 stock age ---------- */
+  function capSheet() {
+    const s = setts || {};
+    openG(`<h2>Kapasiti &amp; tarikh tutup</h2><div class="fields" style="margin-top:10px">
+      <label class="f">Kapasiti kilang sehari (biji) <small>0 = tiada had</small><input class="inp" id="cp-cap" type="number" inputmode="numeric" min="0" value="${s.capacity || 0}"></label>
+      <div class="fields two"><label class="f">Order paling awal (hari sebelum) <small>1 = order untuk esok</small><input class="inp" id="cp-days" type="number" inputmode="numeric" min="0" value="${s.cutoffDays ?? 1}"></label>
+      <label class="f">Waktu tutup harian <small>Selepas waktu ini, tambah sehari</small><input class="inp" id="cp-hour" type="time" value="${esc(s.cutoffHour || '')}"></label></div>
+      <label class="f">Amaran stok lama (hari) <small>Stok belum terjual lebih dari ini akan ditanda</small><input class="inp" id="cp-age" type="number" inputmode="numeric" min="1" value="${s.stockAgeDays || 5}"></label>
+      <p class="muted" style="margin:0;font-size:13px">Tarikh terawal sekarang: <b>${esc(s.earliest ? fmtDate(s.earliest) : '-')}</b></p>
+      <div class="acts"><button class="btn btn-o" type="button" data-gclose>Batal</button><button class="btn btn-p" type="button" id="cp-save">Simpan</button></div></div>`);
+    $('cp-save').onclick = () => saveSettings({ capacity: $('cp-cap').value, cutoffDays: $('cp-days').value, cutoffHour: $('cp-hour').value, stockAgeDays: $('cp-age').value });
+  }
+
+  /* ---------- #5 flavours available / out of stock ---------- */
+  function flavSheet() {
+    const off = (setts && setts.unavailable) || [];
+    openG(`<h2>Perisa ada / habis</h2><p class="muted" style="margin:2px 0 10px">Perisa yang ditanda <b>habis</b> tidak boleh dipilih oleh salesperson.</p>
+      <div class="flist">${FLAVOURS.map((f) => `<label class="frow"><img src="${f.img}" alt=""><span>${esc(f.name)}</span><input type="checkbox" data-f="${f.id}"${off.includes(f.id) ? '' : ' checked'}><i class="sw"></i></label>`).join('')}</div>
+      <div class="acts" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Batal</button><button class="btn btn-p" type="button" id="fl-save">Simpan</button></div>`);
+    $('fl-save').onclick = () => saveSettings({ unavailable: [...document.querySelectorAll('.flist [data-f]')].filter((c) => !c.checked).map((c) => c.dataset.f) }, 'Senarai perisa dikemas kini.');
+  }
+
+  /* ---------- #14 targeted announcements ---------- */
+  let annList = [];
+  const tgtLabel = (t) => t === 'all' ? 'Semua' : t === 'sales' ? 'Salesperson sahaja' : t === 'agents' ? 'Agent sahaja' : t.startsWith('sp:') ? 'Rangkaian ' + t.slice(3) : t;
+  async function annSheet() {
+    try { annList = (await API.adminListAnnouncements(pw)).announcements || []; } catch (err) { return toast(err.message, true); }
+    openG(`<h2>Pengumuman</h2><p class="muted" style="margin:2px 0 10px">Dipaparkan di skrin Utama mengikut sasaran.</p>
+      <textarea class="inp" id="an-text" rows="4" maxlength="500" placeholder="Cth: Matcha S'mores kembali minggu ni!"></textarea>
+      <div class="tg-form" style="margin-top:8px"><label>Sasaran<select class="inp" id="an-tgt" style="text-align:left"><option value="all">Semua (salesperson & agent)</option><option value="sales">Salesperson sahaja</option><option value="agents">Agent sahaja</option>
+        ${sps.map((s) => `<option value="sp:${esc(s.code)}">${esc(s.name)} & agent dia</option>`).join('')}</select></label><button class="btn btn-p btn-sm" type="button" id="an-add">Terbitkan</button></div>
+      <p class="sec-h" style="margin-top:16px">Aktif</p>
+      <div class="clist">${annList.map((a) => `<div class="payrow"><span><b>${esc(a.text.slice(0, 90))}${a.text.length > 90 ? '…' : ''}</b><small>${esc(tgtLabel(a.target))} · ${esc(a.updatedAt)}</small></span><button class="linkbtn" type="button" data-andel="${esc(a.id)}">Padam</button></div>`).join('') || '<p class="muted">Tiada pengumuman.</p>'}</div>
+      <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Tutup</button></div>`);
+    $('an-add').onclick = async () => { const t = $('an-text').value.trim(); if (!t) return toast('Tulis pengumuman dahulu.', true);
+      try { await API.adminAddAnnouncement(pw, t, $('an-tgt').value); toast('Pengumuman diterbitkan.'); annSheet(); } catch (err) { toast(err.message, true); } };
+    document.querySelectorAll('[data-andel]').forEach((b) => b.onclick = async () => { if (!confirm('Padam pengumuman ini?')) return;
+      try { await API.adminDeleteAnnouncement(pw, b.dataset.andel); annSheet(); } catch (err) { toast(err.message, true); } });
+    $('ann-sum').textContent = annList.length ? annList.length + ' aktif' : 'Tiada pengumuman';
+  }
+
+  /* ---------- #13 activity log ---------- */
+  async function logSheet() {
+    let L = []; try { L = (await API.adminLog(pw)).log || []; } catch (err) { return toast(err.message, true); }
+    const draw2 = (q) => { q = q.toLowerCase(); $('lg-list').innerHTML = L.filter((x) => !q || [x.who, x.action, x.ref, x.detail].join(' ').toLowerCase().includes(q)).slice(0, 200)
+      .map((x) => `<div class="lgrow"><small>${esc(x.at)}</small><b>${esc(x.action)}${x.ref ? ' · ' + esc(x.ref) : ''}</b><span>${esc(x.who)}${x.detail ? ' — ' + esc(x.detail) : ''}</span></div>`).join('') || '<p class="muted">Tiada rekod.</p>'; };
+    openG(`<h2>Log aktiviti</h2><input class="inp" id="lg-q" type="search" placeholder="Cari kod, nama, tindakan…" style="margin:8px 0">
+      <div id="lg-list" class="lglist"></div><div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Tutup</button></div>`);
+    $('lg-q').oninput = () => draw2($('lg-q').value); draw2('');
+  }
+
+  /* ---------- #2 payments from a salesperson to HQ ---------- */
+  function spHQ(phone) {
+    const iv = invs.filter((v) => v.phone === phone), py = hqp.filter((y) => y.phone === phone);
+    const billed = iv.reduce((a, v) => a + v.amount, 0), paid = py.reduce((a, y) => a + y.amount, 0);
+    return { iv, py, billed, paid, owe: billed - paid };
+  }
+  function hqPaySheet(phone) {
+    const s = spOf(phone), h = spHQ(phone);
+    openG(`<h2>${esc(s ? s.name : phone)}</h2><p class="muted" style="margin:2px 0 10px">Invois ${RM(h.billed)} · dibayar ${RM(h.paid)} · <b class="${h.owe > 0.004 ? 'neg' : ''}">baki ${RM(h.owe)}</b></p>
+      ${s ? `<div class="fields"><div class="fields two"><label class="f">Jumlah (RM)<input class="inp" id="hq-amt" inputmode="decimal" value="${h.owe > 0 ? h.owe.toFixed(2) : ''}"></label><label class="f">Tarikh<input class="inp" id="hq-date" type="date" value="${todayIso()}"></label></div>
+        <label class="f">Nota<input class="inp" id="hq-note" placeholder="cth. transfer Maybank"></label><button class="btn btn-p btn-block" type="button" id="hq-go">Rekod bayaran</button></div>` : '<p class="warnbox">Telefon ini tiada akaun salesperson.</p>'}
+      <p class="sec-h" style="margin-top:14px">Bayaran</p><div class="clist">${h.py.sort((a, b) => b.date.localeCompare(a.date)).map((y) => `<div class="payrow"><span><b>${RM(y.amount)}</b><small>${esc(fmtDate(y.date))}${y.note ? ' · ' + esc(y.note) : ''} · ${esc(y.id)}</small></span><button class="linkbtn" type="button" data-hqdel="${esc(y.id)}">Padam</button></div>`).join('') || '<p class="muted">Belum ada bayaran.</p>'}</div>
+      <p class="sec-h">Invois</p><div class="clist">${h.iv.sort((a, b) => b.date.localeCompare(a.date)).map((v) => `<div class="payrow"><span><b>${esc(v.code)} · ${RM(v.amount)}</b><small>${esc(fmtDate(v.date))} · ${v.total} biji · ${esc(v.status)}${v.missing ? ' · harga HQ belum lengkap' : ''}</small></span></div>`).join('') || '<p class="muted">Tiada invois.</p>'}</div>
+      <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Tutup</button></div>`);
+    const go2 = $('hq-go'); if (go2) go2.onclick = async () => { const v = numv($('hq-amt').value); if (!v) return toast('Isi jumlah bayaran.', true);
+      try { await API.adminAddHQPayment(pw, { sp: s.code, amount: v, date: $('hq-date').value, note: $('hq-note').value.trim() }); toast('Bayaran direkod.'); await load(true); hqPaySheet(phone); } catch (err) { toast(err.message, true); } };
+    document.querySelectorAll('[data-hqdel]').forEach((b) => b.onclick = async () => { if (!confirm('Padam bayaran ' + b.dataset.hqdel + '?')) return;
+      try { await API.adminDeleteHQPayment(pw, b.dataset.hqdel); await load(true); hqPaySheet(phone); } catch (err) { toast(err.message, true); } });
+  }
+  $('agents').addEventListener('click', (e) => { const b = e.target.closest('[data-hqpay]'); if (b) hqPaySheet(b.dataset.hqpay); });
+
+  /* ---------- #6 #7 #8 #9 director report ---------- */
+  const monthOf = (iso) => String(iso || '').slice(0, 7);
+  const prevMonth = (m) => { const [y, mm] = m.split('-').map(Number); const d = new Date(y, mm - 2, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
+  const monthName = (m) => { const [y, mm] = m.split('-'); return new Date(+y, mm - 1, 1).toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' }); };
+  const linesSold = (rec, id, q) => { let s = 0, rv = 0; ((rec[id] || {}).lines || []).forEach((l) => { const n = Math.max(0, Math.min(q - s, Math.floor(Number(l.qty)) || 0)); s += n; rv += n * (Number(l.price) || 0); }); return { s, rv }; };
+  function monthStats(m) {
+    const os = orders.filter((o) => o.status !== 'Dibatalkan' && monthOf(o.date) === m);
+    let rev = 0, cost = 0, pcs = 0, missingCost = false; const fl = {};
+    os.forEach((o) => { const v = invOf(o.code); rev += v ? v.amount : 0; pcs += o.total;
+      FLAVOURS.forEach((f) => { const q = o.items[f.id] || 0; if (!q) return; fl[f.id] = (fl[f.id] || 0) + q; const c = pIn(setts && setts.hqCost, f.id); if (c === null) missingCost = true; cost += q * (c || 0); }); });
+    const collected = hqp.filter((y) => monthOf(y.date) === m).reduce((a, y) => a + y.amount, 0);
+    const bySp = {}; os.forEach((o) => { const b = bySp[o.phone] = bySp[o.phone] || { phone: o.phone, pcs: 0, rev: 0, orders: 0 }; b.pcs += o.total; b.orders++; b.rev += invOf(o.code) ? invOf(o.code).amount : 0; });
+    return { os, rev, cost, profit: rev - cost, margin: rev ? (rev - cost) / rev * 100 : null, pcs, fl, collected, bySp, missingCost };
+  }
+  function networkStock() {
+    const t0 = todayIso(), age = (setts && setts.stockAgeDays) || 5, old = [];
+    let taken = 0, spSold = 0, given = 0, agSold = 0;
+    orders.filter((o) => o.status !== 'Dibatalkan' && o.date <= t0).forEach((o) => {
+      const rec = ((tree.spSales || {})[o.code] || {}).items || {}; let left = 0;
+      FLAVOURS.forEach((f) => { const q = o.items[f.id] || 0; if (!q) return; taken += q;
+        const own = linesSold(rec, f.id, q).s, dq = tree.dists.reduce((a, d) => a + (((d.alloc || {})[o.code] || {})[f.id] || 0), 0);
+        spSold += own; left += Math.max(0, q - own - dq); });
+      if (left > 0 && o.date <= addD(t0, -age)) old.push({ who: spLabel(o.phone), ref: o.code, date: o.date, left });
+    });
+    tree.dists.forEach((d) => { given += d.total; const rec = (tree.sales[d.code] || {}).items || {}; let left = 0;
+      FLAVOURS.forEach((f) => { const q = (d.items[f.id] || {}).qty || 0; if (!q) return; const s = linesSold(rec, f.id, q).s; agSold += s; left += q - s; });
+      const ag = tree.agents.find((a) => a.code === d.agent);
+      if (left > 0 && d.date <= addD(t0, -age)) old.push({ who: (ag ? ag.name : d.agent) + ' (agent)', ref: d.code, date: d.date, left }); });
+    const sold = spSold + agSold;
+    return { taken, spSold, given, agSold, sold, heldSp: Math.max(0, taken - spSold - given), heldAg: Math.max(0, given - agSold), pct: taken ? sold / taken * 100 : 0, old: old.sort((a, b) => a.date.localeCompare(b.date)), age };
+  }
+  let repMonth = monthOf(todayIso());
+  function renderReport() {
+    const m = repMonth, a = monthStats(m), b = monthStats(prevMonth(m));
+    const owed = invs.reduce((x, v) => x + v.amount, 0) - hqp.reduce((x, y) => x + y.amount, 0);
+    const growth = b.rev ? (a.rev - b.rev) / b.rev * 100 : null;
+    const months = [...Array(12)].map((_, i) => { let x = m; for (let k = 0; k < 11 - i; k++) x = prevMonth(x); return x; });
+    const ms = months.map((x) => ({ x, s: monthStats(x) })), max = Math.max(1, ...ms.map((y) => y.s.rev));
+    const top = FLAVOURS.filter((f) => a.fl[f.id]).sort((p, q) => a.fl[q.id] - a.fl[p.id]), topMax = top.length ? a.fl[top[0].id] : 1;
+    const spRank = Object.values(a.bySp).sort((p, q) => q.rev - p.rev || q.pcs - p.pcs);
+    const agRank = tree.agents.map((g) => { let sale = 0, sold = 0; tree.dists.filter((d) => d.agent === g.code && monthOf(d.date) === m).forEach((d) => {
+      const rec = (tree.sales[d.code] || {}).items || {}; FLAVOURS.forEach((f) => { const q = (d.items[f.id] || {}).qty || 0; if (!q) return; const r = linesSold(rec, f.id, q); sale += r.rv; sold += r.s; }); });
+      return { g, sale, sold }; }).filter((x) => x.sold).sort((p, q) => q.sale - p.sale).slice(0, 10);
+    const st = networkStock(), noPrice = !(setts && (setts.hqPrice.def !== '' || Object.keys(setts.hqPrice.items || {}).length));
+    $('report').innerHTML = `
+      <div class="rp-month"><button class="ibtn2" type="button" data-mv="-1">‹</button><b>${esc(monthName(m))}</b><button class="ibtn2" type="button" data-mv="1"${m >= monthOf(todayIso()) ? ' disabled' : ''}>›</button></div>
+      ${noPrice ? '<div class="warnbox">Harga HQ belum diset — revenue dikira RM0. Set di <b>Lagi → Harga HQ &amp; kos bahan</b>.</div>' : ''}
+      <div class="kpis">
+        <div class="kpi hl"><span>Revenue HQ</span><b>${RM(a.rev)}</b><small>${growth === null ? 'tiada data bulan lepas' : (growth >= 0 ? '▲ ' : '▼ ') + Math.abs(growth).toFixed(1) + '% berbanding bulan lepas'}</small></div>
+        <div class="kpi"><span>Kos bahan</span><b>${a.missingCost ? '–' : RM(a.cost)}</b><small>${a.pcs} biji</small></div>
+        <div class="kpi"><span>Untung HQ</span><b class="${a.profit < 0 ? 'neg' : ''}">${a.missingCost ? '–' : RM(a.profit)}</b><small>Margin ${a.missingCost || a.margin === null ? '–' : a.margin.toFixed(1) + '%'}</small></div>
+        <div class="kpi"><span>Kutipan bulan ini</span><b>${RM(a.collected)}</b><small>bayaran salesperson</small></div>
+        <div class="kpi"><span>Belum dikutip</span><b class="${owed > 0.004 ? 'neg' : ''}">${RM(owed)}</b><small>semua salesperson</small></div>
+        <div class="kpi"><span>Order</span><b>${a.os.length}</b><small>${Object.keys(a.bySp).length} salesperson aktif</small></div>
+      </div>
+      <section class="panel"><div class="panel-h"><h2>Trend 12 bulan</h2><span class="r">Revenue HQ</span></div>
+        <div class="trend12">${ms.map((y) => `<div class="tc${y.x === m ? ' now' : ''}"><small>${y.x === m && y.s.rev ? RMk(y.s.rev) : ''}</small><span class="tb"><i style="height:${y.s.rev / max * 100}%"></i></span><span>${esc(new Date(+y.x.slice(0, 4), +y.x.slice(5) - 1, 1).toLocaleDateString('ms-MY', { month: 'short' }))}</span></div>`).join('')}</div></section>
+      <section class="panel"><div class="panel-h"><h2>Sell-through rangkaian</h2><span class="r">Semua stok sehingga hari ini</span></div>
+        <div class="tg-bar big"><i style="width:${st.pct}%"></i></div>
+        <p style="margin:8px 0 4px;font-size:14px"><b>${st.pct.toFixed(0)}%</b> stok dah sampai ke pelanggan (${st.sold} daripada ${st.taken} biji)</p>
+        <div class="minis" style="margin:8px 0 0"><div class="mini"><b>${st.heldSp}</b><span>Di tangan salesperson</span></div><div class="mini"><b>${st.heldAg}</b><span>Di tangan agent</span></div><div class="mini"><b>${st.sold}</b><span>Terjual</span></div></div></section>
+      <section class="panel"><div class="panel-h"><h2>Amaran stok lama</h2><span class="r">Lebih ${st.age} hari</span></div>
+        ${st.old.length ? `<div class="clist">${st.old.slice(0, 12).map((x) => `<div class="payrow"><span><b>${esc(x.who)}</b><small>${esc(x.ref)} · ${esc(fmtDate(x.date))}</small></span><span class="pill st-Dikemaskini">${x.left} belum terjual</span></div>`).join('')}</div>` : '<p class="muted" style="margin:0">Tiada stok lama. 👍</p>'}</section>
+      <section class="panel"><div class="panel-h"><h2>Perisa terlaris</h2><span class="r">${a.pcs} biji</span></div>
+        ${top.length ? `<div class="best">${top.slice(0, 6).map((f, i) => `<div class="best-r"><span class="rk">${i + 1}</span><img src="${f.img}" alt=""><span class="bn"><b>${esc(f.name)}</b><i style="width:${a.fl[f.id] / topMax * 100}%"></i></span><b class="bq">${a.fl[f.id]}</b></div>`).join('')}</div>` : '<p class="muted" style="margin:0">Tiada order.</p>'}</section>
+      <section class="panel"><div class="panel-h"><h2>Ranking salesperson</h2></div>
+        ${spRank.length ? `<div class="clist">${spRank.map((r, i) => { const h = spHQ(r.phone); return `<div class="payrow"><span><b>${i + 1}. ${esc(spLabel(r.phone))}</b><small>${r.orders} order · ${r.pcs} biji · baki hutang ${RM(h.owe)}</small></span><b>${RM(r.rev)}</b></div>`; }).join('')}</div>` : '<p class="muted" style="margin:0">Tiada order.</p>'}</section>
+      <section class="panel"><div class="panel-h"><h2>Ranking agent</h2><span class="r">Jualan ke pelanggan</span></div>
+        ${agRank.length ? `<div class="clist">${agRank.map((r, i) => `<div class="payrow"><span><b>${i + 1}. ${esc(r.g.name)}</b><small>${esc(r.g.code)} · ${esc(spLabel(r.g.sp))} · ${r.sold} biji</small></span><b>${RM(r.sale)}</b></div>`).join('')}</div>` : '<p class="muted" style="margin:0">Tiada jualan agent direkod.</p>'}</section>
+      <button class="btn btn-p btn-block" type="button" id="rp-pdf">Laporan bulanan PDF</button>`;
+    $('report').querySelectorAll('[data-mv]').forEach((x) => x.onclick = () => { let mm = repMonth; if (x.dataset.mv === '-1') mm = prevMonth(mm); else { const [y, k] = mm.split('-').map(Number); const d = new Date(y, k, 1); mm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; } repMonth = mm; renderReport(); });
+    $('rp-pdf').onclick = () => monthlyPDF(m);
+  }
+
+  /* ---------- #10 monthly PDF for meetings ---------- */
+  function monthlyPDF(m) {
+    const a = monthStats(m), b = monthStats(prevMonth(m)), st = networkStock(), owed = invs.reduce((x, v) => x + v.amount, 0) - hqp.reduce((x, y) => x + y.amount, 0);
+    const row = (k, v) => `<tr><td>${k}</td><td class="n">${v}</td></tr>`;
+    $('print').innerHTML = `<img src="img/logo-ngap.webp" alt="" style="height:60px;width:auto;margin-bottom:6px"><h1>Laporan Bulanan · ${esc(monthName(m))}</h1>
+      <p class="meta">Dijana ${esc(new Date().toLocaleString('ms-MY'))}</p>
+      <h2>Ringkasan kewangan HQ</h2><table class="big"><tbody>${row('Revenue HQ', RM(a.rev))}${row('Revenue bulan lepas', RM(b.rev))}${row('Kos bahan', a.missingCost ? '–' : RM(a.cost))}${row('Untung HQ', a.missingCost ? '–' : RM(a.profit))}${row('Margin', a.missingCost || a.margin === null ? '–' : a.margin.toFixed(1) + '%')}${row('Kutipan bulan ini', RM(a.collected))}${row('Belum dikutip (semua)', RM(owed))}</tbody></table>
+      <h2>Order & pengeluaran</h2><table><tbody>${row('Bilangan order', a.os.length)}${row('Jumlah biji', a.pcs)}${row('Sell-through rangkaian', st.pct.toFixed(0) + '%')}${row('Stok di salesperson', st.heldSp)}${row('Stok di agent', st.heldAg)}</tbody></table>
+      <h2>Perisa</h2><table><thead><tr><th>Perisa</th><th class="n">Biji</th></tr></thead><tbody>${FLAVOURS.filter((f) => a.fl[f.id]).sort((p, q) => a.fl[q.id] - a.fl[p.id]).map((f) => row(esc(f.name), a.fl[f.id])).join('')}</tbody></table>
+      <h2>Salesperson</h2><table><thead><tr><th>Salesperson</th><th class="n">Order</th><th class="n">Biji</th><th class="n">Revenue</th><th class="n">Baki hutang</th></tr></thead><tbody>
+        ${Object.values(a.bySp).sort((p, q) => q.rev - p.rev).map((r) => `<tr><td>${esc(spLabel(r.phone))}</td><td class="n">${r.orders}</td><td class="n">${r.pcs}</td><td class="n">${RM(r.rev)}</td><td class="n">${RM(spHQ(r.phone).owe)}</td></tr>`).join('')}</tbody></table>
+      ${st.old.length ? `<h2>Amaran stok lama (&gt; ${st.age} hari)</h2><table><tbody>${st.old.map((x) => row(esc(x.who) + ' · ' + esc(x.ref), x.left + ' biji')).join('')}</tbody></table>` : ''}
+      <div class="sign"><div>Disediakan oleh</div><div>Disahkan oleh (Director)</div></div>`;
+    const title = document.title; document.title = `ngap-laporan-${m}`;
+    window.addEventListener('afterprint', () => { document.title = title; }, { once: true });
+    window.print();
+  }
+
+  $('open-sp').onclick = spSheet; $('open-price').onclick = priceSheet; $('open-cap').onclick = capSheet;
+  $('open-flav').onclick = flavSheet; $('open-ann').onclick = annSheet; $('open-log').onclick = logSheet; $('open-pdfm').onclick = () => monthlyPDF(repMonth);
+
+  let tt;
+  function toast(msg, err) { const t = $('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); clearTimeout(tt); tt = setTimeout(() => t.classList.add('hidden'), 3000); }
+
+  if (pw) load(); else show(false);
+})();
+</script>
+</body>
+</html>
