@@ -29,6 +29,7 @@ function doPost(e) {
       adminSaveMaterial: adminSaveMaterial_, adminStockMove: adminStockMove_, adminSaveSupplier: adminSaveSupplier_,
       adminAddPurchase: adminAddPurchase_, adminVoidPurchase: adminVoidPurchase_, adminPayPurchase: adminPayPurchase_,
       adminDecide: adminDecide_, adminChangePassword: adminChangePassword_, adminEndSession: adminEndSession_, adminBackup: adminBackup_,
+      agRequest: agRequest_, agCancelRequest: agCancelRequest_, spDecideAgentReq: spDecideAgentReq_,
       spRequests: spRequests_, spAddRequest: spAddRequest_, spCancelRequest: spCancelRequest_, spLogoutAll: spLogoutAll_
     };
     var fn = handlers[req.action];
@@ -47,4 +48,4 @@ function json_(obj) {
 
 var SP_ACTIONS = { create: 1, get: 1, update: 1, cancel: 1, myOrders: 1, agentGet: 1, agentSaveProfile: 1, agentSaveSales: 1, spAgents: 1, spAddAgent: 1, spUpdateAgent: 1,
                    spDistribute: 1, spUpdateDist: 1, spDeleteDist: 1, spAddPayment: 1, spDeletePayment: 1,
-                   spRequests: 1, spAddRequest: 1, spCancelRequest: 1, spLogoutAll: 1 };
+                   spRequests: 1, spAddRequest: 1, spCancelRequest: 1, spLogoutAll: 1, spDecideAgentReq: 1 };

@@ -586,3 +586,8 @@ input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{f
 .tl-s:not(.done):not(.cancel) b{color:var(--muted);font-weight:600}
 .capcal{min-width:0;max-width:100%;overflow:hidden}
 .cc-row{max-width:100%}
+.areq-b{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.payrow.areq{align-items:flex-start}
+#my-reqs .payrow span:first-child{min-width:0}
+/* full-page forms (salesperson / agent): buttons at the end, not floating */
+#modal.as-page .sheet .acts{position:static;background:none;padding:0;margin:14px 0 0;bottom:auto}

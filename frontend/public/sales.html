@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="ordering/ordering.css?v=7">
-<link rel="stylesheet" href="ordering/agent.css?v=28">
+<link rel="stylesheet" href="ordering/agent.css?v=29">
 </head>
 <body class="glass">
 <header class="lt-bar">
@@ -634,7 +634,7 @@
   }
   async function fetchNet() {
     const pr = getProfile(); if (!pr.phone) return;
-    try { const r = await API.spAgents(pr.phone); net = { agents: r.agents || [], dists: r.dists || [], payments: r.payments || [], sales: r.sales || {} }; }
+    try { const r = await API.spAgents(pr.phone); net = { agents: r.agents || [], dists: r.dists || [], payments: r.payments || [], sales: r.sales || {}, areqs: r.agentRequests || [] }; }
     catch (err) { toast(err.message, true); }
     if (tab === 'agents') renderAgents(); else if (tab === 'agent') renderAgent();
     resolveRoute();
@@ -1082,7 +1082,7 @@
       <div class="mini"><b>${sold}/${given}</b><span>Terjual / diagih</span></div><div class="mini"><b class="${owe > 0 ? 'neg' : ''}">${RMs(owe)}</b><span>Belum dibayar</span></div></div>` : '';
     $('alist').innerHTML = rows.length ? rows.map(({ a, s }, i) => `<button class="oitem${a.status !== 'Aktif' ? ' off' : ''}" type="button" data-agent="${esc(a.code)}">
         <div class="r1"><b>${a.status === 'Aktif' && s.sale ? `<span class="rank">${i + 1}</span>` : ''}${esc(a.name)}</b><span class="pill ${a.status === 'Aktif' ? 'st-Siap' : 'st-Dibatalkan'}">${esc(a.status)}</span></div>
-        <div class="r2">${esc(a.code)}${a.phone ? ' · ' + esc(a.phone) : ''} · aktiviti ${esc(ago(s.last))}</div>
+        <div class="r2">${esc(a.code)}${a.phone ? ' · ' + esc(a.phone) : ''} · aktiviti ${esc(ago(s.last))}${(() => { const n = (net.areqs || []).filter((r) => r.agent === a.code && r.status === 'Menunggu').length; return n ? ` · <b class="neg">${n} permintaan</b>` : ''; })()}</div>
         ${s.given ? `<div class="prog"><i class="s" style="width:${s.sold / s.given * 100}%"></i></div>` : ''}
         <div class="r3"><span>${s.sold}/${s.given} terjual · jualan ${RM(s.sale)}</span><span class="${s.owe > 0.004 ? 'neg' : 'pos'}">${s.owe > 0.004 ? 'Hutang ' + RM(s.owe) : s.given ? 'Selesai bayar' : ''}</span></div>
       </button>`).join('') : '<div class="gcard empty2">Belum ada agent. Tekan <b>Daftar agent baru</b> untuk mula, kemudian beri kod agent kepada mereka.</div>';
@@ -1110,6 +1110,10 @@
         </div>
         ${a.status === 'Aktif' ? `<div class="dacts"><button class="btn btn-p btn-sm" type="button" id="ag-dist">+ Agih stok</button><button class="btn btn-o btn-sm" type="button" id="ag-pay">+ Rekod bayaran</button></div>` : ''}
       </div>
+      ${(() => { const P = (net.areqs || []).filter((r) => r.agent === a.code && r.status === 'Menunggu'); if (!P.length) return '';
+        return `<p class="sec-h">Permintaan dari agent</p><div class="gcard" style="padding:4px 16px">${P.map((r) => `<div class="payrow areq"><span><b>${r.type === 'stok' ? 'Minta stok' : 'Bukti bayaran'} · ${esc(r.id)}</b>
+          <small>${r.type === 'stok' ? `${r.total} biji · ${FLAVOURS.filter((f) => r.items[f.id]).map((f) => esc(f.name) + ' ×' + r.items[f.id]).join(', ')}` : `${RM(r.amount)} · ${esc(r.bankRef)} · ${esc(fmtDate(r.date))}`}${r.note ? ' · ' + esc(r.note) : ''}</small><small>${esc(r.at)}</small></span>
+          <span class="areq-b"><button class="btn btn-p btn-sm" type="button" data-arok="${esc(r.id)}">${r.type === 'stok' ? 'Agih' : 'Sahkan'}</button><button class="btn btn-o btn-sm" type="button" data-arno="${esc(r.id)}">Tolak</button></span></div>`).join('')}</div>`; })()}
       <p class="sec-h">Agihan stok</p>
       <div class="olist">${s.ds.length ? [...s.ds].sort((x, y) => (y.date + y.code).localeCompare(x.date + x.code)).map((d) => {
         const rec = (net.sales[d.code] || {}).items || {}; let sold = 0;
@@ -1123,6 +1127,12 @@
     $('ag-copy').onclick = async () => { try { await navigator.clipboard.writeText(a.code); toast('Kod disalin.'); } catch (e) { toast('Tak dapat salin.', true); } };
     $('ag-edit').onclick = () => agentSheet(a);
     const dd = $('ag-dist'); if (dd) dd.onclick = () => distSheet(a);
+    document.querySelectorAll('[data-arok]').forEach((b) => b.onclick = async () => { const r = net.areqs.find((x) => x.id === b.dataset.arok); if (!r) return;
+      if (r.type === 'stok') return distSheet(a, r);
+      if (!confirm(`Sahkan ${a.name} dah bayar ${RM(r.amount)} (${r.bankRef})?`)) return;
+      try { await API.spDecideAgentReq(getProfile().phone, r.id, 'Diluluskan', ''); toast('Bayaran agent disahkan & direkod.'); await fetchNet(); } catch (err) { toast(err.message, true); } });
+    document.querySelectorAll('[data-arno]').forEach((b) => b.onclick = async () => { const why = prompt('Sebab tolak permintaan ini?'); if (!why) return;
+      try { await API.spDecideAgentReq(getProfile().phone, b.dataset.arno, 'Ditolak', why); toast('Permintaan ditolak.'); await fetchNet(); } catch (err) { toast(err.message, true); } });
     const pp = $('ag-pay'); if (pp) pp.onclick = () => paySheet(a, s);
   }
   $('agentd').addEventListener('click', async (e) => {
@@ -1160,14 +1170,15 @@
   }
   $('add-agent').onclick = () => { if (!getProfile().phone) return profileSheet(); agentSheet(null); };
 
-  function distSheet(a) {
+  function distSheet(a, pre) {
     const st = stockLeft(), fl = FLAVOURS.filter((f) => st[f.id]);
     if (!fl.length) return toast('Tiada stok di tangan untuk diagih. Order stok dari HQ dahulu.', true);
     const lastPrice = (id) => { const d = net.dists.filter((x) => x.agent === a.code && x.items[id]).sort((x, y) => y.createdAt.localeCompare(x.createdAt))[0]; return d ? d.items[id].price : ''; };
     openModal(`<span class="kicker">Agih stok</span><h2>Ke ${esc(a.name)}</h2>
       <p class="muted" style="margin:2px 0 8px">Pilih kuantiti dan harga seunit yang agent perlu bayar kepada anda.</p>
+      ${pre ? `<div class="ntf" style="margin-bottom:8px"><span class="ntf-ic">📦</span><span class="ntf-t"><b>Permintaan ${esc(pre.id)}: ${pre.total} biji</b><small>${FLAVOURS.filter((f) => pre.items[f.id]).map((f) => `${esc(f.name)} ×${pre.items[f.id]}${(st[f.id] || 0) < pre.items[f.id] ? ` (ada ${st[f.id] || 0})` : ''}`).join(', ')}</small>${FLAVOURS.some((f) => pre.items[f.id] && (st[f.id] || 0) < pre.items[f.id]) ? '<small class="neg" style="font-weight:700">Stok di tangan tak cukup untuk semua — agih yang ada, atau order dari HQ dahulu.</small>' : ''}</span></div>` : ''}
       <div id="dsrows">${fl.map((f) => `<div class="dsrow" data-id="${f.id}"><div class="nm"><b>${esc(f.name)}</b><span>Ada ${st[f.id]} biji</span></div>
-        <div class="qty"><button type="button" class="minus">−</button><input type="number" inputmode="numeric" min="0" max="${st[f.id]}" value="0"><button type="button" class="plus">+</button></div>
+        <div class="qty"><button type="button" class="minus">−</button><input type="number" inputmode="numeric" min="0" max="${st[f.id]}" value="${pre ? Math.min(st[f.id], pre.items[f.id] || 0) : 0}"><button type="button" class="plus">+</button></div>
         <input class="inp" data-p inputmode="decimal" placeholder="RM" value="${esc(money(lastPrice(f.id)))}"></div>`).join('')}</div>
       <div class="fields two" style="margin-top:10px"><label class="f">Tarikh<input class="inp" id="ds-date" type="date" value="${todayISO()}"></label><label class="f">Nota<input class="inp" id="ds-note" placeholder="Pilihan"></label></div>
       <div class="ssum" id="ds-sum"></div>
@@ -1190,7 +1201,8 @@
       Object.entries(items).forEach(([id, it]) => { let need = it.qty;
         pool.forEach(({ o, left }) => { if (!need || !left[id]) return; const t = Math.min(need, left[id]); left[id] -= t; need -= t; (alloc[o.code] = alloc[o.code] || {})[id] = t; }); });
       busy($('ds-go'), true, 'Mengagih…');
-      try { const { dist } = await API.spDistribute(getProfile().phone, { agent: a.code, items, alloc, date: $('ds-date').value, note: $('ds-note').value.trim() });
+      try { const { dist } = await API.spDistribute(getProfile().phone, { agent: a.code, items, alloc, date: $('ds-date').value, note: $('ds-note').value.trim() || (pre ? 'Permintaan ' + pre.id : '') });
+        if (pre) { try { await API.spDecideAgentReq(getProfile().phone, pre.id, 'Diluluskan', '', dist.code); } catch (e) {} }
         closeModal(); toast(`${dist.code} diagih kepada ${a.name}.`); await fetchNet(); }
       catch (err) { busy($('ds-go'), false); toast(err.message, true); }
     };
@@ -1457,6 +1469,8 @@
     const RT = { batal: 'Batalkan order', diskaun: 'Diskaun invois', bayaran: 'Bukti bayaran', lain: 'Permintaan' };
     hq.requests.filter((r) => (r.status === 'Diluluskan' || r.status === 'Ditolak') && !seenRq.includes(r.id)).forEach((r) =>
       items.push({ k: 'rq:' + r.id, t: `${RT[r.type] || 'Permintaan'} ${r.status === 'Diluluskan' ? 'diluluskan ✓' : 'ditolak'}`, d: `${r.id}${r.ref ? ' · ' + r.ref : ''}${r.type === 'bayaran' || r.type === 'diskaun' ? ' · ' + RM(r.amount) : ''}${r.reason ? ' — HQ: ' + r.reason : ''}`, bad: r.status === 'Ditolak' }));
+    { const P = (net.areqs || []).filter((r) => r.status === 'Menunggu'); if (P.length) { const ag = [...new Set(P.map((r) => r.agent))];
+      items.unshift({ k: 'ar', t: `${P.length} permintaan dari agent`, d: `${P.filter((r) => r.type === 'stok').length} minta stok · ${P.filter((r) => r.type === 'bayaran').length} bukti bayaran · ${ag.map((c) => (net.agents.find((x) => x.code === c) || {}).name || c).join(', ')}`, sticky: true, go: ag.length === 1 ? 'agent:' + ag[0] : 'agents' }); } }
     const iv = invStatus(); if (iv.overdue.length) items.unshift({ k: 'od', t: `${iv.overdue.length} invois HQ tertunggak`, d: `${RM(iv.overdueAmt)} melepasi tempoh bayar ${iv.term} hari. Hantar bukti bayaran di Invois HQ.`, bad: true, sticky: true, go: 'pg-invois' });
     el.innerHTML = items.map((x) => `<div class="ntf${x.bad ? ' bad' : ''}"><span class="ntf-ic">${x.bad ? '⚠' : '🔔'}</span><button type="button" class="ntf-t" data-nopen="${esc(x.k)}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>${x.sticky ? '' : `<button type="button" class="ntf-x" data-nx="${esc(x.k)}" aria-label="Tutup">×</button>`}</div>`).join('');
     el.querySelectorAll('[data-nx]').forEach((b) => b.onclick = () => { const k = b.dataset.nx;
@@ -1464,6 +1478,7 @@
       else store.set('seen-rq', store.get('seen-rq', []).concat(k.slice(3)).slice(-100));
       renderNotif(); });
     el.querySelectorAll('[data-nopen]').forEach((b) => b.onclick = () => { const x = items.find((y) => y.k === b.dataset.nopen); if (!x) return;
+      if (x.go && x.go.startsWith('agent:')) { curAgent = x.go.slice(6); tab = 'agent'; render(); window.scrollTo({ top: 0 }); return; }
       if (x.go) return go(x.go); if (x.code) { const o = mine.find((y) => y.code === x.code); if (o) { b.parentElement.querySelector('[data-nx]')?.click(); openDetail(o); } } else go('pg-minta'); });
     // keep newly seen orders in the map so the first change after an order is created still notifies
     const m3 = store.get('seen-st', {}); let ch = false; mine.forEach((o) => { if (!m3[o.code]) { m3[o.code] = o.status; ch = true; } }); if (ch) store.set('seen-st', m3);

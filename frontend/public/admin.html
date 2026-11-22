@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="ordering/ordering.css?v=5">
-<link rel="stylesheet" href="ordering/admin-desk.css?v=5">
+<link rel="stylesheet" href="ordering/admin-desk.css?v=6">
 <style>
 .login{max-width:420px;margin:24px auto}
 .fbar{display:flex;gap:8px;overflow-x:auto;margin:0 -14px 14px;padding:0 14px;scrollbar-width:none}
@@ -210,8 +210,9 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 </head>
 <body>
 <aside class="side" id="side" aria-label="Navigasi admin">
-  <div class="brand"><img src="img/logo-ngap.webp" alt="ngap soft cookies"><span>HQ<br>Admin</span><button class="side-min" type="button" id="side-min" aria-label="Kecilkan sidebar" title="Kecilkan / besarkan sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div>
+  <div class="brand"><img src="img/logo-ngap.webp" alt="ngap soft cookies"><span>HQ Admin</span><button class="side-x" type="button" id="side-x" aria-label="Tutup menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button><button class="side-min" type="button" id="side-min" aria-label="Kecilkan sidebar" title="Kecilkan / besarkan sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/></svg></button></div>
   <button class="side-k" type="button" id="side-k" title="Carian pantas (Ctrl+K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Cari apa sahaja…</span><kbd>Ctrl K</kbd></button>
+  <div class="side-nav">
   <div class="sgrp" data-g="utama"><button class="sg" type="button" aria-expanded="true"><span>Utama</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><nav>
       <button class="si" title="Dashboard" type="button" data-sp="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Dashboard</span></button>
       <button class="si" title="Order" type="button" data-sp="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>Order</span><span class="bd hidden" id="sb-new"></span></button>
@@ -237,17 +238,25 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   </nav></div>
   <div class="sgrp" data-g="sistem"><button class="sg" type="button" aria-expanded="true"><span>Sistem</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button><nav>
       <button class="si" title="Tetapan" type="button" data-sp="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span>Tetapan</span></button>
+      <button class="si" title="Harga HQ &amp; kos" type="button" data-so="price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg><span>Harga HQ &amp; kos</span></button>
+      <button class="si" title="Kapasiti &amp; tutup" type="button" data-so="cap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 14v3"/></svg><span>Kapasiti &amp; tutup</span></button>
+      <button class="si" title="Perisa ada / habis" type="button" data-so="flav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="14" r="1"/><circle cx="15" cy="9" r="1"/></svg><span>Perisa ada / habis</span></button>
+      <button class="si" title="Maklumat HQ" type="button" data-so="hqinfo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg><span>Maklumat HQ</span></button>
       <button class="si" title="Akaun salesperson" type="button" data-so="sp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/></svg><span>Akaun salesperson</span></button>
+      <button class="si" title="Keselamatan" type="button" data-so="security"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Keselamatan</span></button>
       <button class="si" title="Log aktiviti" type="button" data-so="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg><span>Log aktiviti</span></button>
   </nav></div>
+  </div>
   <div class="sme"><span class="av">HQ</span><span class="sme-t"><b>Admin HQ</b><small id="side-upd">ngap soft cookies</small></span><button type="button" data-so="logout" aria-label="Keluar" title="Keluar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg></button></div>
 </aside>
+<div class="side-ovl hidden" id="side-ovl"></div>
 <header class="topbar" id="topbar"><h1 id="tb-title">Dashboard</h1>
   <label class="tb-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="tb-q" type="search" placeholder="Cari order, nama, telefon, kod…" aria-label="Cari order"></label>
   <div class="tb-act"><button class="tb-ic" type="button" id="tb-refresh" aria-label="Muat semula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button><button class="tb-ic" type="button" id="tb-bell" aria-label="Notifikasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="bd hidden" id="tb-bd"></span></button><div class="tb-me"><span class="av">HQ</span><div><b>Admin HQ</b><small id="tb-upd">ngap soft cookies</small></div></div></div>
 </header>
 <header class="appbar">
   <div class="appbar-in">
+    <button class="ibtn" id="menu-btn" type="button" aria-label="Buka menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="bd hidden" id="menu-bd"></span></button>
     <div class="ttl"><small>ngap soft cookies · Admin</small><b id="app-title">Admin</b></div>
     <button class="ibtn hidden" id="filter-btn" type="button" aria-label="Tapis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg><span class="dot hidden" id="filter-dot"></span></button>
     <button class="ibtn hidden" id="refresh" type="button" aria-label="Muat semula"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
@@ -328,7 +337,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
           <option value="total">Biji ↓</option>
         </select>
       </div>
-      <div class="pickhead"><p class="count" id="count-o" style="margin:0"></p><button class="linkbtn pk" type="button" id="pick-mode">Pilih order untuk PDF</button></div>
+      <div class="pickhead"><p class="count" id="count-o" style="margin:0"></p><span class="ph-r" id="ph-r"><button class="linkbtn pk" type="button" id="pick-mode">Pilih order untuk PDF</button></span></div>
       <div class="cards" id="orders"></div>
     </section>
 
@@ -488,7 +497,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
                  set(v) { try { v ? sessionStorage.setItem('sc-admin-pw', v) : sessionStorage.removeItem('sc-admin-pw'); } catch (e) {} } };
   const ICON_WA = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>';
   const ICON_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
-  const TITLES = { home: 'Dashboard', orders: 'Order', kanban: 'Papan order', agents: 'Salesperson & Agent', report: 'Laporan Director', more: 'Lagi',
+  const TITLES = { home: 'Dashboard', orders: 'Order', kanban: 'Papan order', agents: 'Sales & agent', report: 'Laporan Director', more: 'Lagi',
     'mod-products': 'Produk', 'mod-materials': 'Bahan & stok', 'mod-purchases': 'Pembekal & belian', 'mod-expenses': 'Perbelanjaan', 'mod-approvals': 'Kelulusan',
     'mod-targets': 'Sasaran', 'mod-customers': 'Pelanggan', 'mod-sp': 'Akaun salesperson', 'mod-security': 'Keselamatan',
     'mod-price': 'Harga HQ & kos', 'mod-cap': 'Kapasiti & tarikh tutup', 'mod-flav': 'Perisa ada / habis', 'mod-hqinfo': 'Maklumat HQ',
@@ -553,6 +562,12 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 
   /* ---------- tabs ---------- */
   document.querySelectorAll('#tabbar button').forEach((b) => b.onclick = () => go(b.dataset.tab));
+  // phones & tablets: the sidebar slides in as a drawer (same menu, same style)
+  const openDrawer = () => { document.body.classList.add('drawer-open'); $('side-ovl').classList.remove('hidden'); };
+  const closeDrawer = () => { document.body.classList.remove('drawer-open'); $('side-ovl').classList.add('hidden'); };
+  $('tabbar').querySelector('[data-tab="more"]').onclick = openDrawer;
+  $('menu-btn').onclick = openDrawer; $('side-x').onclick = closeDrawer; $('side-ovl').onclick = closeDrawer;
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
   // HQ modules open as full pages (/admin/produk, /admin/bahan, ...): the sheet is shown in page mode.
   let rootNext = false, rootH2 = '';
   const MODFN = () => ({ invoices: invoicesSheet, schedule: scheduleSheet, sp: spSheet, price: priceSheet, cap: capSheet, flav: flavSheet, hqinfo: hqSheet, ann: annSheet, log: logSheet, notif: notifSheet });
@@ -596,6 +611,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
     $('f-preset').value = f.value || t.value ? 'custom' : '';
     draw();
   }));
+  $('ph-r').prepend($('sort'));
   ['f-status', 'f-method', 'sort'].forEach((id) => $(id).addEventListener('change', draw));
   $('f-q').addEventListener('input', draw);
   const openFilter = () => $('fsheet').classList.remove('hidden');
@@ -653,6 +669,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
       $('sb-inv').textContent = rc.overdueCount; $('sb-inv').classList.toggle('hidden', !rc.overdueCount); $('sb-sched').classList.toggle('hidden', !hot); applySide(); }
     { const H = SC_HQ.data(), nm = H.requests.filter((r) => r.status === 'Menunggu').length + H.materials.filter((m) => m.low).length;
       $('badge-more').textContent = nm; $('badge-more').classList.toggle('hidden', !nm);
+      const nAll = nm + orders.filter((o) => o.status === 'Baru' || o.status === 'Dikemaskini').length; $('menu-bd').textContent = nAll; $('menu-bd').classList.toggle('hidden', !nAll);
       [['qg-appr', H.requests.filter((r) => r.status === 'Menunggu').length], ['qg-low', H.materials.filter((m) => m.low).length]].forEach(([id, n]) => { $(id).textContent = n; $(id).classList.toggle('hidden', !n); }); }
 
     const tot = {}; FLAVOURS.forEach((f) => (tot[f.id] = 0));
@@ -719,22 +736,23 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
     list.splice(0, list.length, ...[...map.values()].sort((a, b) => b.total - a.total));
     $('count-a').textContent = list.length + ' salesperson · ' + tree.agents.length + ' agent';
     if (!list.length) { $('agents').innerHTML = '<div class="empty">Tiada order aktif untuk tapisan ini.</div>'; return; }
-    $('agents').innerHTML = list.map((a) => `
-      <article class="oc">
-        <div class="oc-who" style="margin:0"><b>${esc((spOf(a.phone) || {}).name || a.name || 'Salesperson')}</b><a href="https://wa.me/6${esc(a.phone)}" target="_blank" rel="noopener">${ICON_WA}${esc(a.phone)}</a></div>
-        ${spOf(a.phone) ? `<div class="meta2" style="margin-top:2px">${esc(spOf(a.phone).code)} · terakhir aktif ${esc(spOf(a.phone).lastActive || 'belum pernah')}${spOf(a.phone).status !== 'Aktif' ? ' · TIDAK AKTIF' : ''}</div>` : ''}
-        ${(() => { const h = spHQ(a.phone); return `<div class="hqline"><span>Invois <b>${RM(h.billed)}</b> · dibayar <b>${RM(h.paid)}</b> · baki <b class="${h.owe > 0.004 ? 'neg' : ''}">${RM(h.owe)}</b></span><button class="btn btn-o btn-sm" type="button" data-hqpay="${esc(a.phone)}">Bayaran HQ</button></div>`; })()}
+    $('agents').innerHTML = list.map((a) => {
+      const sp = spOf(a.phone) || {}, h = spHQ(a.phone), name = sp.name || a.name || 'Salesperson', paidPct = h.billed > 0 ? Math.min(100, h.paid / h.billed * 100) : 0;
+      const ags = tree.agents.filter((g) => g.sp === a.phone), sums = ags.map((g) => ({ g, s: agentSum(g) }));
+      const t = sums.reduce((x, y) => ({ given: x.given + y.s.given, sold: x.sold + y.s.sold, owe: x.owe + Math.max(0, y.s.owe) }), { given: 0, sold: 0, owe: 0 });
+      const fl = FLAVOURS.filter((f) => a.items[f.id]).sort((x, y) => a.items[y.id] - a.items[x.id]), lastD = [...a.dates].sort().pop();
+      return `<article class="oc spc">
+        <div class="spc-h"><span class="av">${esc(initials2(name))}</span><span class="spc-n"><b>${esc(name)}</b><small>${esc(sp.code || a.phone)}${sp.lastActive ? ' · aktif ' + esc(sp.lastActive.slice(0, 10)) : ''}${sp.status && sp.status !== 'Aktif' ? ' · TIDAK AKTIF' : ''}</small></span>
+          ${a.phone ? `<a class="spc-wa" href="https://wa.me/6${esc(a.phone)}" target="_blank" rel="noopener" aria-label="WhatsApp ${esc(name)}">${ICON_WA}</a>` : ''}</div>
+        <div class="spc-st"><div><b>${a.orders}</b><span>Order</span></div><div><b>${a.total}</b><span>Biji</span></div><div><b>${ags.length}</b><span>Agent</span></div></div>
+        <div class="spc-hq"><div class="spc-hq-t"><span>Baki ke HQ</span><b class="${h.owe > 0.004 ? 'neg' : 'pos'}">${h.owe > 0.004 ? RM(h.owe) : 'Selesai ✓'}</b></div>
+          <span class="spc-bar"><i style="width:${paidPct}%"></i></span><small>Dibayar ${RM(h.paid)} daripada ${RM(h.billed)}</small>
+          <button class="btn btn-o btn-sm" type="button" data-hqpay="${esc(a.phone)}">Bayaran HQ</button></div>
         ${SC_HQ.targetLine(a.phone)}
-        <div class="oc-when">${a.orders} order${a.dates.size ? ' · ' + [...a.dates].sort().map((d) => esc(fmtDate(d))).join(', ') : ''}</div>
-        ${itemsHTML(a.items)}
-        <div class="oc-foot"><span class="tot">${a.total}<small>biji diorder</small></span></div>
-        ${(() => { const ags = tree.agents.filter((g) => g.sp === a.phone); if (!ags.length) return '<div class="meta2">Belum ada agent.</div>';
-          const sums = ags.map((g) => ({ g, s: agentSum(g) }));
-          const t = sums.reduce((x, y) => ({ given: x.given + y.s.given, sold: x.sold + y.s.sold, owe: x.owe + Math.max(0, y.s.owe) }), { given: 0, sold: 0, owe: 0 });
-          return `<div class="tree"><div class="tree-h">${ags.length} agent · ${t.sold}/${t.given} terjual · belum bayar ${RMa(t.owe)}</div>` +
-            sums.map(({ g, s }) => `<div class="tree-r${g.status !== 'Aktif' ? ' off' : ''}"><span><b>${esc(g.name)}</b><small>${esc(g.code)}${g.phone ? ' · ' + esc(g.phone) : ''}${g.status !== 'Aktif' ? ' · tidak aktif' : ''}</small></span>
-              <span class="tree-n"><b>${s.sold}/${s.given}</b><small>jualan ${RMa(s.sale)}</small><small class="${s.owe > 0.004 ? 'neg' : ''}">${s.owe > 0.004 ? 'hutang ' + RMa(s.owe) : s.given ? 'selesai bayar' : ''}</small></span></div>`).join('') + '</div>'; })()}
-      </article>`).join('');
+        ${fl.length ? `<div class="spc-fl"><small>${lastD ? 'Order terakhir ' + esc(fmtDate(lastD)) + ' · ' : ''}perisa utama</small><div class="items">${fl.slice(0, 4).map((f) => `<span>${esc(f.name)} <b>×${a.items[f.id]}</b></span>`).join('')}${fl.length > 4 ? `<span class="more">+${fl.length - 4} lagi</span>` : ''}</div></div>` : '<p class="meta2">Tiada order aktif dalam tapisan ini.</p>'}
+        <div class="spc-ag">${ags.length ? `<div class="spc-ag-h"><span>${ags.length} agent · ${t.sold}/${t.given} terjual</span>${t.owe > 0.004 ? `<b class="neg">hutang ${RMa(t.owe)}</b>` : ''}</div>` +
+          sums.map(({ g, s }) => `<div class="spc-ag-r${g.status !== 'Aktif' ? ' off' : ''}"><span><b>${esc(g.name)}</b><small>${esc(g.code)}</small></span><span class="spc-ag-n"><b>${s.sold}/${s.given}</b><small class="${s.owe > 0.004 ? 'neg' : ''}">${s.owe > 0.004 ? 'hutang ' + RMa(s.owe) : s.given ? 'selesai' : '–'}</small></span></div>`).join('') : '<p class="meta2" style="margin:0">Belum ada agent.</p>'}</div>
+      </article>`; }).join('');
   }
 
   /* ---------- status change ---------- */
@@ -1324,6 +1342,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 
   // sidebar, topbar, KPI shortcuts
   document.addEventListener('click', (e) => {
+    if (e.target.closest('.side .si, .side .sme button, .side-k')) closeDrawer();
     const p = e.target.closest('[data-sp]'); if (p && !$('dash').classList.contains('hidden')) { go(p.dataset.sp); return; }
     const o = e.target.closest('[data-so]'); if (!o || $('dash').classList.contains('hidden')) return;
     const k = o.dataset.so;

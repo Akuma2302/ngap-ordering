@@ -11,7 +11,8 @@ function agLogin_(req) {
   var profile = null;
   table_('AgentData', ['Telefon', 'Dikemaskini', 'Data']).rows.forEach(function (r) { if (r[0] === a.code) profile = parse_(r[2]); });
   return { ok: true, agent: { code: a.code, name: a.name, phone: a.phone }, sp: { phone: a.sp, name: spName_(a.sp), code: spCodeByPhone_(a.sp) },
-           dists: dists, payments: pays, sales: sales, profile: profile, products: publicProducts_() };
+           dists: dists, payments: pays, sales: sales, profile: profile, products: publicProducts_(),
+           requests: agentReqs_(function (r) { return r[2] === a.code; }).slice(-30) };
 }
 
 function agReceive_(req) {

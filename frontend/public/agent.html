@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="ordering/ordering.css?v=7">
-<link rel="stylesheet" href="ordering/agent.css?v=28">
+<link rel="stylesheet" href="ordering/agent.css?v=29">
 <style>
 .costfix{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
 .costfix b{font-size:15px}
@@ -61,6 +61,7 @@
     <div class="hello"><b id="hello">Hai!</b><span id="hello-sub"></span></div>
     <div id="h-ann"></div>
     <div id="h-recv"></div>
+    <div id="h-notif"></div>
     <button class="hero" type="button" data-go="stats">
       <span class="hero-k">Untung bersih bulan ini</span>
       <b class="hero-v" id="h-profit">–</b>
@@ -90,6 +91,7 @@
     </div>
     <div class="olist" id="dlist"></div>
     <button class="btn btn-o btn-block" type="button" id="req-btn" style="margin-top:12px">Minta stok dari salesperson</button>
+    <div id="my-reqs"></div>
   </section>
 
   <!-- PELANGGAN -->
@@ -329,6 +331,7 @@
     $('h-ann').querySelectorAll('[data-ann]').forEach((b) => b.onclick = () => { store.set('ann-seen-ids', seenL.concat(b.dataset.ann).slice(-50)); renderHome(); });
     $('hello').textContent = `Hai, ${D.agent.name.split(' ')[0]}!`;
     $('hello-sub').textContent = `${new Date().toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' })} · salesperson: ${D.sp.name || D.sp.phone}`;
+    renderNotifA();
     const pend = D.dists.filter((d) => d.status === 'Dihantar');
     $('h-recv').innerHTML = pend.map((d) => `<button class="remind" type="button" data-dist="${esc(d.code)}">📦 <span>Stok baru <b>${esc(d.code)}</b> · ${d.total} biji dari salesperson. Tekan untuk sahkan terima.</span></button>`).join('');
     const mo = D.dists.filter((d) => inPeriod(d, 'this')), m = calc(mo), last = calc(D.dists.filter((d) => inPeriod(d, 'last'))), ok = m.n && !m.missing;
@@ -353,6 +356,7 @@
   document.querySelector('[data-tab="home"]').addEventListener('click', (e) => { const b = e.target.closest('[data-dist]'); if (b) openDist(b.dataset.dist); });
 
   function renderStock() {
+    renderMyReqs();
     const list = D.dists.filter((d) => stFilter === 'all' || d.status === 'Dihantar' || calc([d]).left > 0).sort((a, b) => (b.date + b.code).localeCompare(a.date + a.code));
     $('dlist').innerHTML = list.length ? list.map((d) => { const c = calc([d]);
       return `<button class="oitem" type="button" data-dist="${esc(d.code)}">
@@ -482,7 +486,9 @@
     $('p-sp').textContent = D.sp.name || '-'; $('p-spph').textContent = D.sp.phone || '';
     $('p-wa').href = D.sp.phone ? `https://wa.me/6${D.sp.phone}` : '#'; $('p-wa').classList.toggle('hidden', !D.sp.phone);
     const pays = [...D.payments].sort((a, b) => b.date.localeCompare(a.date)), o = owe();
-    $('p-pays').innerHTML = `<div class="payrow"><span><b class="${o > 0.004 ? 'neg' : 'pos'}">${o > 0.004 ? RM(o) : 'Tiada hutang ✓'}</b><small>Baki perlu dibayar</small></span></div>` +
+    const pendP = (D.requests || []).filter((r) => r.type === 'bayaran' && r.status === 'Menunggu');
+    $('p-pays').innerHTML = `<div class="payrow"><span><b class="${o > 0.004 ? 'neg' : 'pos'}">${o > 0.004 ? RM(o) : 'Tiada hutang ✓'}</b><small>Baki perlu dibayar</small></span><button class="btn btn-p btn-sm" type="button" data-aproof>Hantar bukti bayaran</button></div>` +
+      pendP.map((r) => `<div class="payrow"><span><b>${RM(r.amount)} · ${esc(r.bankRef)}</b><small>${esc(fmtDate(r.date))} · ${esc(r.id)}</small></span><span class="pill st-Baru">Disemak</span></div>`).join('') +
       (pays.length ? pays.map((y) => `<div class="payrow"><span><b>${RM(y.amount)}</b><small>${esc(fmtDate(y.date))}${y.note ? ' · ' + esc(y.note) : ''}</small></span><span class="pill st-Siap">Diterima</span></div>`).join('') : '<p class="none" style="margin:10px 0;font-size:13px;color:var(--muted)">Belum ada bayaran direkod oleh salesperson.</p>');
   }
   $('m-stock').onclick = () => go('stock'); $('m-cust').onclick = () => go('cust');
@@ -504,13 +510,54 @@
     };
   };
 
-  /* ---------- request stock (WhatsApp to salesperson) ---------- */
+
+  /* ---------- requests to the salesperson + notifications ---------- */
+  const AQT = { stok: 'Minta stok', bayaran: 'Bukti bayaran' };
+  const reqLabel = (r) => r.type === 'stok' ? `${r.total} biji · ${FLAVOURS.filter((f) => r.items[f.id]).map((f) => `${f.name} ×${r.items[f.id]}`).join(', ')}` : `${RM(r.amount)} · ${r.bankRef}`;
+  function renderMyReqs() {
+    const el = $('my-reqs'); if (!el) return; const L = (D.requests || []).slice().reverse().slice(0, 10);
+    el.innerHTML = L.length ? `<p class="sec-h" style="margin-top:16px">Permintaan saya</p><div class="gcard" style="padding:4px 16px">${L.map((r) => `<div class="payrow"><span><b>${esc(AQT[r.type])} · ${esc(r.id)}</b><small>${esc(reqLabel(r))}</small>${r.reason ? `<small>Salesperson: ${esc(r.reason)}</small>` : ''}</span>
+      <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="pill ${r.status === 'Menunggu' ? 'st-Baru' : r.status === 'Diluluskan' ? 'st-Siap' : 'st-Dibatalkan'}">${esc(r.status)}</span>${r.status === 'Menunggu' ? `<button class="linkbtn" type="button" data-arx="${esc(r.id)}">Tarik balik</button>` : ''}</span></div>`).join('')}</div>` : '';
+    el.querySelectorAll('[data-arx]').forEach((b) => b.onclick = async () => { try { await API.agCancelRequest(code(), b.dataset.arx); await refresh(); } catch (err) { toast(err.message, true); } });
+  }
+  function renderNotifA() {
+    const el = $('h-notif'); if (!el) return; const seen = store.get('seen-ar', []);
+    const items = (D.requests || []).filter((r) => (r.status === 'Diluluskan' || r.status === 'Ditolak') && !seen.includes(r.id)).map((r) => ({ id: r.id, bad: r.status === 'Ditolak',
+      t: r.type === 'bayaran' ? (r.status === 'Diluluskan' ? `Bayaran ${RM(r.amount)} disahkan ✓` : 'Bukti bayaran ditolak') : (r.status === 'Diluluskan' ? `Permintaan stok diluluskan ✓${r.ref ? ' · ' + r.ref : ''}` : 'Permintaan stok ditolak'),
+      d: `${r.id} · ${reqLabel(r)}${r.reason ? ' — ' + r.reason : ''}` }));
+    el.innerHTML = items.map((x) => `<div class="ntf${x.bad ? ' bad' : ''}"><span class="ntf-ic">${x.bad ? '⚠' : '🔔'}</span><span class="ntf-t"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></span><button type="button" class="ntf-x" data-nax="${esc(x.id)}" aria-label="Tutup">×</button></div>`).join('');
+    el.querySelectorAll('[data-nax]').forEach((b) => b.onclick = () => { store.set('seen-ar', store.get('seen-ar', []).concat(b.dataset.nax).slice(-100)); renderNotifA(); });
+  }
+  function proofSheetA() {
+    const o = Math.max(0, owe());
+    openModal(`<span class="kicker">Bukti bayaran</span><h2>Bayar kepada ${esc(D.sp.name || 'salesperson')}</h2>
+      <p class="muted" style="margin:4px 0 12px">Salesperson akan semak dan sahkan. Bila disahkan, bayaran terus direkod dan baki hutang dikemas kini.</p>
+      <form id="apf" class="fields" novalidate>
+        <div class="fields two"><label class="f">Jumlah dibayar (RM)<input class="inp" id="apf-amt" inputmode="decimal" value="${o > 0 ? o.toFixed(2) : ''}"></label>
+        <label class="f">Tarikh bayar<input class="inp" id="apf-date" type="date" value="${new Date().toISOString().slice(0, 10)}"></label></div>
+        <label class="f">No. rujukan / cara bayar<input class="inp" id="apf-ref" placeholder="cth. DuitNow 12345 / tunai"></label>
+        <label class="f">Nota <small>Pilihan</small><input class="inp" id="apf-note"></label>
+        <div class="acts"><button class="btn btn-o" type="button" data-close>Batal</button><button class="btn btn-p" type="submit" id="apf-go">Hantar</button></div>
+      </form>`);
+    $('apf').onsubmit = async (e) => { e.preventDefault(); const amt = num($('apf-amt').value); if (!amt) return toast('Isi jumlah dibayar.', true); $('apf-go').disabled = true;
+      try { await API.agRequest(code(), { type: 'bayaran', amount: amt, date: $('apf-date').value, bankRef: $('apf-ref').value.trim(), note: $('apf-note').value.trim() }); closeModal(); toast('Bukti bayaran dihantar.'); await refresh(); }
+      catch (err) { toast(err.message, true); $('apf-go').disabled = false; } };
+  }
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-aproof]')) proofSheetA(); });
+
+  /* ---------- request stock (in app, or WhatsApp) ---------- */
   $('req-btn').onclick = () => {
     openModal(`<span class="kicker">Minta stok</span><h2>Dari ${esc(D.sp.name || 'salesperson')}</h2><p class="muted" style="margin:2px 0 8px">Pilih perisa dan kuantiti. Permintaan dihantar melalui WhatsApp.</p>
       <div id="rq">${FLAVOURS.map((f) => `<div class="rqrow" data-id="${f.id}"><span>${esc(f.name)}</span><div class="qty"><button type="button" class="minus">−</button><input type="number" inputmode="numeric" min="0" value="0"><button type="button" class="plus">+</button></div></div>`).join('')}</div>
-      <div class="acts" style="margin-top:12px"><button class="btn btn-o" type="button" data-close>Batal</button><button class="btn btn-p" type="button" id="rq-go">Hantar WhatsApp</button></div>`);
+      <label class="f" style="margin-top:10px">Nota <small>Pilihan</small><input class="inp" id="rq-note" placeholder="cth. untuk bazar Sabtu"></label>
+      <div class="acts" style="margin-top:12px"><button class="btn btn-o" type="button" id="rq-wa">WhatsApp</button><button class="btn btn-p" type="button" id="rq-go">Hantar dalam app</button></div>`);
     $('rq').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; const i = b.closest('.rqrow').querySelector('input'); i.value = Math.max(0, (Number(i.value) || 0) + (b.classList.contains('plus') ? 1 : -1)); });
-    $('rq-go').onclick = () => {
+    const pick = () => { const it = {}; document.querySelectorAll('#rq .rqrow').forEach((r) => { const q = Math.max(0, Math.floor(Number(r.querySelector('input').value)) || 0); if (q) it[r.dataset.id] = q; }); return it; };
+    $('rq-go').onclick = async () => { const items = pick(); if (!Object.keys(items).length) return toast('Pilih sekurang-kurangnya 1 perisa.', true);
+      $('rq-go').disabled = true;
+      try { await API.agRequest(code(), { type: 'stok', items, note: $('rq-note').value.trim() }); closeModal(); toast('Permintaan dihantar ke salesperson.'); await refresh(); }
+      catch (err) { toast(err.message, true); $('rq-go').disabled = false; } };
+    $('rq-wa').onclick = () => {
       const lines = [...document.querySelectorAll('#rq .rqrow')].map((r) => [FLAVOURS.find((f) => f.id === r.dataset.id).name, Math.max(0, Math.floor(Number(r.querySelector('input').value)) || 0)]).filter((x) => x[1]);
       if (!lines.length) return toast('Pilih sekurang-kurangnya 1 perisa.', true);
       const text = `Hai! Saya ${D.agent.name} (${D.agent.code}). Nak minta stok Soft Cookies:\n${lines.map(([n, q]) => `• ${n} × ${q}`).join('\n')}\nJumlah: ${lines.reduce((a, x) => a + x[1], 0)} biji. Terima kasih!`;

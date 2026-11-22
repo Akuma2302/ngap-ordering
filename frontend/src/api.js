@@ -470,10 +470,36 @@
       return { ok: true, backup: { app: 'ngap-ordering', demo: true, at: stamp(), data } }; }
   });
 
+
+  /* ---------- demo: agent -> salesperson requests (stock, payment proof) ---------- */
+  const _spAgents3 = demo.spAgents, _agLogin3 = demo.agLogin;
+  Object.assign(demo, {
+    spAgents(p) { const T = net(), sp = normPhone(p.phone); return Object.assign(_spAgents3(p), { agentRequests: (T.areqs || []).filter((r) => r.sp === sp).slice(-100) }); },
+    agLogin(p) { const T = net(), r = _agLogin3(p); return Object.assign(r, { requests: (T.areqs || []).filter((x) => x.agent === r.agent.code).slice(-30) }); },
+    agRequest({ code, type, items, amount, bankRef, date, note }) {
+      const T = net(), a = agentOf(T, code); type = type === 'bayaran' ? 'bayaran' : 'stok';
+      const x = { at: stamp(), agent: a.code, sp: a.sp, type, items: {}, total: 0, amount: 0, bankRef: '', date: '', note: String(note || '').trim(), status: 'Menunggu', decidedAt: '', reason: '', ref: '' };
+      if (type === 'stok') { cfg.FLAVOURS.forEach((f) => { const q = Math.max(0, Math.floor(Number((items || {})[f.id]) || 0)); if (q) { x.items[f.id] = q; x.total += q; } }); if (!x.total) throw new Error('Pilih sekurang-kurangnya 1 perisa.'); }
+      else { x.amount = r2(amount); x.bankRef = String(bankRef || '').trim(); x.date = isoOr(date); if (x.amount <= 0) throw new Error('Sila isi jumlah yang dibayar.'); if (!x.bankRef) throw new Error('Sila isi no. rujukan / cara bayaran (cth. tunai, DuitNow ref).');
+        if ((T.areqs || []).some((r) => r.agent === a.code && r.type === 'bayaran' && r.status === 'Menunggu' && r.bankRef === x.bankRef)) throw new Error('Bukti bayaran ini sedang disemak salesperson.'); }
+      T.n.areq = (T.n.areq || 0) + 1; x.id = 'AR-' + String(T.n.areq).padStart(4, '0'); T.areqs = (T.areqs || []).concat(x); saveNet(T); return { ok: true, request: x };
+    },
+    agCancelRequest({ code, id }) { const T = net(), a = agentOf(T, code), r = (T.areqs || []).find((x) => x.id === id && x.agent === a.code); if (!r) throw new Error('Permintaan tidak dijumpai.'); if (r.status !== 'Menunggu') throw new Error('Permintaan ini sudah diputuskan.');
+      Object.assign(r, { status: 'Dibatalkan', decidedAt: stamp(), reason: 'Dibatalkan oleh agent' }); saveNet(T); return { ok: true }; },
+    spDecideAgentReq({ phone, id, decision, reason, ref }) {
+      const T = net(), sp = normPhone(phone), r = (T.areqs || []).find((x) => x.id === id && x.sp === sp), ok = decision === 'Diluluskan';
+      if (!r) throw new Error('Permintaan tidak dijumpai.'); if (r.status !== 'Menunggu') throw new Error('Permintaan ini sudah diputuskan.');
+      if (!ok && !String(reason || '').trim()) throw new Error('Sila tulis sebab permintaan ditolak.');
+      let pref = ref || '';
+      if (ok && r.type === 'bayaran') { T.n.pay = (T.n.pay || 0) + 1; pref = 'PY-' + String(T.n.pay).padStart(4, '0'); T.pays.push({ id: pref, sp, agent: r.agent, date: r.date, amount: r.amount, note: 'Bukti ' + r.bankRef + ' (' + r.id + ')', createdAt: stamp() }); }
+      Object.assign(r, { status: ok ? 'Diluluskan' : 'Ditolak', decidedAt: stamp(), reason: String(reason || '').trim(), ref: pref }); saveNet(T); return { ok: true, ref: pref };
+    }
+  });
+
   // Salesperson session: every salesperson request carries their code (e.g. salesAkmal) and session token.
   let spCode = '', spTok = '';
   const SP_ACTIONS = ['create', 'get', 'update', 'cancel', 'myOrders', 'agentGet', 'agentSaveProfile', 'agentSaveSales', 'spAgents', 'spAddAgent', 'spUpdateAgent',
-                      'spDistribute', 'spUpdateDist', 'spDeleteDist', 'spAddPayment', 'spDeletePayment', 'spRequests', 'spAddRequest', 'spCancelRequest', 'spLogoutAll'];
+                      'spDistribute', 'spUpdateDist', 'spDeleteDist', 'spAddPayment', 'spDeletePayment', 'spRequests', 'spAddRequest', 'spCancelRequest', 'spLogoutAll', 'spDecideAgentReq'];
   async function call(action, payload) {
     payload = Object.assign({}, payload || {});
     if (SP_ACTIONS.includes(action)) { payload.sp = spCode; payload.tok = spTok; }
@@ -565,6 +591,9 @@
     spRequests: () => call('spRequests', {}),
     spAddRequest: (x) => call('spAddRequest', x),
     spCancelRequest: (id) => call('spCancelRequest', { id }),
-    spLogoutAll: () => call('spLogoutAll', {})
+    spLogoutAll: () => call('spLogoutAll', {}),
+    agRequest: (code, x) => call('agRequest', Object.assign({ code }, x)),
+    agCancelRequest: (code, id) => call('agCancelRequest', { code, id }),
+    spDecideAgentReq: (phone, id, decision, reason, ref) => call('spDecideAgentReq', { phone, id, decision, reason, ref })
   };
 })();
