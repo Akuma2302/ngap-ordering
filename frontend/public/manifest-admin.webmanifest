@@ -1,8 +1,8 @@
 {
   "name": "ngap · Admin",
   "short_name": "ngap Admin",
-  "start_url": "admin.html",
-  "scope": "./",
+  "start_url": "/admin",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F2E4CF",
@@ -23,5 +23,6 @@
       "sizes": "180x180",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "/admin"
 }

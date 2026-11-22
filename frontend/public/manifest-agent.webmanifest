@@ -1,8 +1,8 @@
 {
   "name": "ngap · Agent",
   "short_name": "ngap Agent",
-  "start_url": "agent.html",
-  "scope": "./",
+  "start_url": "/agent",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F2E4CF",
@@ -23,5 +23,6 @@
       "sizes": "180x180",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "/agent"
 }

@@ -17,9 +17,9 @@
 
 | Peranan | Halaman | Log masuk | Boleh |
 |---|---|---|---|
-| Admin / director | `admin.html` | Kata laluan admin | Semua order, status, PDF kilang, harga HQ, invois & bayaran, salesperson, laporan, pengumuman, log |
-| Salesperson | `sales.html` | Kod (`salesAkmal`) + PIN | Order stok dari HQ, rekod jualan, daftar agent, agih stok, terima bayaran agent, lihat hutang HQ |
-| Agent | `agent.html` | Kod agent (`agentAli`) | Sahkan stok diterima, rekod jualan ikut pelanggan, lihat hutang kepada salesperson |
+| Admin / director | `/admin` | Kata laluan admin | Semua order, status, PDF kilang, harga HQ, invois & bayaran, salesperson, laporan, pengumuman, log |
+| Salesperson | `/sales` | Kod (`salesAkmal`) + PIN | Order stok dari HQ, rekod jualan, daftar agent, agih stok, terima bayaran agent, lihat hutang HQ |
+| Agent | `/agent` | Kod agent (`agentAli`) | Sahkan stok diterima, rekod jualan ikut pelanggan, lihat hutang kepada salesperson |
 
 ## Aliran stok & wang
 
@@ -52,7 +52,7 @@ cd frontend
 cp .env.example .env        # isi SCRIPT_URL (pilihan; jika kosong guna nilai dalam src/config.js)
 npm run dev                 # build + http://localhost:8001
 ```
-Buka `http://localhost:8001/sales.html?demo=1` untuk cuba tanpa menyentuh data sebenar.
+Buka `http://localhost:8001/sales?demo=1` untuk cuba tanpa menyentuh data sebenar.
 
 Backend:
 ```

@@ -32,15 +32,15 @@ ngap-ordering/
 
 | Tugas | Arahan |
 |---|---|
-| Cuba secara tempatan | `cd frontend && npm run dev` → http://localhost:8001/sales.html?demo=1 |
+| Cuba secara tempatan | `cd frontend && npm run dev` → http://localhost:8001/sales?demo=1 |
 | Kemas kini backend | `cd backend && npm install && npm run redeploy` |
 | Terbit frontend | `git push` (Netlify build automatik) — lihat [docs/NETLIFY.md](docs/NETLIFY.md) |
 
 ## Link
 
-- Salesperson: `/sales.html` — log masuk `salesNama` + PIN (`salesAkmal`, `salesHarris`, `salesIzz`, `salesNajman`, `salesFaiz`, `salesNik`, `salesAdi`, `salesKhairul`)
-- Agent: `/agent.html` — kod daripada salesperson (`agentNama`)
-- Admin / director: `/admin.html`
+- Salesperson: `/sales` — log masuk `salesNama` + PIN (`salesAkmal`, `salesHarris`, `salesIzz`, `salesNajman`, `salesFaiz`, `salesNik`, `salesAdi`, `salesKhairul`)
+- Agent: `/agent` — kod daripada salesperson (`agentNama`)
+- Admin / director: `/admin`
 - Demo tanpa data sebenar: tambah `?demo=1` (salesperson `salesDemo`, agent `agentAli`, admin `admin`)
 
 Butiran lanjut: [docs/README.md](docs/README.md) · Pangkalan data: [database/README.md](database/README.md)

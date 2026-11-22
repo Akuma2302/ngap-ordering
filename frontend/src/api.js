@@ -237,7 +237,7 @@
   };
 
   /* ---------- demo: HQ settings, invoices, PIN, log, targeted announcements ---------- */
-  const DEF_SET = { hqPrice: { def: 3.5, items: { 'tiramisu': 4, 'matcha-strawberry': 4 } }, hqCost: { def: 1.6, items: {} }, capacity: 300, cutoffDays: 1, cutoffHour: '18:00', unavailable: [], stockAgeDays: 5 };
+  const DEF_SET = { hqPrice: { def: 3.5, items: { 'tiramisu': 4, 'matcha-strawberry': 4 } }, hqCost: { def: 1.6, items: {} }, capacity: 300, cutoffDays: 1, cutoffHour: '18:00', unavailable: [], stockAgeDays: 5, hqPhone: '0123000000' };
   const getJ = (k, d) => { try { return JSON.parse(localStorage.getItem(KEY + k)) ?? d; } catch (e) { return d; } };
   const setJ = (k, v) => { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) {} };
   const dSet = () => Object.assign({}, DEF_SET, getJ('-set', {}));
@@ -246,7 +246,7 @@
   function dEarliest(s) { const now = new Date(); let add = Number(s.cutoffDays) || 0; const hm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     if (s.cutoffHour && hm >= s.cutoffHour) add++; const d = new Date(); d.setDate(d.getDate() + add); return isoD(d); }
   function dLoad(skip) { const t = isoD(new Date()), l = {}; load().forEach((o) => { if (o.code === skip || o.status === 'Dibatalkan' || o.date < t) return; l[o.date] = (l[o.date] || 0) + o.total; }); return l; }
-  const dPublic = () => { const s = dSet(); return { hqPrice: s.hqPrice, capacity: s.capacity, cutoffDays: s.cutoffDays, cutoffHour: s.cutoffHour, unavailable: s.unavailable, earliest: dEarliest(s), load: dLoad('') }; };
+  const dPublic = () => { const s = dSet(); return { hqPrice: s.hqPrice, capacity: s.capacity, cutoffDays: s.cutoffDays, cutoffHour: s.cutoffHour, unavailable: s.unavailable, earliest: dEarliest(s), load: dLoad(''), hqPhone: s.hqPhone }; };
   function dRules(o, prev, code) {
     const s = dSet(), pi = prev ? prev.items : {};
     const bad = cfg.FLAVOURS.filter((f) => s.unavailable.includes(f.id) && (o.items[f.id] || 0) > (pi[f.id] || 0));
@@ -266,6 +266,8 @@
     Object.keys(inv).forEach((k) => { if (!load().some((o) => o.code === k)) delete inv[k]; });
     setJ('-inv', inv); return Object.values(inv);
   }
+  // same rule as the server: once HQ is baking, the salesperson cannot change or cancel the order
+  const dLocked = (o, what) => { if (['Dibakar', 'Siap', 'Selesai'].includes(o.status)) throw new Error(`Order ${o.code} dah ${o.status.toLowerCase()} dan tak boleh ${what}. Hubungi HQ.`); };
   const dLog = (who, action, ref, detail) => { const l = getJ('-log', []); l.unshift({ at: stamp(), who: who || '-', action, ref: ref || '', detail: detail || '' }); setJ('-log', l.slice(0, 400)); };
   const dSp = (code) => { const all = sps(), s = all.find((x) => x.code.toLowerCase() === String(code || '').trim().toLowerCase()); if (!s) throw new Error('Kod salesperson tidak sah.'); return { all, s }; };
   const pinH = (code, pin) => btoa(unescape(encodeURIComponent(String(code).toLowerCase() + ':' + pin)));
@@ -338,9 +340,9 @@
   Object.assign(demo, {
     create(p) { const o = clean(Object.assign({}, p.order, { phone: p.phone })); dRules(o, null, null); const r = _create({ order: Object.assign({}, p.order, { phone: p.phone }) }); dInvoices(); dLog(p.sp, 'Order baru', r.order.code, r.order.total + ' biji · ' + r.order.date); return r; },
     get(p) { const r = _get(p); if (r.order.phone !== p.phone) throw new Error('Order ini bukan milik anda.'); return r; },
-    update(p) { const list = load(), prev = list[findIdx(list, p.code)]; if (prev.phone !== p.phone) throw new Error('Order ini bukan milik anda.');
+    update(p) { const list = load(), prev = list[findIdx(list, p.code)]; if (prev.phone !== p.phone) throw new Error('Order ini bukan milik anda.'); dLocked(prev, 'diubah');
       const o = clean(Object.assign({}, p.order, { phone: p.phone })); dRules(o, prev, prev.code); const r = _update(Object.assign({}, p, { order: Object.assign({}, p.order, { phone: p.phone }) })); dInvoices(); dLog(p.sp, 'Edit order', r.order.code, ''); return r; },
-    cancel(p) { const list = load(), prev = list[findIdx(list, p.code)]; if (prev.phone !== p.phone) throw new Error('Order ini bukan milik anda.'); const r = _cancel(p); dInvoices(); dLog(p.sp, 'Batal order', p.code, ''); return r; },
+    cancel(p) { const list = load(), prev = list[findIdx(list, p.code)]; if (prev.phone !== p.phone) throw new Error('Order ini bukan milik anda.'); dLocked(prev, 'dibatalkan'); const r = _cancel(p); dInvoices(); dLog(p.sp, 'Batal order', p.code, ''); return r; },
     myOrders(p) { const r = _myOrders(p), ph = normPhone(p.phone); return Object.assign(r, { invoices: dInvoices().filter((v) => v.phone === ph), hqPayments: getJ('-hqpay', []).filter((y) => y.phone === ph), settings: dPublic() }); },
     adminList(p) { const r = _adminList(p); return Object.assign(r, { invoices: dInvoices(), hqPayments: getJ('-hqpay', []), settings: demo.adminGetSettings(p).settings }); },
     adminSetStatus(p) { const prev = load().find((o) => o.code === p.code); const r = _setStatus(p); dInvoices(); dLog('Admin', 'Status order', p.code, (prev ? prev.status : '') + ' → ' + p.status); return r; },

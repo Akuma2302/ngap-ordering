@@ -2,6 +2,7 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8">
+<base href="/">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Admin · ngap soft cookies</title>
 <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -17,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ordering/ordering.css?v=3">
+<link rel="stylesheet" href="ordering/ordering.css?v=4">
 <style>
 .login{max-width:420px;margin:24px auto}
 .fbar{display:flex;gap:8px;overflow-x:auto;margin:0 -14px 14px;padding:0 14px;scrollbar-width:none}
@@ -167,7 +168,9 @@ button.del:disabled{opacity:.5;cursor:wait}
 .oc-top .pill{margin-left:auto}
 .pickbar{position:fixed;left:0;right:0;bottom:calc(var(--tabbar) + var(--safe-b));z-index:35;padding:8px 12px}
 .pickbar-in{max-width:696px;margin:0 auto;background:var(--brown);color:#fff;border-radius:18px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:6px;box-shadow:0 10px 30px rgba(30,10,5,.3)}
-.pickbar-in span{margin-right:auto;font-size:13px}
+.pickbar-in span{margin-right:auto;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.pickbar-in{flex-wrap:nowrap}
+@media (max-width:420px){.pickbar .btn{padding:0 9px;font-size:12px}.pickbar-in{gap:4px;padding-left:10px}}
 .pickbar .btn-o{background:transparent;color:#fff;border-color:rgba(255,255,255,.35);padding:0 10px}
 .pickbar .btn-p{background:#fff;color:var(--burgundy)}
 body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
@@ -269,19 +272,38 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 
     <!-- Lagi -->
     <section data-page="more" class="hidden">
+      <p class="sec-h">Tetapan HQ</p>
       <div class="menu">
-        <button class="mi" type="button" data-pdf><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg></span><span><b>Export PDF (kilang)</b><small>Senarai bake ikut tapisan semasa</small></span></button>
-        <button class="mi" type="button" id="export"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span><span><b>Export CSV</b><small>Untuk Excel / Google Sheets</small></span></button>
-        <button class="mi" type="button" id="open-sp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/></svg></span><span><b>Salesperson</b><small>Kod, status, PIN, terakhir aktif</small></span></button>
         <button class="mi" type="button" id="open-price"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg></span><span><b>Harga HQ &amp; kos bahan</b><small>Harga invois &amp; untung HQ</small></span></button>
         <button class="mi" type="button" id="open-cap"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 14v3"/></svg></span><span><b>Kapasiti &amp; tarikh tutup</b><small>Had biji sehari, cut-off, amaran stok</small></span></button>
         <button class="mi" type="button" id="open-flav"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="14" r="1"/><circle cx="15" cy="9" r="1"/></svg></span><span><b>Perisa ada / habis</b><small>Tutup perisa yang habis stok</small></span></button>
-        <button class="mi" type="button" id="open-log"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg></span><span><b>Log aktiviti</b><small>Siapa buat apa, bila</small></span></button>
-        <button class="mi" type="button" id="open-pdfm"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg></span><span><b>Laporan bulanan PDF</b><small>Untuk mesyuarat director</small></span></button>
+        <button class="mi" type="button" id="open-hq"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg></span><span><b>Maklumat HQ</b><small id="hq-sum">Telefon WhatsApp untuk "Hubungi HQ"</small></span></button>
+      </div>
+      <p class="sec-h">Salesperson</p>
+      <div class="menu">
+        <button class="mi" type="button" id="open-sp"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/></svg></span><span><b>Salesperson</b><small>Kod, status, PIN, terakhir aktif</small></span></button>
+      </div>
+      <p class="sec-h">Komunikasi</p>
+      <div class="menu">
         <button class="mi" type="button" id="open-ann"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></span><span><b>Pengumuman</b><small id="ann-sum">Ikut sasaran: semua / salesperson / agent</small></span></button>
+      </div>
+      <p class="sec-h">Laporan &amp; export</p>
+      <div class="menu">
+        <button class="mi" type="button" data-pdf><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg></span><span><b>Export PDF (kilang)</b><small>Senarai bake ikut tapisan semasa</small></span></button>
+        <button class="mi" type="button" id="open-pdfm"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6Z"/><path d="M14 3v6h6M9 15h6M9 18h4"/></svg></span><span><b>Laporan bulanan PDF</b><small>Untuk mesyuarat director</small></span></button>
+        <button class="mi" type="button" id="export"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span><span><b>Export CSV</b><small>Untuk Excel / Google Sheets</small></span></button>
         <button class="mi" type="button" id="open-filter2"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><span><b>Tapisan</b><small id="filter-sum">Semua tarikh</small></span></button>
+        <button class="mi" type="button" id="open-log"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg></span><span><b>Log aktiviti</b><small>Siapa buat apa, bila</small></span></button>
+      </div>
+      <p class="sec-h">Bantuan</p>
+      <div class="menu">
+        <button class="mi" type="button" id="open-install"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 8v6m0 0-2.5-2.5M12 14l2.5-2.5M11 18h2"/></svg></span><span><b>Pasang app di skrin utama</b><small>Buka admin seperti app biasa</small></span></button>
+        <button class="mi" type="button" id="open-guide"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M4 19a2 2 0 0 1 2-2h13v4H6a2 2 0 0 1-2-2Z"/></svg></span><span><b>Cara guna</b><small>Panduan ringkas admin</small></span></button>
+      </div>
+      <div class="menu" style="margin-top:14px">
         <button class="mi bad" type="button" id="logout"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg></span><span><b>Keluar</b><small id="upd">-</small></span></button>
       </div>
+      <p class="foot" style="text-align:center;margin-top:10px">ngap soft cookies · admin v1.0</p>
     </section>
   </main>
 </div>
@@ -334,7 +356,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 <div id="toast" class="toast hidden" role="status"></div>
 <div id="pickbar" class="pickbar hidden"><div class="pickbar-in">
   <span><b id="pick-n">0</b> order · <b id="pick-p">0</b> biji</span>
-  <button class="btn btn-o btn-sm" type="button" id="pick-all">Pilih semua</button>
+  <button class="btn btn-o btn-sm" type="button" id="pick-all">Semua</button>
   <button class="btn btn-o btn-sm" type="button" id="pick-clear">Batal</button>
   <button class="btn btn-p btn-sm" type="button" id="pick-pdf">PDF kilang</button>
 </div></div>
@@ -342,6 +364,8 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 
 <script src="ordering/config.js?v=10"></script>
 <script src="ordering/api.js?v=10"></script>
+<script src="ordering/router.js?v=1"></script>
+<script src="ordering/apphelp.js?v=1"></script>
 <script>
 (function () {
   const { FLAVOURS, STATUSES } = window.SC_CONFIG;
@@ -359,6 +383,13 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   STATUSES.forEach((s) => $('f-status').insertAdjacentHTML('beforeend', `<option>${s}</option>`));
 
   let pw = sess.get(), orders = [], page = 'home', timer;
+
+  // clean URLs: /admin, /admin/order, /admin/sales, /admin/laporan, /admin/lagi
+  const PSLUG = { home: '', orders: 'order', agents: 'sales', report: 'laporan', more: 'lagi' };
+  const PAGE_OF = Object.fromEntries(Object.entries(PSLUG).filter(([, v]) => v).map(([k, v]) => [v, k]));
+  const R = SC_ROUTER('/admin', (parts) => { $('gsheet').classList.add('hidden'); if (!$('dash').classList.contains('hidden')) go(PAGE_OF[parts[0]] || 'home'); });
+  page = PAGE_OF[R.parts()[0]] || 'home';
+  let firstLoad = true;
 
   /* ---------- auth ---------- */
   $('login-form').addEventListener('submit', async (e) => {
@@ -384,6 +415,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
       if (sp) sps = sp.salespersons || [];
       invs = res.invoices || []; hqp = res.hqPayments || []; setts = res.settings || setts;
       orders = res.orders; show(true); draw();
+      if (firstLoad) { firstLoad = false; go(page); }
       if (!quiet) $('toast').classList.add('hidden');
       $('upd').textContent = 'Dikemas kini ' + new Date().toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
       clearInterval(timer); timer = setInterval(() => load(true), 60000);
@@ -406,6 +438,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
     window.scrollTo({ top: 0 });
     $('fbar').classList.toggle('hidden', p === 'report' || p === 'more');
     if (p === 'report') renderReport();
+    R.set(PSLUG[p] ? [PSLUG[p]] : []);
   }
 
   /* ---------- filters ---------- */
@@ -757,6 +790,17 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
   }
 
   /* ---------- #4 capacity + cut-off, #8 stock age ---------- */
+  function hqSheet() {
+    const s = setts || {};
+    openG(`<h2>Maklumat HQ</h2><div class="fields" style="margin-top:10px">
+      <label class="f">Telefon WhatsApp HQ <small>Salesperson tekan "Hubungi HQ" di Profil untuk WhatsApp nombor ini</small><input class="inp" id="hq-ph" type="tel" inputmode="tel" placeholder="cth. 0123456789" value="${esc(s.hqPhone || '')}"></label>
+      <div class="acts"><button class="btn btn-o" type="button" data-gclose>Batal</button><button class="btn btn-p" type="button" id="hq-save">Simpan</button></div></div>`);
+    $('hq-save').onclick = () => {
+      const v = $('hq-ph').value.replace(/\D/g, '');
+      if (v && !/^0\d{8,10}$/.test(v)) return toast('Nombor telefon tak sah (cth. 0123456789).', true);
+      saveSettings({ hqPhone: v }, 'Telefon HQ disimpan.');
+    };
+  }
   function capSheet() {
     const s = setts || {};
     openG(`<h2>Kapasiti &amp; tarikh tutup</h2><div class="fields" style="margin-top:10px">
@@ -920,6 +964,10 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
     window.print();
   }
 
+  $('open-hq').onclick = hqSheet;
+  const helpModal = (h) => openG(h.replace(/data-close/g, 'data-gclose'));
+  $('open-install').onclick = () => SC_HELP.installSheet(helpModal, toast, 'ngap Admin');
+  $('open-guide').onclick = () => SC_HELP.guideSheet(helpModal, 'admin');
   $('open-sp').onclick = spSheet; $('open-price').onclick = priceSheet; $('open-cap').onclick = capSheet;
   $('open-flav').onclick = flavSheet; $('open-ann').onclick = annSheet; $('open-log').onclick = logSheet; $('open-pdfm').onclick = () => monthlyPDF(repMonth);
 

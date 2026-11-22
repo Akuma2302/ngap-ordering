@@ -183,3 +183,22 @@ textarea.inp{height:auto;padding:12px 14px;resize:vertical;min-height:80px}
 .who-tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
 .who-tx b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .who-tx span{font-size:13px;color:var(--muted)}
+
+/* ---------- buttons never wrap to two lines, on any screen ---------- */
+.btn{white-space:nowrap;flex-shrink:0;line-height:1.1}
+.bar-in{flex-wrap:nowrap}
+.bar .sum{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .acts{flex-shrink:0;flex-wrap:nowrap}
+@media (max-width:380px){
+  .bar .btn{padding:0 14px;font-size:14px}
+  .bar .sum b{font-size:22px}
+  .btn-sm{padding:0 12px}
+}
+
+/* ---------- Help sheets (apphelp.js) ---------- */
+.hp-steps{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.45}
+.hp-guide{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+.hp-g{display:flex;gap:12px;align-items:flex-start}
+.hp-n{width:26px;height:26px;border-radius:50%;background:var(--burgundy);color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.hp-g b{font-size:14.5px}
+.hp-g p{margin:2px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}

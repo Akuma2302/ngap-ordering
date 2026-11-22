@@ -2,6 +2,7 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8">
+<base href="/">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Salesperson · ngap soft cookies</title>
 <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -18,8 +19,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ordering/ordering.css?v=5">
-<link rel="stylesheet" href="ordering/agent.css?v=20">
+<link rel="stylesheet" href="ordering/ordering.css?v=6">
+<link rel="stylesheet" href="ordering/agent.css?v=21">
 </head>
 <body class="glass">
 <header class="lt-bar">
@@ -102,33 +103,51 @@
 
   <!-- ============ PROFIL ============ -->
   <section data-tab="me" class="hidden">
-    <div class="prof">
-      <div class="bigav" id="p-av">?</div>
-      <div class="gcard">
-        <div class="prof-h"><div><b id="p-name">Belum set profil</b><span id="p-phone">Tekan Edit untuk isi</span></div><button class="badge2" type="button" id="p-edit">Edit profil</button></div>
-        <div class="stats3">
-          <div><b id="p-orders">0</b><span>Order</span></div>
-          <div><b id="p-pcs">0</b><span>Biji</span></div>
-          <div><b id="p-sold">0</b><span>Terjual</span></div>
-        </div>
-        <div class="banner"><div><b id="bn-t">Margin –</b><span id="bn-s">Set harga untuk kira untung</span></div><button type="button" id="bn-btn">Harga saya</button></div>
-      </div>
+    <button class="gcard pf-head" type="button" id="p-edit" aria-label="Edit profil">
+      <span class="av pf-av" id="p-av">?</span>
+      <span class="pf-id"><b id="p-name">Belum set profil</b><small><span id="p-code"></span> · <span id="p-phone">-</span></small><small class="pf-pin" id="p-pin">🔒 PIN aktif</small></span>
+      <span class="pf-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg></span>
+    </button>
+    <div class="stats3 pf-stats">
+      <div><b id="p-orders">0</b><span>Order</span></div>
+      <div><b id="p-pcs">0</b><span>Biji</span></div>
+      <div><b id="p-sold">0</b><span>Terjual</span></div>
     </div>
 
-    <section class="gcard" style="padding:0">
-      <div class="menu2">
-        <button type="button" data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V12M12 20V5M19 20v-9"/></svg>Laporan untung</button>
-        <button type="button" data-go="mine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Order saya &amp; rekod jualan</button>
-        <button type="button" id="m-price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg>Harga kos &amp; harga jual</button>
-        <button type="button" id="m-cust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>Pelanggan saya</button>
-        <button type="button" id="m-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Tukar PIN</button>
-        <button type="button" id="m-hq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13M9 21v-6h6v6"/></svg>Invois &amp; bayaran HQ</button>
-        <button type="button" id="m-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>Log keluar</button>
-        <button type="button" id="m-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Edit profil</button>
-      </div>
-    </section>
-    <p class="foot" id="sync-st">Rekod jualan, harga dan kos disimpan ke Google Sheet.</p>
+    <p class="sec-h">Kewangan</p>
+    <div class="pf-money">
+      <button class="gcard pf-k" type="button" id="k-hq"><small>Hutang ke HQ</small><b id="k-hq-v">–</b><span>Lihat invois ›</span></button>
+      <button class="gcard pf-k" type="button" data-go="agents"><small>Agent berhutang</small><b id="k-ag-v">–</b><span>Lihat agent ›</span></button>
+    </div>
+    <div class="banner"><div><b id="bn-t">Margin –</b><span id="bn-s">Set harga untuk kira untung</span></div><button type="button" id="bn-btn">Harga saya</button></div>
+
+    <p class="sec-h">Jualan saya</p>
+    <section class="gcard" style="padding:0"><div class="menu2">
+      <button type="button" data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V12M12 20V5M19 20v-9"/></svg>Laporan &amp; sasaran bulanan</button>
+      <button type="button" id="m-price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg>Harga kos &amp; harga jual</button>
+      <button type="button" id="m-hq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/></svg>Invois &amp; bayaran HQ</button>
+    </div></section>
+
+    <p class="sec-h">Akaun</p>
+    <section class="gcard" style="padding:0"><div class="menu2">
+      <button type="button" id="m-profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Edit profil</button>
+      <button type="button" id="m-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Tukar PIN</button>
+    </div></section>
+
+    <p class="sec-h">Bantuan</p>
+    <section class="gcard" style="padding:0"><div class="menu2">
+      <button type="button" id="m-hqwa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.2-4.4A9 9 0 1 1 21 12Z"/></svg>Hubungi HQ (WhatsApp)</button>
+      <button type="button" id="m-install"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 8v6m0 0-2.5-2.5M12 14l2.5-2.5M11 18h2"/></svg>Pasang app di skrin utama</button>
+      <button type="button" id="m-guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M4 19a2 2 0 0 1 2-2h13v4H6a2 2 0 0 1-2-2Z"/></svg>Cara guna</button>
+    </div></section>
+
+    <button class="btn btn-d btn-block pf-out" type="button" id="m-logout">Log keluar</button>
+    <p class="foot"><span id="sync-st">Rekod jualan, harga dan kos disimpan ke Google Sheet.</span><br>ngap soft cookies · versi 1.0</p>
   </section>
+
+  <!-- ============ PELANGGAN ============ -->
+  <section data-tab="cust" class="hidden"><div id="cu-list"></div></section>
+  <section data-tab="custd" class="hidden"><div id="cu-detail"></div></section>
 
   <!-- ============ UNTUNG SAYA ============ -->
   <!-- ============ AGENT SAYA ============ -->
@@ -169,7 +188,11 @@
   <!-- Editing banner -->
   <div id="editing" class="editing hidden">
     <div><span class="kicker">Mengedit</span><br><b id="ed-code"></b> <span id="ed-status" class="pill"></span></div>
-    <button class="btn btn-o btn-sm" id="ed-close" type="button">Tutup</button>
+    <div class="ed-acts">
+      <button class="btn btn-d btn-sm hidden" id="ed-cancel" type="button">Batalkan order</button>
+      <button class="btn btn-o btn-sm" id="ed-close" type="button">Tutup</button>
+    </div>
+    <p class="ed-lock hidden" id="ed-lock"></p>
   </div>
 
   <!-- ============ ORDER FORM (new + edit) ============ -->
@@ -224,7 +247,6 @@
     <div class="bar"><div class="bar-in">
       <div class="sum"><b id="total">0</b><span>biji · <span id="nflav">0</span> perisa</span></div>
       <div class="acts">
-        <button class="btn btn-d hidden" type="button" id="cancel-btn">Batal</button>
         <button class="btn btn-p" type="submit" id="submit-btn">Semak &amp; hantar</button>
       </div>
     </div></div>
@@ -235,7 +257,7 @@
   <button role="tab" data-tab-btn="mine" aria-selected="false" aria-label="Stok &amp; order"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9"/></svg><span>Stok</span></button>
   <button role="tab" data-tab-btn="agents" aria-selected="false" aria-label="Agent saya"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg><span>Agent</span></button>
   <button role="tab" class="center" data-tab-btn="home" aria-selected="true" aria-label="Utama"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8Z"/></svg></button>
-  <button role="tab" data-tab-btn="stats" aria-selected="false" aria-label="Untung Saya"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 20V12M12 20V5M19 20v-9"/></svg><span>Untung</span></button>
+  <button role="tab" data-tab-btn="cust" aria-selected="false" aria-label="Pelanggan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg><span>Pelanggan</span></button>
   <button role="tab" data-tab-btn="me" aria-selected="false" aria-label="Profil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Profil</span></button>
 </nav>
 
@@ -245,6 +267,9 @@
 <script src="ordering/config.js?v=10"></script>
 <script src="ordering/api.js?v=10"></script>
 <script src="ordering/txsales.js?v=1"></script>
+<script src="ordering/router.js?v=1"></script>
+<script src="ordering/customers.js?v=1"></script>
+<script src="ordering/apphelp.js?v=1"></script>
 <script>
 (function () {
   const { FLAVOURS } = window.SC_CONFIG;
@@ -303,7 +328,7 @@
   const fmtShort = (iso) => { if (!iso) return '-'; const [y, m, d] = iso.split('-'); return new Date(+y, m - 1, +d).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' }); };
   const RM = (n) => (n < 0 ? '-' : '') + 'RM' + Math.abs(n).toLocaleString('ms-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const RMs = (n) => (n < 0 ? '-' : '') + 'RM' + (Math.abs(n) >= 1000 ? (Math.abs(n) / 1000).toFixed(1) + 'k' : Math.round(Math.abs(n)));
-  const TITLES = { home: 'Utama', new: 'Order Stok', mine: 'Stok & Order', me: 'Profil', stats: 'Untung Saya', detail: 'Butiran Order', agents: 'Agent Saya', agent: 'Agent' };
+  const TITLES = { home: 'Utama', new: 'Order Stok', mine: 'Stok & Order', me: 'Profil', stats: 'Untung Saya', detail: 'Butiran Order', agents: 'Agent Saya', agent: 'Agent', cust: 'Pelanggan', custd: 'Pelanggan' };
 
   if (API.DEMO) $('demo').classList.remove('hidden');
   if (window.SC_CONFIG.DEMO_RUN) {
@@ -603,6 +628,7 @@
     try { const r = await API.spAgents(pr.phone); net = { agents: r.agents || [], dists: r.dists || [], payments: r.payments || [], sales: r.sales || {} }; }
     catch (err) { toast(err.message, true); }
     if (tab === 'agents') renderAgents(); else if (tab === 'agent') renderAgent();
+    resolveRoute();
     renderMine(); renderStats();
   }
   async function fetchMine() {
@@ -617,7 +643,8 @@
       if (ag) mergeAgent(ag, mine);
     }
     catch (err) { toast(err.message, true); }
-    finally { loadingMine = false; renderMine(); renderStats(); if (detail) detail = mine.find((x) => x.code === detail.code) || detail; }
+    finally { loadingMine = false; renderMine(); renderStats(); if (detail) detail = mine.find((x) => x.code === detail.code) || detail; resolveRoute();
+      if (tab === 'cust') renderCust(); else if (tab === 'custd') { renderCustDetail(); $('lt').textContent = (customers().find((c) => c.key === curCust) || {}).name || 'Pelanggan'; } }
   }
   function renderStockCard() {
     const st = stockLeft(), tot = Object.values(st).reduce((a, b) => a + b, 0), fl = FLAVOURS.filter((f) => st[f.id]);
@@ -696,7 +723,7 @@
         <div class="kpis" id="d-kpi"></div>
         ${o.method === 'Hantar' && o.address ? `<div class="r2">📍 ${esc(o.address)}</div>` : ''}
         ${o.notes ? `<div class="r2">📝 ${esc(o.notes)}</div>` : ''}
-        <div class="dacts"><button class="btn btn-o btn-sm" type="button" id="d-edit">Edit order</button><button class="btn btn-o btn-sm" type="button" id="d-again">Order semula</button><button class="btn btn-o btn-sm" type="button" id="d-share">Kongsi WhatsApp</button>${cancelled ? '' : '<button class="btn btn-o btn-sm" type="button" id="d-def">Guna harga asas</button>'}</div>
+        <div class="dacts"><button class="btn btn-o btn-sm" type="button" id="d-edit">Edit order</button><button class="btn btn-o btn-sm" type="button" id="d-again">Order semula</button><button class="btn btn-o btn-sm" type="button" id="d-share">Kongsi WhatsApp</button>${cancelled ? '' : '<button class="btn btn-o btn-sm" type="button" id="d-def">Guna harga asas</button>'}${cancelled || LOCKED.includes(o.status) ? '' : '<button class="btn btn-d btn-sm" type="button" id="d-cancel">Batalkan order</button>'}</div>
       </div>
       ${cancelled ? '<div class="warnbox">Order ini dibatalkan, jadi tidak dikira dalam untung.</div>' : ''}
       <p class="sec-h">Jualan ikut pelanggan</p>
@@ -786,6 +813,7 @@
     });
     $('skus').addEventListener('focusin', (e) => { if (e.target.matches('input')) e.target.select(); });
     $('d-edit').onclick = () => loadEdit(o);
+    const dc = $('d-cancel'); if (dc) dc.onclick = () => cancelSheet(o);
     $('d-again').onclick = () => {
       const pr = getProfile();
       drafts.new = { items: Object.assign({}, o.items), method: o.method, address: o.address, notes: o.notes, time: o.time, date: '', name: pr.name || o.name, phone: pr.phone || o.phone };
@@ -840,34 +868,44 @@
   }
   $('tile-price').onclick = $('m-price').onclick = $('bn-btn').onclick = priceSheet;
 
-  function customers() {
-    const sales = getSales(), map = new Map();
+  /* ---------- customers (shared module ordering/customers.js) ---------- */
+  function purchases() {
+    const sales = getSales(), out = [];
     mine.filter((o) => o.status !== 'Dibatalkan').forEach((o) => {
       const rec = (sales[o.code] || {}).items || {};
-      FLAVOURS.forEach((f) => salesLines(rec, f.id).forEach((l) => {
-        const name = String(l.cust || '').trim(), ph = API.normPhone(l.cphone || '');
-        if (!name && !validPhone(ph)) return;
-        const key = validPhone(ph) ? ph : name.toLowerCase();
-        const c = map.get(key) || { name, phone: validPhone(ph) ? ph : '', pcs: 0, spent: 0, last: '', fav: {} };
-        const n = Math.floor(Number(l.qty)) || 0, pr = linePrice(l, f.id);
-        c.name = c.name || name; c.pcs += n; c.spent += isNaN(pr) ? 0 : n * pr; c.fav[f.name] = (c.fav[f.name] || 0) + n;
-        if (o.date > c.last) c.last = o.date;
-        map.set(key, c);
-      }));
+      FLAVOURS.forEach((f) => salesLines(rec, f.id).forEach((l) => out.push({ date: o.date, ref: o.code, fid: f.id, flavour: f.name, qty: l.qty, price: linePrice(l, f.id), cust: l.cust, cphone: l.cphone, tx: l.tx })));
     });
-    return [...map.values()].sort((a, b) => b.spent - a.spent || b.pcs - a.pcs);
+    return out;
   }
-  $('m-cust').onclick = () => {
-    const list = customers();
-    openModal(`<span class="kicker">Pelanggan saya</span><h2>${list.length} pelanggan</h2>
-      <p class="muted" style="margin:2px 0 10px">Dari nama/telefon yang diisi dalam setiap jualan. Tekan WhatsApp untuk follow up.</p>
-      ${list.length ? `<div class="clist">${list.map((c) => { const fav = Object.entries(c.fav).sort((a, b) => b[1] - a[1])[0];
-        return `<div class="crow"><span class="av av-lg">${esc(initials(c.name || c.phone))}</span>
-          <div class="ctx"><b>${esc(c.name || c.phone)}</b><small>${c.pcs} biji · ${RM(c.spent)}${fav ? ' · suka ' + esc(fav[0]) : ''}</small><small>Terakhir ${esc(fmtShort(c.last))}</small></div>
-          ${c.phone ? `<a class="wa" target="_blank" rel="noopener" href="https://wa.me/6${esc(c.phone)}?text=${encodeURIComponent('Hai ' + (c.name || '') + '! Soft Cookies ada stok baru minggu ni 🍪 Nak saya simpankan?')}">WhatsApp</a>` : ''}</div>`; }).join('')}</div>`
-        : '<div class="empty2">Belum ada rekod pelanggan. Isi nama pelanggan semasa rekod jualan dalam halaman order.</div>'}
-      <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-close>Tutup</button></div>`);
+  const customers = () => SC_CUST.build(purchases(), API.normPhone, validPhone);
+  let curCust = null; const cuState = { q: '', sort: 'spend' };
+  const cuH = () => ({ esc, RM, initials, fmtDate, toast, flavours: FLAVOURS, normPhone: API.normPhone, validPhone, sender: () => getProfile().name || 'ngap soft cookies' });
+  function renderCust() { SC_CUST.renderList($('cu-list'), purchases(), cuState, cuH(), renderCust); }
+  function renderCustDetail() { const all = customers(); SC_CUST.renderDetail($('cu-detail'), all.find((c) => c.key === curCust), all, cuH()); }
+  $('cu-list').addEventListener('click', (e) => {
+    const c = e.target.closest('[data-cust]'); if (c) { curCust = c.dataset.cust; tab = 'custd'; render(); window.scrollTo({ top: 0 }); }
+  });
+  $('cu-detail').addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
+    const t = e.target.closest('[data-ref]'); if (!t) return;
+    const o = mine.find((x) => x.code === t.dataset.ref); if (o) openDetail(o);
+  });
+  /* ---------- profile page ---------- */
+  function renderProfileExtra() {
+    $('p-code').textContent = spSess() || '-';
+    $('p-pin').classList.toggle('hidden', !store.get('sp-haspin', false));
+    const o = hqOwe(); $('k-hq-v').textContent = hq.invoices.length ? (o > 0.004 ? RM(o) : 'Selesai ✓') : '–'; $('k-hq-v').className = o > 0.004 ? 'neg' : 'pos';
+    const ag = net.agents.reduce((a, x) => a + Math.max(0, agentStats(x).owe), 0); $('k-ag-v').textContent = net.agents.length ? RM(ag) : '–'; $('k-ag-v').className = ag > 0.004 ? 'neg' : '';
+  }
+  $('k-hq').onclick = () => hqSheet();
+  $('m-hqwa').onclick = () => {
+    const ph = (hqSet.hqPhone || '').replace(/\D/g, '');
+    if (!ph) return toast('Nombor HQ belum diset oleh admin.', true);
+    window.open(`https://wa.me/6${ph}?text=${encodeURIComponent(`Hai HQ, saya ${getProfile().name || ''} (${spSess()}).`)}`, '_blank', 'noopener');
   };
+  $('m-install').onclick = () => SC_HELP.installSheet(openModal, toast, 'ngap Sales');
+  $('m-guide').onclick = () => SC_HELP.guideSheet(openModal, 'sales');
+
 
   /* ---------- home dashboard ---------- */
   function soldByFlavour(list) {
@@ -979,7 +1017,7 @@
   });
 
   function renderStats() {
-    renderHome(); renderTrend(); renderTarget();
+    renderHome(); renderTrend(); renderTarget(); renderProfileExtra();
 
     const all = calc(mine);
     $('p-orders').textContent = all.orders; $('p-pcs').textContent = all.pcs; $('p-sold').textContent = all.sold;
@@ -1017,7 +1055,7 @@
 
   /* ---------- agents under this salesperson ---------- */
   let curAgent = null;
-  const agentLink = (a) => `${location.origin}${location.pathname.replace(/[^/]*$/, '')}agent.html?code=${encodeURIComponent(a.code)}`;
+  const agentLink = (a) => `${location.origin}/agent?code=${encodeURIComponent(a.code)}`;
   const ago = (s) => { if (!s) return 'belum ada aktiviti'; const d = new Date(String(s).replace(' ', 'T')); if (isNaN(d)) return s; const n = Math.floor((Date.now() - d) / 864e5); return n <= 0 ? 'hari ini' : n === 1 ? 'semalam' : `${n} hari lepas`; };
   function renderAgents() {
     const pr = getProfile();
@@ -1169,25 +1207,30 @@
     else if (tab === 'mine' && editing) drafts.edit = readForm();
     tab = t;
     render(); window.scrollTo({ top: 0 });
-    if (['mine', 'me', 'home', 'stats', 'agents'].includes(t)) fetchMine();
+    if (['mine', 'me', 'home', 'stats', 'agents', 'cust'].includes(t)) fetchMine();
   }
   document.querySelectorAll('[data-tab-btn]').forEach((b) => b.onclick = () => go(b.dataset.tabBtn));
   document.addEventListener('click', (e) => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go); });
 
   function render() {
     const showForm = tab === 'new' || (tab === 'mine' && !!editing);
-    document.querySelectorAll('[data-tab-btn]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tabBtn === ({ detail: 'mine', new: 'mine', agent: 'agents' }[tab] || tab)));
+    document.querySelectorAll('[data-tab-btn]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tabBtn === ({ detail: 'mine', new: 'mine', agent: 'agents', cust: 'cust', custd: 'cust', stats: 'home' }[tab] || tab)));
     document.querySelectorAll('[data-tab]').forEach((s) => s.classList.toggle('hidden', s.dataset.tab !== tab || (tab === 'mine' && !!editing)));
     $('order-form').classList.toggle('hidden', !showForm);
     document.body.classList.toggle('has-bar', showForm);
-    $('lt').textContent = tab === 'mine' && editing ? 'Edit Order' : tab === 'detail' && detail ? detail.code : tab === 'agent' && curAgent ? agentName(curAgent) : TITLES[tab];
-    $('back-btn').classList.toggle('hidden', !(tab === 'detail' || tab === 'agent' || (tab === 'mine' && editing)));
+    $('lt').textContent = tab === 'mine' && editing ? 'Edit Order' : tab === 'detail' && detail ? detail.code : tab === 'agent' && curAgent ? agentName(curAgent) : tab === 'custd' ? ((customers().find((c) => c.key === curCust) || {}).name || 'Pelanggan') : TITLES[tab];
+    $('back-btn').classList.toggle('hidden', !(tab === 'detail' || tab === 'agent' || tab === 'stats' || tab === 'custd' || (tab === 'mine' && editing)));
     $('lt').classList.toggle('code', tab === 'detail');
     $('lt').classList.toggle('hidden', tab === 'home'); $('lt-logo').classList.toggle('hidden', tab !== 'home');
     $('editing').classList.toggle('hidden', !(tab === 'mine' && editing));
-    $('cancel-btn').classList.toggle('hidden', !(tab === 'mine' && editing && editing.status !== 'Dibatalkan'));
+    const isEdit = tab === 'mine' && editing, locked = isEdit && LOCKED.includes(editing.status);
+    $('ed-cancel').classList.toggle('hidden', !(isEdit && !locked && editing.status !== 'Dibatalkan'));
+    $('ed-lock').classList.toggle('hidden', !locked);
+    if (locked) $('ed-lock').textContent = `Order ini dah ${editing.status.toLowerCase()} — tak boleh diubah atau dibatalkan. Hubungi HQ jika perlu.`;
+    $('submit-btn').disabled = !!locked;
     $('submit-btn').textContent = tab === 'new' ? 'Semak & hantar' : (editing && editing.status === 'Dibatalkan' ? 'Aktifkan semula' : 'Simpan perubahan');
     $('f-date').min = tab === 'new' ? (hqSet.earliest || todayISO()) : '';
+    if (showForm) applySettings();   // flavour limits first, so an edit keeps its quantities for flavours marked "Habis"
     if (tab === 'new') fillForm(drafts.new);
     else if (tab === 'mine' && editing) {
       fillForm(drafts.edit);
@@ -1197,9 +1240,39 @@
     else if (tab === 'detail') renderDetail();
     else if (tab === 'agents') renderAgents();
     else if (tab === 'agent') renderAgent();
+    else if (tab === 'cust') renderCust();
+    else if (tab === 'custd') renderCustDetail();
     else if (['me', 'home', 'stats'].includes(tab)) renderStats();
     if (showForm) applySettings();
+    if (spSess()) R.set(urlParts());
   }
+
+  /* ---------- clean URLs: /sales, /sales/stok, /sales/order/SC-0001, /sales/agent/agentAli ... ---------- */
+  const SLUG = { home: '', mine: 'stok', new: 'order-baru', agents: 'agent', stats: 'untung', me: 'profil', cust: 'pelanggan' };
+  const TAB_OF = Object.fromEntries(Object.entries(SLUG).filter(([, v]) => v).map(([k, v]) => [v, k]));
+  function urlParts() {
+    if (tab === 'detail' && detail) return ['order', detail.code];
+    if (tab === 'mine' && editing) return ['order', editing.code, 'edit'];
+    if (tab === 'agent' && curAgent) return ['agent', curAgent];
+    if (tab === 'custd' && curCust) return ['pelanggan', curCust];
+    return SLUG[tab] ? [SLUG[tab]] : [];
+  }
+  let pendingRoute = null;
+  function routeTo(parts) {
+    if ((parts[0] === 'order' || parts[0] === 'agent') && parts[1]) { pendingRoute = parts; resolveRoute(); return; }
+    if (parts[0] === 'pelanggan' && parts[1]) { pendingRoute = null; editing = null; detail = null; curCust = parts[1]; tab = 'custd'; render(); window.scrollTo({ top: 0 }); return; }
+    pendingRoute = null; editing = null; detail = null;
+    tab = TAB_OF[parts[0]] || 'home'; render(); window.scrollTo({ top: 0 });
+  }
+  // detail routes need the data first; called again after orders / agents load
+  function resolveRoute() {
+    const r = pendingRoute; if (!r) return;
+    if (r[0] === 'order') { const o = mine.find((x) => x.code.toLowerCase() === r[1].toLowerCase()); if (!o) return;
+      pendingRoute = null; r[2] === 'edit' ? loadEdit(o) : openDetail(o); }
+    else { const a = net.agents.find((x) => x.code.toLowerCase() === r[1].toLowerCase()); if (!a) return;
+      pendingRoute = null; editing = null; detail = null; curAgent = a.code; tab = 'agent'; render(); }
+  }
+  const R = SC_ROUTER('/sales', (parts) => { closeModal(); routeTo(parts); });
 
   /* ---------- lookup by code ---------- */
   $('lookup-form').addEventListener('submit', (e) => { e.preventDefault(); openOrder(); });
@@ -1218,7 +1291,7 @@
     render(); window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   $('ed-close').onclick = () => { editing = null; drafts.edit = null; render(); fetchMine(); };
-  $('back-btn').onclick = () => { if (tab === 'mine' && editing) $('ed-close').onclick(); else if (tab === 'agent') go('agents'); else go('mine'); };
+  $('back-btn').onclick = () => { if (tab === 'mine' && editing) $('ed-close').onclick(); else if (tab === 'agent') go('agents'); else if (tab === 'custd') go('cust'); else if (tab === 'stats') go('home'); else go('mine'); };
 
   /* ---------- submit ---------- */
   $('order-form').addEventListener('submit', (e) => {
@@ -1267,16 +1340,20 @@
   }
 
   /* ---------- cancel ---------- */
-  $('cancel-btn').onclick = () => {
-    openModal(`<span class="kicker">Batal order</span><h2>Batalkan ${esc(editing.code)}?</h2>
-      <p class="muted">Order akan ditanda "Dibatalkan" dan team tidak akan sediakannya. Anda masih boleh aktifkan semula kemudian.</p>
+  // Orders can be cancelled until HQ starts baking them.
+  const LOCKED = ['Dibakar', 'Siap', 'Selesai'];
+  function cancelSheet(o) {
+    openModal(`<span class="kicker">Batal order</span><h2>Batalkan ${esc(o.code)}?</h2>
+      <p class="muted">${o.total} biji · ${esc(o.method)} ${esc(fmtDate(o.date))}. Order akan ditanda "Dibatalkan", HQ tidak akan bake, dan invois jadi RM0. Anda masih boleh aktifkan semula sebelum HQ mula bake.</p>
       <div class="acts"><button class="btn btn-o" data-close>Jangan batal</button><button class="btn btn-p" id="go-cancel" style="background:var(--bad)">Ya, batalkan</button></div>`);
     $('go-cancel').onclick = async () => {
       busy($('go-cancel'), true, 'Membatalkan…');
-      try { const { order } = await API.cancel(editing.code); closeModal(); loadEdit(order); toast('Order dibatalkan.'); fetchMine(); }
+      try { const { order } = await API.cancel(o.code); closeModal(); toast(`${o.code} dibatalkan.`); editing = null; drafts.edit = null; detail = null;
+        await fetchMine(); const fresh = mine.find((x) => x.code === order.code) || order; openDetail(fresh); }
       catch (err) { busy($('go-cancel'), false); toast(err.message, true); }
     };
-  };
+  }
+  $('ed-cancel').onclick = () => cancelSheet(Object.assign({}, drafts.edit || {}, { code: editing.code, total: Number($('total').textContent) || (drafts.edit || {}).total || 0, method: methodVal(), date: $('f-date').value }));
 
   /* ---------- ui helpers ---------- */
   let modalLocked = false;
@@ -1304,10 +1381,10 @@
       const { sp, token, needPin } = await API.spLogin(c, $('sp-pin').value.trim(), savedTok);
       $('sp-pin').value = '';
       if (spSess() && spSess().toLowerCase() !== sp.code.toLowerCase()) ['sc-sales', 'sc-prices', 'sc-target', 'sc-agent-upd'].forEach((k) => store.del(k));
-      store.set('sp-code', sp.code); store.set('sp-tok', token); API.setSP(sp.code, token);
+      store.set('sp-code', sp.code); store.set('sp-tok', token); store.set('sp-haspin', !needPin); API.setSP(sp.code, token);
       store.set('sc-agent', { name: sp.name, phone: sp.phone });
       drafts.new = Object.assign(drafts.new || {}, { name: sp.name, phone: sp.phone });
-      syncProfileUI(); showApp(true); render(); fetchMine(); fetchAnn(); fetchSettings();
+      syncProfileUI(); showApp(true); routeTo(startParts); fetchMine(); fetchAnn(); fetchSettings();
       if (needPin) pinSheet(true, !sp.phone); else if (!sp.phone) profileSheet(true);
       return true;
     } catch (err) {
@@ -1340,7 +1417,7 @@
       if (!/^\d{4,6}$/.test(a)) return toast('PIN mesti 4 hingga 6 digit.', true);
       if (a !== b) return toast('PIN tidak sama.', true);
       busy($('pin-go'), true, 'Menyimpan…');
-      try { const { token } = await API.spSetPin(spSess(), store.get('sp-tok', ''), a); store.set('sp-tok', token); API.setSP(spSess(), token);
+      try { const { token } = await API.spSetPin(spSess(), store.get('sp-tok', ''), a); store.set('sp-tok', token); store.set('sp-haspin', true); API.setSP(spSess(), token);
         closeModal(); toast('PIN disimpan.'); if (thenProfile) profileSheet(true); }
       catch (err) { busy($('pin-go'), false); toast(err.message, true); }
     };
@@ -1353,10 +1430,11 @@
   $('m-pin').onclick = () => pinSheet(false);
   $('m-logout').onclick = () => { if (confirm('Log keluar dari akaun ' + spSess() + '?')) spLogout(); };
 
-  // Deep links: sales.html?edit=SC-0001, sales.html?tab=new
+  // Deep links: /sales/order/SC-0001, /sales/stok, ... (older ?edit= and ?tab= still work)
   const qs = new URLSearchParams(location.search);
-  if (qs.get('tab') && TITLES[qs.get('tab')]) tab = qs.get('tab');
-  if (spSess()) { API.setSP(spSess(), store.get('sp-tok', '')); $('sp-code').value = spSess(); spLoginWith(spSess(), true).then((ok) => { if (ok && qs.get('edit')) API.get(qs.get('edit')).then(({ order }) => openDetail(order)).catch((err) => toast(err.message, true)); }); }
+  // start on the tab named in the URL; older links (?tab=new, ?edit=SC-0001) still work
+  const startParts = R.parts().length ? R.parts() : qs.get('edit') ? ['order', API.normCode(qs.get('edit'))] : qs.get('tab') && SLUG[qs.get('tab')] ? [SLUG[qs.get('tab')]] : [];
+  if (spSess()) { API.setSP(spSess(), store.get('sp-tok', '')); $('sp-code').value = spSess(); spLoginWith(spSess(), true); }
   else { showApp(false); if (window.SC_CONFIG.DEMO_RUN) $('sp-code').value = 'salesDemo'; }
 })();
 </script>

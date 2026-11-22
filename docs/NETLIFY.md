@@ -32,12 +32,12 @@ Struktur repo telah berubah (fail tidak lagi di root). Kemas kini tetapan:
 ## 3. Link yang perlu dikongsi
 | Untuk | Link |
 |---|---|
-| Salesperson | `https://<nama-site>.netlify.app/sales.html` (juga `/`) |
-| Agent | `https://<nama-site>.netlify.app/agent.html` |
-| Admin / director | `https://<nama-site>.netlify.app/admin.html` |
+| Salesperson | `https://<nama-site>.netlify.app/sales` (juga `/`) |
+| Agent | `https://<nama-site>.netlify.app/agent` |
+| Admin / director | `https://<nama-site>.netlify.app/admin` |
 | Cuba tanpa data sebenar | tambah `?demo=1` pada mana-mana link |
 
-Link lama `order.html` akan terus ke `sales.html`.
+Link lama (`order.html`, `sales.html`, `agent.html`, `admin.html`) akan terus ke link baru tanpa `.html`.
 
 ## 4. Selepas setiap perubahan
 - **Frontend** (`frontend/`): `git push` ke `main` → Netlify build & terbit sendiri (±30 saat).
@@ -50,3 +50,34 @@ Link lama `order.html` akan terus ke `sales.html`.
 - Build gagal "SCRIPT_URL does not look like…" → nilai `SCRIPT_URL` salah; mesti `https://script.google.com/macros/s/.../exec`.
 - Halaman kosong / 404 → semak Publish directory = `frontend/dist` (atau `dist` jika Base directory = `frontend`).
 - Data tak keluar → buka link dengan `?demo=1`; jika demo berfungsi, masalah pada `SCRIPT_URL` atau deployment Apps Script.
+
+## Peta link (tanpa .html)
+
+| App | Tab | Link |
+|---|---|---|
+| Salesperson | Utama | `/sales` |
+| | Stok & order | `/sales/stok` |
+| | Order baru | `/sales/order-baru` |
+| | Butiran order | `/sales/order/SC-0001` |
+| | Edit order | `/sales/order/SC-0001/edit` |
+| | Agent saya | `/sales/agent` |
+| | Satu agent | `/sales/agent/agentAli` |
+| | Untung | `/sales/untung` |
+| | Pelanggan | `/sales/pelanggan` |
+| | Satu pelanggan | `/sales/pelanggan/0123456789` |
+| | Profil | `/sales/profil` |
+| Agent | Utama | `/agent` |
+| | Stok | `/agent/stok` |
+| | Butiran stok | `/agent/stok/DS-0001` |
+| | Pelanggan | `/agent/pelanggan` |
+| | Satu pelanggan | `/agent/pelanggan/0123456789` |
+| | Untung | `/agent/untung` |
+| | Profil | `/agent/profil` |
+| | Log masuk terus | `/agent?code=agentAli` |
+| Admin | Ringkasan | `/admin` |
+| | Order | `/admin/order` |
+| | Salesperson & agent | `/admin/sales` |
+| | Laporan director | `/admin/laporan` |
+| | Lagi (tetapan) | `/admin/lagi` |
+
+Tambah `?demo=1` pada mana-mana link untuk mod demo. Peraturan ini ada dalam `netlify.toml` (rewrite `/sales/*` → `/sales/index.html`).

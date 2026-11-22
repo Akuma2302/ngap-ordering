@@ -7,15 +7,53 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Root URL opens the salesperson app (order.html also redirects there).
+# ---------- clean URLs (no .html) ----------
+# Root opens the salesperson app.
 [[redirects]]
   from = "/"
-  to = "/sales.html"
+  to = "/sales"
   status = 302
 
-# Keep the admin page out of search engines.
+# Old links keep working and move to the clean URL.
+[[redirects]]
+  from = "/sales.html"
+  to = "/sales"
+  status = 301
+[[redirects]]
+  from = "/agent.html"
+  to = "/agent"
+  status = 301
+[[redirects]]
+  from = "/admin.html"
+  to = "/admin"
+  status = 301
+[[redirects]]
+  from = "/order.html"
+  to = "/sales"
+  status = 301
+[[redirects]]
+  from = "/order"
+  to = "/sales"
+  status = 301
+
+# Every tab has its own address (/sales/stok, /admin/laporan, /agent/stok/DS-0001 ...);
+# they are all served by the app page, which picks the tab from the URL.
+[[redirects]]
+  from = "/sales/*"
+  to = "/sales/index.html"
+  status = 200
+[[redirects]]
+  from = "/agent/*"
+  to = "/agent/index.html"
+  status = 200
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
+
+# Keep the admin pages out of search engines.
 [[headers]]
-  for = "/admin.html"
+  for = "/admin/*"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
 

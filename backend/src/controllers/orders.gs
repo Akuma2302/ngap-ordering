@@ -34,6 +34,7 @@ function update_(req) {
   return withLock_(function () {
     var found = find_(req.code);
     if (normPhone_(found.order.phone) !== req.phone) throw new Error('Order ini bukan milik anda.');
+    notLocked_(found.order, 'diubah');
     checkOrderRules_(o, found.order, found.order.code);
     var row = toRow_(found.order.code, 'Dikemaskini', found.order.createdAt, stamp_(), o);
     found.sheet.getRange(found.row, 1, 1, row.length).setValues([row]);
@@ -48,12 +49,20 @@ function cancel_(req) {
   return withLock_(function () {
     var found = find_(req.code);
     if (normPhone_(found.order.phone) !== req.phone) throw new Error('Order ini bukan milik anda.');
+    notLocked_(found.order, 'dibatalkan');
+    if (found.order.status === 'Dibatalkan') return { ok: true, order: found.order };
     found.sheet.getRange(found.row, 2, 1, 3).setValues([['Dibatalkan', found.order.createdAt, stamp_()]]);
     found.order.status = 'Dibatalkan';
     syncInvoice_(found.order, null);
     log_(req.sp, 'Batal order', found.order.code, '');
     return { ok: true, order: found.order };
   });
+}
+
+// Once HQ starts baking, the salesperson can no longer change or cancel the order (admin still can).
+var LOCKED_STATUSES = ['Dibakar', 'Siap', 'Selesai'];
+function notLocked_(order, what) {
+  if (LOCKED_STATUSES.indexOf(order.status) >= 0) throw new Error('Order ' + order.code + ' dah ' + order.status.toLowerCase() + ' dan tak boleh ' + what + '. Hubungi HQ.');
 }
 
 // All orders placed with this phone number (for the agent's own history and profit tracking).

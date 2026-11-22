@@ -2,6 +2,7 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8">
+<base href="/">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Agent · ngap soft cookies</title>
 <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -18,8 +19,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="ordering/ordering.css?v=5">
-<link rel="stylesheet" href="ordering/agent.css?v=20">
+<link rel="stylesheet" href="ordering/ordering.css?v=6">
+<link rel="stylesheet" href="ordering/agent.css?v=21">
 <style>
 .costfix{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:13px;font-weight:700;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px}
 .costfix b{font-size:15px}
@@ -92,6 +93,7 @@
 
   <!-- PELANGGAN -->
   <section data-tab="cust" class="hidden"><div id="clist"></div></section>
+  <section data-tab="custd" class="hidden"><div id="cu-detail"></div></section>
 
   <!-- UNTUNG -->
   <section data-tab="stats" class="hidden">
@@ -117,22 +119,32 @@
 
   <!-- PROFIL -->
   <section data-tab="me" class="hidden">
-    <div class="prof">
-      <div class="bigav" id="p-av">?</div>
-      <div class="gcard">
-        <div class="prof-h"><div><b id="p-name"></b><span id="p-code"></span></div></div>
-        <div class="banner" style="margin-top:12px"><div><b id="p-sp"></b><span id="p-spph"></span></div><a class="banner-a" id="p-wa" target="_blank" rel="noopener">WhatsApp</a></div>
-      </div>
+    <div class="gcard pf-head">
+      <span class="av pf-av" id="p-av">?</span>
+      <span class="pf-id"><b id="p-name"></b><small id="p-code"></small><small class="pf-pin">Agent ngap soft cookies</small></span>
     </div>
-    <p class="sec-h">Bayaran kepada salesperson</p>
+
+    <p class="sec-h">Kewangan</p>
     <div class="gcard" id="p-pays" style="padding:4px 16px"></div>
-    <section class="gcard" style="padding:0">
-      <div class="menu2">
-        <button type="button" id="m-price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg>Harga jual saya</button>
-        <button type="button" id="m-logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>Log keluar</button>
-      </div>
-    </section>
-    <p class="foot" id="sync-st">Rekod jualan disimpan ke Google Sheet.</p>
+
+    <p class="sec-h">Salesperson saya</p>
+    <div class="banner"><div><b id="p-sp"></b><span id="p-spph"></span></div><a class="banner-a" id="p-wa" target="_blank" rel="noopener">WhatsApp</a></div>
+
+    <p class="sec-h">Jualan saya</p>
+    <section class="gcard" style="padding:0"><div class="menu2">
+      <button type="button" id="m-price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg>Harga jual saya</button>
+      <button type="button" id="m-stock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9"/></svg>Stok &amp; jualan</button>
+      <button type="button" id="m-cust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/></svg>Pelanggan saya</button>
+    </div></section>
+
+    <p class="sec-h">Bantuan</p>
+    <section class="gcard" style="padding:0"><div class="menu2">
+      <button type="button" id="m-install"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 8v6m0 0-2.5-2.5M12 14l2.5-2.5M11 18h2"/></svg>Pasang app di skrin utama</button>
+      <button type="button" id="m-guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M4 19a2 2 0 0 1 2-2h13v4H6a2 2 0 0 1-2-2Z"/></svg>Cara guna</button>
+    </div></section>
+
+    <button class="btn btn-d btn-block pf-out" type="button" id="m-logout">Log keluar</button>
+    <p class="foot"><span id="sync-st">Rekod jualan disimpan ke Google Sheet.</span><br>ngap soft cookies · versi 1.0</p>
   </section>
 
   <!-- BUTIRAN STOK -->
@@ -153,6 +165,9 @@
 <script src="ordering/config.js?v=10"></script>
 <script src="ordering/api.js?v=10"></script>
 <script src="ordering/txsales.js?v=1"></script>
+<script src="ordering/router.js?v=1"></script>
+<script src="ordering/customers.js?v=1"></script>
+<script src="ordering/apphelp.js?v=1"></script>
 <script>
 (function () {
   const { FLAVOURS } = window.SC_CONFIG;
@@ -175,12 +190,12 @@
   const setv = (v) => v !== undefined && v !== null && v !== '';
   const initials = (n) => String(n || '').replace(/[^\p{L}\s]/gu, '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
   const validPhone = (p) => { const d = API.normPhone(p); return d.length >= 9 && d.length <= 12; };
-  const TITLES = { home: 'Utama', stock: 'Stok Saya', cust: 'Pelanggan', stats: 'Untung Saya', me: 'Profil', detail: 'Stok' };
+  const TITLES = { home: 'Utama', stock: 'Stok Saya', cust: 'Pelanggan', custd: 'Pelanggan', stats: 'Untung Saya', me: 'Profil', detail: 'Stok' };
 
   /* ---------- demo seed for ?demo=1 ---------- */
   if (window.SC_CONFIG.DEMO_RUN) {
     $('demo').classList.remove('hidden');
-    $('demo').innerHTML = '<b>Mod demo</b> · cuba dengan kod <b>agentAli</b> atau <b>agentSiti</b>. Data contoh dicipta di halaman salesperson demo (<a href="sales.html?demo=1">buka</a>).';
+    $('demo').innerHTML = '<b>Mod demo</b> · cuba dengan kod <b>agentAli</b> atau <b>agentSiti</b>. Data contoh dicipta di halaman salesperson demo (<a href="/sales?demo=1">buka</a>).';
     if (!localStorage.getItem('sc-demo-orders-net')) $('demo').innerHTML += '<br>Buka halaman salesperson demo dahulu untuk cipta data contoh.';
   } else if (API.DEMO) $('demo').classList.remove('hidden');
 
@@ -198,7 +213,7 @@
       const r = await API.agLogin(c);
       if (r.agent.code.toLowerCase() !== String(code()).toLowerCase()) { store.del('ag-sales'); store.del('ag-prof'); }
       store.set('ag-code', r.agent.code); D = r; merge();
-      show(true); render(); fetchAnn();
+      show(true); routeA(startA); fetchAnn();
     } catch (err) {
       if (!quiet || /tidak sah|tidak aktif/i.test(err.message)) { toast(err.message, true); if (/tidak sah|tidak aktif/i.test(err.message)) { store.del('ag-code'); show(false); } }
       else if (!D) show(false);
@@ -256,17 +271,13 @@
   const monthKey = (off) => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - off); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
   const inPeriod = (d, p) => p === 'all' || String(d.date).slice(0, 7) === monthKey(p === 'this' ? 0 : 1);
   const owe = () => D.dists.reduce((a, d) => a + d.value, 0) - D.payments.reduce((a, y) => a + y.amount, 0);
-  function customers() {
-    const sales = getSales(), map = new Map();
+  function purchases() {
+    const sales = getSales(), out = [];
     D.dists.forEach((d) => { const rec = (sales[d.code] || {}).items || {};
-      FLAVOURS.forEach((f) => linesOf(rec, f.id).forEach((l) => {
-        const name = String(l.cust || '').trim(), ph = API.normPhone(l.cphone || ''); if (!name && !validPhone(ph)) return;
-        const key = validPhone(ph) ? ph : name.toLowerCase(), c = map.get(key) || { name, phone: validPhone(ph) ? ph : '', pcs: 0, spent: 0, last: '', fav: {} };
-        const n = Math.floor(Number(l.qty)) || 0, p = linePrice(l, f.id);
-        c.name = c.name || name; c.pcs += n; c.spent += isNaN(p) ? 0 : n * p; c.fav[f.name] = (c.fav[f.name] || 0) + n; if (d.date > c.last) c.last = d.date; map.set(key, c);
-      })); });
-    return [...map.values()].sort((a, b) => b.spent - a.spent || b.pcs - a.pcs);
+      FLAVOURS.forEach((f) => linesOf(rec, f.id).forEach((l) => out.push({ date: d.date, ref: d.code, fid: f.id, flavour: f.name, qty: l.qty, price: linePrice(l, f.id), cust: l.cust, cphone: l.cphone, tx: l.tx }))); });
+    return out;
   }
+  const customers = () => SC_CUST.build(purchases(), API.normPhone, validPhone);
 
   /* ---------- announcement ---------- */
   let anns = [];
@@ -278,19 +289,33 @@
   document.querySelectorAll('[data-tab-btn]').forEach((b) => b.onclick = () => go(b.dataset.tabBtn));
   document.addEventListener('click', (e) => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go); });
   $('profile-btn').onclick = () => go('me');
-  $('back-btn').onclick = () => go('stock');
+  $('back-btn').onclick = () => go(tab === 'custd' ? 'cust' : 'stock');
 
   function render() {
     if (!D) return;
-    document.querySelectorAll('[data-tab-btn]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tabBtn === (tab === 'detail' ? 'stock' : tab)));
+    document.querySelectorAll('[data-tab-btn]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tabBtn === ({ detail: 'stock', custd: 'cust' }[tab] || tab)));
     document.querySelectorAll('[data-tab]').forEach((s) => s.classList.toggle('hidden', s.dataset.tab !== tab));
-    $('lt').textContent = tab === 'detail' && detail ? detail.code : TITLES[tab];
+    $('lt').textContent = tab === 'detail' && detail ? detail.code : tab === 'custd' ? ((customers().find((c) => c.key === curCust) || {}).name || 'Pelanggan') : TITLES[tab];
     $('lt').classList.toggle('code', tab === 'detail');
     $('lt').classList.toggle('hidden', tab === 'home'); $('lt-logo').classList.toggle('hidden', tab !== 'home');
-    $('back-btn').classList.toggle('hidden', tab !== 'detail');
+    $('back-btn').classList.toggle('hidden', tab !== 'detail' && tab !== 'custd');
     $('av').textContent = initials(D.agent.name);
-    ({ home: renderHome, stock: renderStock, cust: renderCust, stats: renderStats, me: renderMe, detail: renderDetail })[tab]();
+    ({ home: renderHome, stock: renderStock, cust: renderCust, custd: renderCustDetail, stats: renderStats, me: renderMe, detail: renderDetail })[tab]();
+    R.set(tab === 'detail' && detail ? ['stok', detail.code] : tab === 'custd' && curCust ? ['pelanggan', curCust] : ASLUG[tab] ? [ASLUG[tab]] : []);
   }
+
+  /* ---------- clean URLs: /agent, /agent/stok, /agent/stok/DS-0001, /agent/pelanggan, /agent/untung, /agent/profil ---------- */
+  const ASLUG = { home: '', stock: 'stok', cust: 'pelanggan', stats: 'untung', me: 'profil' };
+  const ATAB = Object.fromEntries(Object.entries(ASLUG).filter(([, v]) => v).map(([k, v]) => [v, k]));
+  function routeA(parts) {
+    if (!D) return;
+    const d = parts[0] === 'stok' && parts[1] ? D.dists.find((x) => x.code.toLowerCase() === parts[1].toLowerCase()) : null;
+    if (d) return openDist(d.code);
+    if (parts[0] === 'pelanggan' && parts[1]) { curCust = parts[1]; detail = null; tab = 'custd'; render(); window.scrollTo({ top: 0 }); return; }
+    detail = null; tab = ATAB[parts[0]] || 'home'; render(); window.scrollTo({ top: 0 });
+  }
+  const R = SC_ROUTER('/agent', (parts) => { closeModal(); routeA(parts); });
+  const startA = R.parts();
 
   function renderHome() {
     const seenL = store.get('ann-seen-ids', []);
@@ -413,13 +438,15 @@
   }
 
   /* ---------- customers ---------- */
-  function renderCust() {
-    const list = customers();
-    $('clist').innerHTML = list.length ? `<div class="gcard" style="padding:4px 16px"><div class="clist">${list.map((c) => { const fav = Object.entries(c.fav).sort((a, b) => b[1] - a[1])[0];
-      return `<div class="crow"><span class="av av-lg">${esc(initials(c.name || c.phone))}</span><div class="ctx"><b>${esc(c.name || c.phone)}</b><small>${c.pcs} biji · ${RM(c.spent)}${fav ? ' · suka ' + esc(fav[0]) : ''}</small><small>Terakhir ${esc(fmtShort(c.last))}</small></div>
-        ${c.phone ? `<a class="wa" target="_blank" rel="noopener" href="https://wa.me/6${esc(c.phone)}?text=${encodeURIComponent('Hai ' + (c.name || '') + '! Soft Cookies ada stok baru 🍪 Nak saya simpankan?')}">WhatsApp</a>` : ''}</div>`; }).join('')}</div></div>`
-      : '<div class="gcard empty2">Belum ada rekod pelanggan. Isi nama pelanggan semasa rekod jualan dalam halaman stok.</div>';
-  }
+  let curCust = null; const cuState = { q: '', sort: 'spend' };
+  const cuH = () => ({ esc, RM, initials, fmtDate, toast, flavours: FLAVOURS, normPhone: API.normPhone, validPhone, sender: () => D.agent.name });
+  function renderCust() { SC_CUST.renderList($('clist'), purchases(), cuState, cuH(), renderCust); }
+  function renderCustDetail() { const all = customers(); SC_CUST.renderDetail($('cu-detail'), all.find((c) => c.key === curCust), all, cuH()); }
+  $('clist').addEventListener('click', (e) => {
+    const c = e.target.closest('[data-cust]'); if (c) { curCust = c.dataset.cust; tab = 'custd'; render(); window.scrollTo({ top: 0 }); }
+  });
+  $('cu-detail').addEventListener('click', (e) => { if (e.target.closest('a')) return; const t = e.target.closest('[data-ref]'); if (t) openDist(t.dataset.ref); });
+
 
   /* ---------- profit tab ---------- */
   function renderStats() {
@@ -446,12 +473,15 @@
   /* ---------- profile ---------- */
   function renderMe() {
     $('p-av').textContent = initials(D.agent.name); $('p-name').textContent = D.agent.name; $('p-code').textContent = D.agent.code + (D.agent.phone ? ' · ' + D.agent.phone : '');
-    $('p-sp').textContent = 'Salesperson: ' + (D.sp.name || '-'); $('p-spph').textContent = D.sp.phone || '';
+    $('p-sp').textContent = D.sp.name || '-'; $('p-spph').textContent = D.sp.phone || '';
     $('p-wa').href = D.sp.phone ? `https://wa.me/6${D.sp.phone}` : '#'; $('p-wa').classList.toggle('hidden', !D.sp.phone);
     const pays = [...D.payments].sort((a, b) => b.date.localeCompare(a.date)), o = owe();
     $('p-pays').innerHTML = `<div class="payrow"><span><b class="${o > 0.004 ? 'neg' : 'pos'}">${o > 0.004 ? RM(o) : 'Tiada hutang ✓'}</b><small>Baki perlu dibayar</small></span></div>` +
       (pays.length ? pays.map((y) => `<div class="payrow"><span><b>${RM(y.amount)}</b><small>${esc(fmtDate(y.date))}${y.note ? ' · ' + esc(y.note) : ''}</small></span><span class="pill st-Siap">Diterima</span></div>`).join('') : '<p class="none" style="margin:10px 0;font-size:13px;color:var(--muted)">Belum ada bayaran direkod oleh salesperson.</p>');
   }
+  $('m-stock').onclick = () => go('stock'); $('m-cust').onclick = () => go('cust');
+  $('m-install').onclick = () => SC_HELP.installSheet(openModal, toast, 'ngap Agent');
+  $('m-guide').onclick = () => SC_HELP.guideSheet(openModal, 'agent');
   $('m-price').onclick = () => {
     const p = getProf().prices || { sell: '', items: {} };
     openModal(`<span class="kicker">Harga jual saya</span><h2>Harga jual</h2><p class="muted" style="margin:2px 0 10px">Harga asas seunit kepada pelanggan. Isi perisa tertentu hanya jika berbeza. Harga dalam setiap jualan boleh diubah.</p>

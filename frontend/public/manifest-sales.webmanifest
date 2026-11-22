@@ -1,8 +1,8 @@
 {
   "name": "ngap · Salesperson",
   "short_name": "ngap Sales",
-  "start_url": "sales.html",
-  "scope": "./",
+  "start_url": "/sales",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F2E4CF",
@@ -23,5 +23,6 @@
       "sizes": "180x180",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "/sales"
 }

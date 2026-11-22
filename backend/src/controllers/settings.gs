@@ -5,7 +5,7 @@
 function publicSettings_() {
   var s = settings_();
   return { ok: true, settings: { hqPrice: s.hqPrice, capacity: s.capacity, cutoffDays: s.cutoffDays, cutoffHour: s.cutoffHour,
-           unavailable: s.unavailable, earliest: earliest_(s), load: loadByDate_('') } };
+           unavailable: s.unavailable, earliest: earliest_(s), load: loadByDate_(''), hqPhone: s.hqPhone } };
 }
 
 function adminGetSettings_(req) { checkAdmin_(req.password); var s = settings_(); s.earliest = earliest_(s); s.load = loadByDate_(''); return { ok: true, settings: s }; }
@@ -24,7 +24,8 @@ function adminSetSettings_(req) {
     cutoffDays: x.cutoffDays !== undefined ? Math.max(0, Math.min(30, Math.floor(Number(x.cutoffDays)) || 0)) : cur.cutoffDays,
     cutoffHour: x.cutoffHour !== undefined ? (/^\d{2}:\d{2}$/.test(x.cutoffHour) ? x.cutoffHour : '') : cur.cutoffHour,
     unavailable: x.unavailable ? x.unavailable.filter(function (id) { return FLAVOURS.some(function (f) { return f.id === id; }); }) : cur.unavailable,
-    stockAgeDays: x.stockAgeDays !== undefined ? Math.max(1, Math.min(60, Math.floor(Number(x.stockAgeDays)) || 5)) : cur.stockAgeDays
+    stockAgeDays: x.stockAgeDays !== undefined ? Math.max(1, Math.min(60, Math.floor(Number(x.stockAgeDays)) || 5)) : cur.stockAgeDays,
+    hqPhone: x.hqPhone !== undefined ? (String(x.hqPhone).trim() ? agentPhone_(x.hqPhone) : '') : cur.hqPhone   // WhatsApp number for "Hubungi HQ"
   };
   PropertiesService.getScriptProperties().setProperty('SETTINGS', JSON.stringify(next));
   log_('Admin', 'Tetapan HQ', Object.keys(x).join(', '), '');

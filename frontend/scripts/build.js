@@ -30,11 +30,17 @@ fs.rmSync(dist, { recursive: true, force: true });
 copyDir(path.join(root, 'public'), dist);
 copyDir(path.join(root, 'src'), path.join(dist, 'ordering'));
 
+// Clean URLs: sales.html -> /sales/index.html (served at /sales, /sales/stok, ...). Old *.html links are redirected.
+const APPS = ['sales', 'agent', 'admin'];
 const build = Date.now().toString(36);
-for (const f of fs.readdirSync(dist).filter((n) => n.endsWith('.html'))) {
-  const p = path.join(dist, f);
-  fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace(/(ordering\/[\w.-]+\.(?:js|css))\?v=\w+/g, `$1?v=${build}`));
+for (const app of APPS) {
+  const from = path.join(dist, app + '.html');
+  const html = fs.readFileSync(from, 'utf8').replace(/(ordering\/[\w.-]+\.(?:js|css))\?v=\w+/g, `$1?v=${build}`);
+  fs.mkdirSync(path.join(dist, app), { recursive: true });
+  fs.writeFileSync(path.join(dist, app, 'index.html'), html);
+  fs.unlinkSync(from);
 }
+fs.rmSync(path.join(dist, 'order.html'), { force: true });   // replaced by a redirect (netlify.toml)
 
 const url = (process.env.SCRIPT_URL || '').trim();
 const cfg = path.join(dist, 'ordering', 'config.js');
