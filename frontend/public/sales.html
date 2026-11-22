@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="ordering/ordering.css?v=7">
-<link rel="stylesheet" href="ordering/agent.css?v=27">
+<link rel="stylesheet" href="ordering/agent.css?v=28">
 </head>
 <body class="glass">
 <header class="lt-bar">
@@ -50,6 +50,7 @@
   <section data-tab="home" class="hidden">
     <div class="hello"><b id="hello">Hai!</b><span id="hello-sub">Ringkasan bulan ini</span></div>
     <div id="h-ann"></div>
+    <div id="h-notif"></div>
     <div id="h-remind"></div>
 
     <button class="hero" type="button" data-go="stats">
@@ -65,7 +66,7 @@
     </button>
 
     <div class="qa">
-      <button class="qa-main" type="button" data-go="new"><img src="img/chocolate-chip.webp" alt=""><span><b>Order Baru</b><small>Pilih perisa &amp; hantar</small></span><i>+</i></button>
+      <button class="qa-main" type="button" data-go="new"><img src="img/chocolate-chip.webp" alt=""><span><b>Order Baru</b><small id="qa-cut">Pilih perisa &amp; hantar</small></span><i>+</i></button>
       <button class="qa-side" type="button" id="tile-price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg>Harga<br>saya</button>
     </div>
 
@@ -239,6 +240,7 @@
           </label>
         </div>
         <p class="cap-info" id="cap-info"></p>
+        <div class="capcal" id="cap-cal" aria-label="Kapasiti 14 hari"></div>
         <label class="f hidden" id="addr-wrap">Alamat penghantaran
           <textarea class="inp" id="f-address" rows="3" placeholder="No. rumah, jalan, taman, poskod, bandar"></textarea>
         </label>
@@ -374,6 +376,7 @@
     capInfo();
   }
   function capInfo() {
+    capCal();
     const el = $('cap-info'); if (!el) return;
     const d = $('f-date').value, cap = Number(hqSet.capacity) || 0;
     if (!d) { el.textContent = hqSet.earliest ? `Tarikh terawal boleh order: ${fmtDate(hqSet.earliest)}` : ''; el.className = 'cap-info'; return; }
@@ -594,7 +597,7 @@
 
   /* ---------- my orders (from server by phone) ---------- */
   let mine = [], mineFilter = 'active', period = 'this', loadingMine = false;
-  let hq = { invoices: [], payments: [], target: 0, pending: 0 };
+  let hq = { invoices: [], payments: [], target: 0, pending: 0, statusLog: {}, requests: [] };
   const invOf = (code) => hq.invoices.find((v) => v.code === code);
   function invPrice(code, id) { const v = invOf(code); const p = v && v.prices ? v.prices[id] : null; return p === null || p === undefined ? null : Number(p); }
   const hqOwe = () => hq.invoices.reduce((a, v) => a + v.amount, 0) - hq.payments.reduce((a, y) => a + y.amount, 0);
@@ -644,7 +647,7 @@
     try {
       const [res, ag] = await Promise.all([API.myOrders(pr.phone), API.agentGet(pr.phone).catch(() => null), fetchNet()]);
       mine = res.orders || [];
-      hq = { invoices: res.invoices || [], payments: res.hqPayments || [], target: res.hqTarget || 0, pending: res.pendingRequests || 0 };
+      hq = { invoices: res.invoices || [], payments: res.hqPayments || [], target: res.hqTarget || 0, pending: res.pendingRequests || 0, statusLog: res.statusLog || {}, requests: res.requests || [] };
       if (res.settings) { hqSet = res.settings; applySettings(); }
       if (ag) mergeAgent(ag, mine);
     }
@@ -729,6 +732,7 @@
         <div class="kpis" id="d-kpi"></div>
         ${o.method === 'Hantar' && o.address ? `<div class="r2">📍 ${esc(o.address)}</div>` : ''}
         ${o.notes ? `<div class="r2">📝 ${esc(o.notes)}</div>` : ''}
+        <p class="sec-h" style="margin-top:14px">Status order</p>${timelineHTML(o)}
         <div class="dacts"><button class="btn btn-o btn-sm" type="button" id="d-edit">Edit order</button><button class="btn btn-o btn-sm" type="button" id="d-again">Order semula</button><button class="btn btn-o btn-sm" type="button" id="d-share">Kongsi WhatsApp</button>${cancelled ? '' : '<button class="btn btn-o btn-sm" type="button" id="d-def">Guna harga asas</button>'}${cancelled || LOCKED.includes(o.status) ? '' : '<button class="btn btn-d btn-sm" type="button" id="d-cancel">Batalkan order</button>'}${!cancelled && LOCKED.includes(o.status) ? '<button class="btn btn-o btn-sm" type="button" id="d-ask">Minta HQ batalkan</button>' : ''}</div>
       </div>
       ${cancelled ? '<div class="warnbox">Order ini dibatalkan, jadi tidak dikira dalam untung.</div>' : ''}
@@ -964,8 +968,9 @@
     // owed to HQ
     const ow = hqOwe();
     $('h-hq').innerHTML = hq.invoices.length ? `<button class="gcard oweC hqc" type="button" id="hq-open"><div><small>${ow > 0.004 ? 'Perlu bayar kepada HQ' : 'Bayaran kepada HQ'}</small><b class="${ow > 0.004 ? 'neg' : 'pos'}">${ow > 0.004 ? RM(ow) : 'Selesai ✓'}</b>
-      <small>Invois ${RM(hq.invoices.reduce((a, v) => a + v.amount, 0))} · dibayar ${RM(hq.payments.reduce((a, y) => a + y.amount, 0))}</small></div><span class="wa">Lihat</span></button>` : '';
+      <small>Invois ${RM(hq.invoices.reduce((a, v) => a + v.amount, 0))} · dibayar ${RM(hq.payments.reduce((a, y) => a + y.amount, 0))}</small>${(() => { const iv = invStatus(); return iv.overdue.length ? `<small class="neg" style="font-weight:700">${iv.overdue.length} invois tertunggak · ${RM(iv.overdueAmt)}</small>` : ''; })()}</div><span class="wa">Lihat</span></button>` : '';
     const ho = $('hq-open'); if (ho) ho.onclick = () => go('pg-invois');
+    renderNotif(); { const c = hqSet.cutoffHour ? cutoffText(true) : ''; if (c) $('qa-cut').textContent = c; }
 
     // network summary
     if (net.agents.length) {
@@ -1413,18 +1418,100 @@
       return false;
     } finally { busy($('sp-btn'), false); }
   }
+
+  /* ---------- HQ sync helpers: invoice terms, cut-off countdown, capacity, notifications ---------- */
+  const addDaysISO = (iso, n) => { const [y, m, d] = iso.split('-').map(Number), t = new Date(y, m - 1, d + n); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; };
+  const daysBetween = (a, b) => { const p = (x) => { const [y, m, d] = x.split('-').map(Number); return new Date(y, m - 1, d); }; return Math.round((p(b) - p(a)) / 864e5); };
+  function invStatus() {
+    const al = SC_FIN.allocate(hq.invoices, hq.payments), term = hqSet.invoiceTermDays === undefined || hqSet.invoiceTermDays === null ? 14 : Number(hqSet.invoiceTermDays), t0 = todayISO();
+    const rows = hq.invoices.map((v) => { const a = al[v.code] || { paid: 0, due: v.amount, status: 'Belum bayar' }, due = addDaysISO(v.date, term), late = a.due > 0.004 ? Math.max(0, daysBetween(due, t0)) : 0;
+      return Object.assign({}, v, { paid: a.paid, bal: a.due, pst: a.status, dueDate: due, late }); });
+    const od = rows.filter((x) => x.late > 0);
+    return { term, rows, overdue: od, overdueAmt: od.reduce((a, x) => a + x.bal, 0) };
+  }
+  // "Order untuk Rabu tutup dalam 2j 15m" — from HQ cut-off settings
+  function cutoffText(short) {
+    const e = hqSet.earliest, hh = hqSet.cutoffHour; if (!e) return '';
+    if (!hh) return `Tarikh terawal boleh order: ${fmtDate(e)}`;
+    const [H, M] = hh.split(':').map(Number), now = new Date(), dl = new Date(now); dl.setHours(H, M, 0, 0); if (dl <= now) dl.setDate(dl.getDate() + 1);
+    const mins = Math.max(0, Math.round((dl - now) / 6e4)), left = mins >= 60 ? `${Math.floor(mins / 60)}j ${mins % 60}m` : `${mins} minit`;
+    return short ? `Order esok tutup dalam ${left}` : `Order untuk ${fmtDate(e)} tutup dalam ${left}`;
+  }
+  function capCal() {
+    const el = $('cap-cal'); if (!el) return;
+    const e = hqSet.earliest || todayISO(), cap = Number(hqSet.capacity) || 0, sel = $('f-date').value, own = tab === 'mine' && editing && drafts.edit ? drafts.edit : null;
+    const days = [...Array(14)].map((_, i) => addDaysISO(e, i));
+    el.innerHTML = `<p class="cc-h">${esc(cutoffText())}</p><div class="cc-row">${days.map((d) => {
+      const used = ((hqSet.load || {})[d] || 0) - (own && own.date === d ? own.total || 0 : 0), left = cap ? cap - used : null, full = cap && left <= 0;
+      const [y, m, dd] = d.split('-').map(Number), wd = new Date(y, m - 1, dd).toLocaleDateString('ms-MY', { weekday: 'short' });
+      return `<button type="button" class="cc-d${d === sel ? ' on' : ''}${full ? ' full' : cap && left < cap * 0.2 ? ' low' : ''}" data-cc="${d}"${full ? ' disabled' : ''} aria-label="${esc(fmtDate(d))}${cap ? `: ${full ? 'penuh' : left + ' biji lagi'}` : ''}">
+        <small>${esc(wd)}</small><b>${dd}</b><em>${!cap ? '–' : full ? 'Penuh' : left + ' lagi'}</em></button>`; }).join('')}</div>`;
+    el.querySelectorAll('[data-cc]').forEach((b) => b.onclick = () => { $('f-date').value = b.dataset.cc; $('f-date').dispatchEvent(new Event('change')); });
+  }
+  const ST_MSG = { 'Disahkan': 'HQ dah sahkan order anda.', 'Dibakar': 'Order anda sedang dibakar 🔥', 'Siap': 'Order anda dah siap — sedia diambil / dihantar ✅', 'Selesai': 'Order selesai. Terima kasih!', 'Dibatalkan': 'Order ini dibatalkan.' };
+  function renderNotif() {
+    const el = $('h-notif'); if (!el) return;
+    const seenSt = store.get('seen-st', null), seenRq = store.get('seen-rq', []), items = [];
+    if (!seenSt) { const init = {}; mine.forEach((o) => { init[o.code] = o.status; }); store.set('seen-st', init); }
+    else mine.forEach((o) => { if (seenSt[o.code] && seenSt[o.code] !== o.status && ST_MSG[o.status]) items.push({ k: 'st:' + o.code, t: `${o.code} → ${o.status}`, d: ST_MSG[o.status] + ` (${fmtDate(o.date)}, ${o.total} biji)`, code: o.code }); });
+    const RT = { batal: 'Batalkan order', diskaun: 'Diskaun invois', bayaran: 'Bukti bayaran', lain: 'Permintaan' };
+    hq.requests.filter((r) => (r.status === 'Diluluskan' || r.status === 'Ditolak') && !seenRq.includes(r.id)).forEach((r) =>
+      items.push({ k: 'rq:' + r.id, t: `${RT[r.type] || 'Permintaan'} ${r.status === 'Diluluskan' ? 'diluluskan ✓' : 'ditolak'}`, d: `${r.id}${r.ref ? ' · ' + r.ref : ''}${r.type === 'bayaran' || r.type === 'diskaun' ? ' · ' + RM(r.amount) : ''}${r.reason ? ' — HQ: ' + r.reason : ''}`, bad: r.status === 'Ditolak' }));
+    const iv = invStatus(); if (iv.overdue.length) items.unshift({ k: 'od', t: `${iv.overdue.length} invois HQ tertunggak`, d: `${RM(iv.overdueAmt)} melepasi tempoh bayar ${iv.term} hari. Hantar bukti bayaran di Invois HQ.`, bad: true, sticky: true, go: 'pg-invois' });
+    el.innerHTML = items.map((x) => `<div class="ntf${x.bad ? ' bad' : ''}"><span class="ntf-ic">${x.bad ? '⚠' : '🔔'}</span><button type="button" class="ntf-t" data-nopen="${esc(x.k)}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>${x.sticky ? '' : `<button type="button" class="ntf-x" data-nx="${esc(x.k)}" aria-label="Tutup">×</button>`}</div>`).join('');
+    el.querySelectorAll('[data-nx]').forEach((b) => b.onclick = () => { const k = b.dataset.nx;
+      if (k.startsWith('st:')) { const m2 = store.get('seen-st', {}), o = mine.find((x) => x.code === k.slice(3)); if (o) m2[o.code] = o.status; store.set('seen-st', m2); }
+      else store.set('seen-rq', store.get('seen-rq', []).concat(k.slice(3)).slice(-100));
+      renderNotif(); });
+    el.querySelectorAll('[data-nopen]').forEach((b) => b.onclick = () => { const x = items.find((y) => y.k === b.dataset.nopen); if (!x) return;
+      if (x.go) return go(x.go); if (x.code) { const o = mine.find((y) => y.code === x.code); if (o) { b.parentElement.querySelector('[data-nx]')?.click(); openDetail(o); } } else go('pg-minta'); });
+    // keep newly seen orders in the map so the first change after an order is created still notifies
+    const m3 = store.get('seen-st', {}); let ch = false; mine.forEach((o) => { if (!m3[o.code]) { m3[o.code] = o.status; ch = true; } }); if (ch) store.set('seen-st', m3);
+  }
+  function timelineHTML(o) {
+    const steps = ['Baru', 'Disahkan', 'Dibakar', 'Siap', 'Selesai'], log = hq.statusLog[o.code] || [], at = {};
+    log.forEach((x) => { at[x.status] = x.at; });
+    if (!at.Baru) at.Baru = o.createdAt;
+    const cur = o.status === 'Dikemaskini' ? 0 : steps.indexOf(o.status);
+    if (o.status === 'Dibatalkan') return `<div class="tl"><div class="tl-s done"><i></i><span><b>Baru</b><small>${esc(at.Baru || '')}</small></span></div><div class="tl-s cancel"><i></i><span><b>Dibatalkan</b><small>${esc(at.Dibatalkan || o.updatedAt || '')}</small></span></div></div>`;
+    return `<div class="tl">${steps.map((st, i) => `<div class="tl-s${i <= cur ? ' done' : ''}${i === cur ? ' cur' : ''}"><i></i><span><b>${st}</b><small>${esc(at[st] || (i <= cur ? '✓' : 'belum'))}</small></span></div>`).join('')}</div>`;
+  }
+  function proofSheet() {
+    const iv = invStatus(), bal = Math.max(0, hqOwe());
+    openModal(`<span class="kicker">Bukti bayaran</span><h2>Hantar bukti bayaran ke HQ</h2>
+      <p class="muted" style="margin:4px 0 12px">HQ akan semak dengan akaun bank. Bila disahkan, bayaran terus direkod dan invois dilunaskan (paling lama dahulu).</p>
+      <form id="pf-f" class="fields" novalidate>
+        <div class="fields two"><label class="f">Jumlah dibayar (RM)<input class="inp" id="pf-amt" inputmode="decimal" value="${bal > 0 ? bal.toFixed(2) : ''}"></label>
+        <label class="f">Tarikh bayar<input class="inp" id="pf-date" type="date" value="${todayISO()}"></label></div>
+        <label class="f">No. rujukan / transaksi bank<input class="inp" id="pf-ref" placeholder="cth. MBB1234567 / DuitNow ref"></label>
+        <label class="f">Nota <small>Pilihan</small><input class="inp" id="pf-note" placeholder="cth. bayar invois SC-0002 & SC-0005"></label>
+        ${iv.overdue.length ? `<p class="muted" style="margin:0;font-size:12.5px">Tertunggak sekarang: <b class="neg">${RM(iv.overdueAmt)}</b> (${iv.overdue.map((x) => x.code).join(', ')})</p>` : ''}
+        <div class="acts"><button class="btn btn-o" type="button" id="pf-back">Kembali</button><button class="btn btn-p" type="submit" id="pf-go">Hantar ke HQ</button></div>
+      </form>`);
+    $('pf-back').onclick = hqSheet;
+    $('pf-f').onsubmit = async (e) => { e.preventDefault(); const amt = num($('pf-amt').value); if (!amt) return toast('Isi jumlah dibayar.', true);
+      $('pf-go').disabled = true;
+      try { await API.spAddRequest({ type: 'bayaran', amount: amt, date: $('pf-date').value, bankRef: $('pf-ref').value.trim(), detail: $('pf-note').value.trim() });
+        toast('Bukti bayaran dihantar. HQ akan sahkan.'); await fetchMine(); hqSheet(); } catch (err) { toast(err.message, true); $('pf-go').disabled = false; } };
+  }
+
   function hqSheet() {
     const inv = [...hq.invoices].sort((a, b) => b.date.localeCompare(a.date)), pays = [...hq.payments].sort((a, b) => b.date.localeCompare(a.date)), ow = hqOwe();
-    const alloc = SC_FIN.allocate(hq.invoices, hq.payments);
+    const alloc = SC_FIN.allocate(hq.invoices, hq.payments), IV = invStatus(), byCode = Object.fromEntries(IV.rows.map((x) => [x.code, x]));
+    const pendPay = hq.requests.filter((r) => r.type === 'bayaran' && r.status === 'Menunggu');
     openModal(`<span class="kicker">Invois & bayaran HQ</span><h2 class="${ow > 0.004 ? 'neg' : 'pos'}">${ow > 0.004 ? 'Baki ' + RM(ow) : 'Tiada hutang ✓'}</h2>
-      <p class="sec-h">Invois</p><div class="clist">${inv.map((v) => { const al = alloc[v.code] || {}; return `<div class="payrow"><span><b>${esc(v.code)} · ${RM(v.amount)}</b><small>${esc(fmtDate(v.date))} · ${v.total} biji · ${esc(v.status)}${v.disc ? ' · diskaun HQ ' + RM(v.disc) : ''}${v.missing ? ' · harga HQ belum lengkap' : ''}${al.status === 'Separa' ? ' · baki ' + RM(al.due) : ''}</small></span>${SC_FIN.payPill(al.status || 'Belum bayar')}</div>`; }).join('') || '<p class="none">Tiada invois.</p>'}</div>
+      ${IV.overdue.length ? `<div class="ntf bad" style="margin:8px 0"><span class="ntf-ic">⚠</span><span class="ntf-t"><b>${IV.overdue.length} invois tertunggak · ${RM(IV.overdueAmt)}</b><small>Tempoh bayar ${IV.term} hari dari tarikh order.</small></span></div>` : ''}
+      <button class="btn btn-p btn-block" type="button" id="hq-proof" style="margin:10px 0 4px">Hantar bukti bayaran</button>
+      ${pendPay.length ? `<p class="sec-h">Menunggu pengesahan HQ</p><div class="clist">${pendPay.map((r) => `<div class="payrow"><span><b>${RM(r.amount)} · ${esc(r.bankRef || '')}</b><small>${esc(r.date ? fmtDate(r.date) : r.at)} · ${esc(r.id)}</small></span><span class="pill st-Baru">Disemak</span></div>`).join('')}</div>` : ''}
+      <p class="sec-h">Invois</p><div class="clist">${inv.map((v) => { const al = alloc[v.code] || {}, X = byCode[v.code] || {}; return `<div class="payrow"><span><b>${esc(v.code)} · ${RM(v.amount)}</b><small>${esc(fmtDate(v.date))} · ${v.total} biji · ${esc(v.status)}${v.disc ? ' · diskaun HQ ' + RM(v.disc) : ''}${v.missing ? ' · harga HQ belum lengkap' : ''}${al.status === 'Separa' ? ' · baki ' + RM(al.due) : ''}${X.bal > 0.004 ? ' · tempoh ' + fmtDate(X.dueDate) : ''}</small></span>${X.late > 0 ? `<span class="pill" style="background:#FDECEC;color:var(--bad)">Lewat ${X.late} hari</span>` : SC_FIN.payPill(al.status || 'Belum bayar')}</div>`; }).join('') || '<p class="none">Tiada invois.</p>'}</div>
       <p class="sec-h">Bayaran direkod oleh HQ</p><div class="clist">${pays.map((y) => `<div class="payrow"><span><b>${RM(y.amount)}</b><small>${esc(fmtDate(y.date))}${y.note ? ' · ' + esc(y.note) : ''}</small></span><span class="pill st-Siap">Diterima</span></div>`).join('') || '<p class="none">Belum ada bayaran.</p>'}</div>
       <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-close>Tutup</button></div>`);
   }
   $('m-hq').onclick = () => go('pg-invois');
+  document.addEventListener('click', (e) => { if (e.target.closest('#hq-proof')) proofSheet(); });
 
   /* ---------- requests to HQ (approval) ---------- */
-  const RQ_T = { batal: 'Batalkan order', diskaun: 'Diskaun invois', lain: 'Lain-lain' };
+  const RQ_T = { batal: 'Batalkan order', diskaun: 'Diskaun invois', lain: 'Lain-lain' }, RQ_ALL = Object.assign({ bayaran: 'Bukti bayaran' }, RQ_T);
   async function reqSheet(pre) {
     let L = []; try { L = (await API.spRequests()).requests || []; } catch (err) { return toast(err.message, true); }
     const open = mine.filter((o) => o.status !== 'Dibatalkan').sort((a, b) => b.date.localeCompare(a.date));
@@ -1438,7 +1525,7 @@
         <label class="f">Sebab<textarea class="inp" id="rq-why" rows="3" placeholder="Terangkan kepada HQ…"></textarea></label>
         <button class="btn btn-p btn-block" type="submit" id="rq-go">Hantar permintaan</button>
       </form>
-      <p class="sec-h">Permintaan saya</p><div class="clist">${L.map((r) => `<div class="payrow"><span><b>${esc(r.id)} · ${esc(RQ_T[r.type] || r.type)}${r.ref ? ' · ' + esc(r.ref) : ''}</b><small>${esc(r.at)}${r.type === 'diskaun' ? ' · ' + RM(r.amount) : ''} · ${esc(r.detail)}</small>${r.reason ? `<small>HQ: ${esc(r.reason)}</small>` : ''}</span>
+      <p class="sec-h">Permintaan saya</p><div class="clist">${L.map((r) => `<div class="payrow"><span><b>${esc(r.id)} · ${esc(RQ_ALL[r.type] || r.type)}${r.ref ? ' · ' + esc(r.ref) : ''}</b><small>${esc(r.at)}${r.type === 'diskaun' ? ' · ' + RM(r.amount) : ''} · ${esc(r.detail)}</small>${r.reason ? `<small>HQ: ${esc(r.reason)}</small>` : ''}</span>
         <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="pill ${r.status === 'Menunggu' ? 'st-Baru' : r.status === 'Diluluskan' ? 'st-Siap' : 'st-Dibatalkan'}">${esc(r.status)}</span>${r.status === 'Menunggu' ? `<button class="linkbtn" type="button" data-rqx="${esc(r.id)}">Tarik balik</button>` : ''}</span></div>`).join('') || '<p class="none">Belum ada permintaan.</p>'}</div>
       <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-close>Tutup</button></div>`);
     const sync = () => { const t = $('rq-type').value; $('rq-ref-w').classList.toggle('hidden', t === 'lain'); $('rq-amt-w').classList.toggle('hidden', t !== 'diskaun'); };

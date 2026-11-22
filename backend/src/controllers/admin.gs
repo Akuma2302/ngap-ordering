@@ -58,13 +58,16 @@ function adminAddHQPayment_(req) {
   var phone = req.sp ? spRow_(req.sp).sp.phone : agentPhone_(req.phone), amt = Math.round((Number(req.amount) || 0) * 100) / 100;
   if (!phone) throw new Error('Salesperson ini belum ada nombor telefon.');
   if (amt <= 0) throw new Error('Sila isi jumlah bayaran.');
-  return withLock_(function () {
-    var t = table_('BayaranHQ', HP_H), id = nextNo_('LAST_HQPAY_NO', 'HP-');
-    var row = [id, phone, String(req.date || Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd')), String(amt), String(req.note || '').slice(0, 200), stamp_()];
-    var r = t.sh.getLastRow() + 1; t.sh.getRange(r, 1, 1, row.length).setNumberFormat('@').setValues([row]);
-    log_('Admin', 'Bayaran HQ', id, (req.sp || phone) + ' · RM' + amt.toFixed(2));
-    return { ok: true };
-  });
+  return withLock_(function () { insertHQPay_(phone, amt, req.date, req.note, req.sp || phone); return { ok: true }; });
+}
+
+// Record one salesperson -> HQ payment. Call inside withLock_.
+function insertHQPay_(phone, amt, date, note, who) {
+  var t = table_('BayaranHQ', HP_H), id = nextNo_('LAST_HQPAY_NO', 'HP-');
+  var row = [id, phone, String(date || Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd')), String(amt), String(note || '').slice(0, 200), stamp_()];
+  var r = t.sh.getLastRow() + 1; t.sh.getRange(r, 1, 1, row.length).setNumberFormat('@').setValues([row]);
+  log_('Admin', 'Bayaran HQ', id, who + ' · RM' + amt.toFixed(2));
+  return id;
 }
 
 function adminDeleteHQPayment_(req) {

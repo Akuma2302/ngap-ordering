@@ -161,7 +161,7 @@ function adminPayPurchase_(req) {
 }
 
 /* ---------- approvals ---------- */
-var REQ_TYPES = { batal: 'Batalkan order', diskaun: 'Diskaun invois', lain: 'Lain-lain' };
+var REQ_TYPES = { batal: 'Batalkan order', diskaun: 'Diskaun invois', bayaran: 'Bukti bayaran', lain: 'Lain-lain' };
 
 function spRequests_(req) {
   var me = String(req.sp || '').toLowerCase();
@@ -170,7 +170,13 @@ function spRequests_(req) {
 
 function spAddRequest_(req) {
   var type = REQ_TYPES[req.type] ? req.type : 'lain', detail = String(req.detail || '').trim().slice(0, 500), ref = '', amount = 0;
-  if (type !== 'lain') {
+  var bank = '', pdate = '';
+  if (type === 'bayaran') {
+    amount = r2_(req.amount); bank = String(req.bankRef || '').trim().slice(0, 60); pdate = isoDate_(req.date);
+    if (amount <= 0) throw new Error('Sila isi jumlah yang dibayar.');
+    if (!bank) throw new Error('Sila isi no. rujukan / transaksi bank.');
+    detail = detail || ('Bayaran ke HQ · ' + bank);
+  } else if (type !== 'lain') {
     var found = find_(req.ref);
     if (normPhone_(found.order.phone) !== req.phone) throw new Error('Order ini bukan milik anda.');
     ref = found.order.code;
@@ -187,7 +193,8 @@ function spAddRequest_(req) {
     var t = table_('Permintaan', RQ_H);
     if (ref && t.rows.some(function (r) { return r[4] === ref && r[3] === type && r[7] === 'Menunggu'; })) throw new Error('Permintaan untuk ' + ref + ' masih menunggu keputusan HQ.');
     var id = nextNo_('LAST_REQ_NO', 'RQ-');
-    appendRow_(t, RQ_H, [id, stamp_(), String(req.sp), type, ref, detail, json64_({ amount: amount }), 'Menunggu', '', '', '']);
+    if (type === 'bayaran' && t.rows.some(function (r) { return r[3] === 'bayaran' && r[7] === 'Menunggu' && parse_(r[6]).bankRef === bank; })) throw new Error('Bukti bayaran dengan rujukan ini sedang disemak HQ.');
+    appendRow_(t, RQ_H, [id, stamp_(), String(req.sp), type, ref, detail, json64_({ amount: amount, bankRef: bank, date: pdate }), 'Menunggu', '', '', '']);
     log_(req.sp, 'Permintaan', id, REQ_TYPES[type] + (ref ? ' · ' + ref : ''));
     return { ok: true, id: id };
   });
@@ -213,6 +220,8 @@ function adminDecide_(req) {
     var r = reqObj_(t.rows[i]); if (r.status !== 'Menunggu') throw new Error('Permintaan ini sudah diputuskan.');
     if (ok && r.type === 'batal') setOrderStatus_(r.ref, 'Dibatalkan', 'Admin (' + r.id + ')');
     if (ok && r.type === 'diskaun') setInvoiceDisc_(r.ref, r.amount);
+    if (ok && r.type === 'bayaran') { var sp = spRow_(r.sp).sp; if (!sp.phone) throw new Error('Salesperson ini belum ada nombor telefon.');
+      insertHQPay_(sp.phone, r.amount, r.date || today_(), 'Bukti ' + (r.bankRef || '') + ' (' + r.id + ')', r.sp); }
     setCells_(t, i, 8, [ok ? 'Diluluskan' : 'Ditolak', 'Admin', stamp_(), reason]);
     log_('Admin', ok ? 'Lulus permintaan' : 'Tolak permintaan', r.id, REQ_TYPES[r.type] + (r.ref ? ' · ' + r.ref : '') + (reason ? ' · ' + reason : ''));
     return { ok: true };

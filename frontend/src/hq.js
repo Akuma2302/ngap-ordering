@@ -7,7 +7,7 @@
   const val = (id) => ($(id) ? $(id).value.trim() : '');
   const num = (v) => { v = String(v ?? '').replace(',', '.').trim(); return v === '' || !isFinite(Number(v)) ? null : Number(v); };
   const monthOf = (iso) => String(iso || '').slice(0, 7);
-  const REQ = { batal: 'Batalkan order', diskaun: 'Diskaun invois', lain: 'Lain-lain' };
+  const REQ = { batal: 'Batalkan order', diskaun: 'Diskaun invois', bayaran: 'Bukti bayaran', lain: 'Lain-lain' };
   const close = '<div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-gclose>Tutup</button></div>';
 
   async function act(fn, msg, after) {
@@ -181,13 +181,13 @@
     const who = (code) => { const s = S.sps.find((x) => x.code === code); return s ? `${s.name} (${s.code})` : code; };
     const card = (r) => { const o = r.ref ? S.orders.find((x) => x.code === r.ref) : null, v = r.ref ? S.invs.find((x) => x.code === r.ref) : null;
       return `<div class="oc" style="margin-bottom:10px"><div class="oc-top"><span class="oc-code">${C.esc(r.id)} · ${C.esc(REQ[r.type] || r.type)}</span><span class="pill ${r.status === 'Menunggu' ? 'st-Baru' : r.status === 'Diluluskan' ? 'st-Siap' : 'st-Dibatalkan'}">${C.esc(r.status)}</span></div>
-        <div class="oc-when"><b>${C.esc(who(r.sp))}</b> · ${C.esc(r.at)}${r.ref ? ` · ${C.esc(r.ref)}${o ? ' (' + C.esc(o.status) + ', ' + o.total + ' biji)' : ''}` : ''}${r.type === 'diskaun' ? ` · diskaun <b>${C.RM(r.amount)}</b>${v ? ' daripada ' + C.RM(v.amount + (v.disc || 0)) : ''}` : ''}</div>
+        <div class="oc-when"><b>${C.esc(who(r.sp))}</b> · ${C.esc(r.at)}${r.ref ? ` · ${C.esc(r.ref)}${o ? ' (' + C.esc(o.status) + ', ' + o.total + ' biji)' : ''}` : ''}${r.type === 'diskaun' ? ` · diskaun <b>${C.RM(r.amount)}</b>${v ? ' daripada ' + C.RM(v.amount + (v.disc || 0)) : ''}` : ''}${r.type === 'bayaran' ? ` · <b>${C.RM(r.amount)}</b> · rujukan bank <b>${C.esc(r.bankRef || '-')}</b>${r.date ? ' · dibayar ' + C.esc(C.fmtDate(r.date)) : ''}` : ''}</div>
         <div class="oc-note">${C.esc(r.detail)}</div>
         ${r.status === 'Menunggu' ? `<div class="oc-foot"><button class="btn btn-o btn-sm" type="button" data-rj="${C.esc(r.id)}">Tolak</button><button class="btn btn-p btn-sm" type="button" data-ap="${C.esc(r.id)}">Lulus</button></div>` : `<div class="meta2">${C.esc(r.by || '')} · ${C.esc(r.decidedAt || '')}${r.reason ? ' · ' + C.esc(r.reason) : ''}</div>`}</div>`; };
-    C.openG(`<h2>Kelulusan</h2><p class="muted" style="margin:2px 0 10px">Lulus <b>batal order</b> terus membatalkan order; lulus <b>diskaun</b> terus mengurangkan invois.</p>
+    C.openG(`<h2>Kelulusan</h2><p class="muted" style="margin:2px 0 10px">Lulus <b>batal order</b> terus membatalkan order; lulus <b>diskaun</b> terus mengurangkan invois; lulus <b>bukti bayaran</b> (selepas semak akaun bank) terus merekod bayaran HQ.</p>
       ${pend.map(card).join('') || '<p class="muted">Tiada permintaan menunggu. 👍</p>'}
       ${done.length ? `<p class="sec-h">Sejarah</p>${done.map(card).join('')}` : ''}${close}`);
-    document.querySelectorAll('[data-ap]').forEach((b) => b.onclick = () => { if (!confirm('Luluskan ' + b.dataset.ap + '?')) return; act(() => C.API.adminDecide(C.pw(), b.dataset.ap, 'Diluluskan', ''), 'Diluluskan.', async () => { await C.reload(); approvalsSheet(); }); });
+    document.querySelectorAll('[data-ap]').forEach((b) => b.onclick = () => { const rq = D.requests.find((x) => x.id === b.dataset.ap); if (!confirm(rq && rq.type === 'bayaran' ? `Sahkan bayaran ${C.RM(rq.amount)} (rujukan ${rq.bankRef}) dah masuk akaun HQ?` : 'Luluskan ' + b.dataset.ap + '?')) return; act(() => C.API.adminDecide(C.pw(), b.dataset.ap, 'Diluluskan', ''), 'Diluluskan.', async () => { await C.reload(); approvalsSheet(); }); });
     document.querySelectorAll('[data-rj]').forEach((b) => b.onclick = () => { const r = prompt('Sebab tolak ' + b.dataset.rj + '?'); if (!r) return; act(() => C.API.adminDecide(C.pw(), b.dataset.rj, 'Ditolak', r), 'Ditolak.', approvalsSheet); });
   }
 

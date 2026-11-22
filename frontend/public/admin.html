@@ -474,7 +474,7 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
 <script src="ordering/apphelp.js?v=2"></script>
 <script src="ordering/finance.js?v=1"></script>
 <script src="ordering/customers.js?v=1"></script>
-<script src="ordering/hq.js?v=1"></script>
+<script src="ordering/hq.js?v=2"></script>
 <script src="ordering/charts.js?v=2"></script>
 <script src="ordering/metrics.js?v=1"></script>
 <script>
@@ -1240,10 +1240,10 @@ body.picking{padding-bottom:calc(var(--tabbar) + var(--safe-b) + 90px)}
     $('d-age-t').querySelectorAll('[data-age]').forEach((el) => el.addEventListener('click', (e) => { if (!e.target.closest('a')) hqPaySheet(el.dataset.age); }));
     CH.tableToggle($('p-age'), ['Umur', 'RM'], rc.buckets.map(([l, v]) => [l, RM(v)]));
     // action centre
-    const H = SC_HQ.data(), RQT = { batal: 'Batal order', diskaun: 'Diskaun invois', lain: 'Lain-lain' };
+    const H = SC_HQ.data(), RQT = { batal: 'Batal order', diskaun: 'Diskaun invois', bayaran: 'Bukti bayaran', lain: 'Lain-lain' };
     const pendL = H.requests.filter((x) => x.status === 'Menunggu').sort((a, b) => a.at.localeCompare(b.at));
     $('d-appr').innerHTML = !hqOk ? '<div class="ch-empty">Data HQ tak dapat dimuat. Tekan muat semula.</div>' : pendL.length ? `<div class="alist">${pendL.slice(0, 6).map((x) => { const sp = sps.find((y) => y.code === x.sp) || {};
-      return `<button class="al-r" type="button" data-so="approvals"><span><b>${esc(RQT[x.type] || x.type)}${x.ref ? ' · ' + esc(x.ref) : ''}</b><small>${esc(sp.name || x.sp)}${x.type === 'diskaun' ? ' · ' + RM(x.amount) : ''} · ${esc(x.at.slice(0, 10))}</small></span><span class="pill st-Baru">Menunggu ${esc(agoTxt(x.at).replace(' lepas', ''))}</span></button>`; }).join('')}</div>` : '<div class="ch-empty">Tiada permintaan menunggu. 👍</div>';
+      return `<button class="al-r" type="button" data-so="approvals"><span><b>${esc(RQT[x.type] || x.type)}${x.ref ? ' · ' + esc(x.ref) : ''}</b><small>${esc(sp.name || x.sp)}${x.type === 'diskaun' || x.type === 'bayaran' ? ' · ' + RM(x.amount) : ''} · ${esc(x.at.slice(0, 10))}</small></span><span class="pill st-Baru">Menunggu ${esc(agoTxt(x.at).replace(' lepas', ''))}</span></button>`; }).join('')}</div>` : '<div class="ch-empty">Tiada permintaan menunggu. 👍</div>';
     const lowL = H.materials.filter((x) => x.low);
     $('d-low').innerHTML = !hqOk ? '<div class="ch-empty">Data HQ tak dapat dimuat.</div>' : !H.materials.length ? '<div class="ch-empty">Belum ada bahan mentah dijejak.</div>' : lowL.length ? `<div class="alist">${lowL.slice(0, 6).map((x) =>
       `<button class="al-r" type="button" data-so="materials"><span><b>${esc(x.name)}</b><small>Ada ${x.onHand} ${esc(x.unit)} · minimum ${x.reorder} ${esc(x.unit)}</small></span><span class="pill ${x.onHand <= 0 ? 'st-Dibatalkan' : 'st-Dikemaskini'}">${x.onHand <= 0 ? 'Habis' : 'Stok rendah'}</span></button>`).join('')}</div>` : '<div class="ch-empty">Semua bahan di atas paras minimum. 👍</div>';

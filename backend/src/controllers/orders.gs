@@ -81,7 +81,8 @@ function myOrders_(req) {
   return { ok: true, orders: orders,
            invoices: invoices_().filter(function (v) { return v.phone === phone; }),
            hqPayments: hqPays_().filter(function (y) { return y.phone === phone; }),
-           settings: publicSettings_().settings, hqTarget: settings_().targets[req.sp] || 0,
+           settings: publicSettings_().settings, hqTarget: settings_().targets[req.sp] || 0, statusLog: statusLog_(orders),
+           requests: requests_().filter(function (r) { return r.sp.toLowerCase() === String(req.sp).toLowerCase(); }).slice(-20),
            pendingRequests: requests_().filter(function (r) { return r.sp.toLowerCase() === String(req.sp).toLowerCase() && r.status === 'Menunggu'; }).length };
 }
 
@@ -97,4 +98,16 @@ function checkOrderRules_(o, prev, code) {
     var used = loadByDate_(code)[o.date] || 0;
     if (used + o.total > s.capacity) throw new Error('Kapasiti ' + o.date + ' penuh. Baki: ' + Math.max(0, s.capacity - used) + ' biji.');
   }
+}
+
+// Status history per order from the activity log: [{ at, status }] (oldest first).
+function statusLog_(orders) {
+  var want = {}; orders.forEach(function (o) { want[o.code] = 1; });
+  var out = {}, rows = table_('Log', LG_H).rows;
+  rows.forEach(function (r) {
+    if (!want[r[3]]) return;
+    var st = r[2] === 'Order baru' ? 'Baru' : r[2] === 'Edit order' ? 'Dikemaskini' : r[2] === 'Batal order' ? 'Dibatalkan' : r[2] === 'Status order' ? String(r[4]).split('→').pop().trim() : '';
+    if (st) (out[r[3]] = out[r[3]] || []).push({ at: r[0], status: st });
+  });
+  return out;
 }

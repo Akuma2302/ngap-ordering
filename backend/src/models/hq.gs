@@ -128,5 +128,5 @@ function purObj_(r) { var d = parse_(r[8]); return { id: r[0], date: r[1], sup: 
 function purchases_() { return table_('Belian', PU_H).rows.filter(function (r) { return r[0]; }).map(purObj_); }
 
 /* ---------- requests ---------- */
-function reqObj_(r) { var d = parse_(r[6]); return { id: r[0], at: r[1], sp: r[2], type: r[3], ref: r[4], detail: r[5], amount: Number(d.amount) || 0, status: r[7] || 'Menunggu', by: r[8], decidedAt: r[9], reason: r[10] }; }
+function reqObj_(r) { var d = parse_(r[6]); return { id: r[0], at: r[1], sp: r[2], type: r[3], ref: r[4], detail: r[5], amount: Number(d.amount) || 0, bankRef: d.bankRef || '', date: d.date || '', status: r[7] || 'Menunggu', by: r[8], decidedAt: r[9], reason: r[10] }; }
 function requests_() { return table_('Permintaan', RQ_H).rows.filter(function (r) { return r[0]; }).map(reqObj_); }

@@ -502,3 +502,13 @@
 }
 .iv-t .dt-h > span:nth-child(n+2),.iv-t .dt-r > span:nth-child(n+2){text-align:right;justify-self:end}
 .dtbl .dt-h > span:nth-child(n+2):not(:last-child),.dtbl .dt-r > span:nth-child(n+2):not(:last-child){text-align:right}
+
+/* order / salesperson cards: equal height per row, footer pinned to the bottom */
+@media (min-width:768px){
+  #dash .cards{align-items:stretch}
+  #dash .cards > .oc{display:flex;flex-direction:column;height:100%}
+  #dash .cards > .oc > .oc-foot{margin-top:auto}
+  #dash .cards > .oc > .items{align-content:flex-start}
+  #dash .cards > .oc .oc-note{margin-bottom:4px}
+}
+@media (min-width:768px){#dash #orders{grid-auto-rows:1fr}}

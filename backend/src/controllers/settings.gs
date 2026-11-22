@@ -6,7 +6,7 @@ function publicSettings_() {
   var s = settings_();
   return { ok: true, settings: { hqPrice: s.hqPrice, capacity: s.capacity, cutoffDays: s.cutoffDays, cutoffHour: s.cutoffHour,
            unavailable: s.unavailable.concat(FLAVOURS.filter(function (p) { return p.active === false; }).map(function (p) { return p.id; })),
-           earliest: earliest_(s), load: loadByDate_(''), hqPhone: s.hqPhone, products: publicProducts_() } };
+           earliest: earliest_(s), load: loadByDate_(''), hqPhone: s.hqPhone, products: publicProducts_(), invoiceTermDays: s.invoiceTermDays } };
 }
 
 function adminGetSettings_(req) { checkAdmin_(req.password); var s = settings_(); s.earliest = earliest_(s); s.load = loadByDate_(''); return { ok: true, settings: s }; }

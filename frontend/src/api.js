@@ -247,7 +247,7 @@
     if (s.cutoffHour && hm >= s.cutoffHour) add++; const d = new Date(); d.setDate(d.getDate() + add); return isoD(d); }
   function dLoad(skip) { const t = isoD(new Date()), l = {}; load().forEach((o) => { if (o.code === skip || o.status === 'Dibatalkan' || o.date < t) return; l[o.date] = (l[o.date] || 0) + o.total; }); return l; }
   const dPublic = () => { const s = dSet(), pr = getJ('-products', null) || []; return { hqPrice: s.hqPrice, capacity: s.capacity, cutoffDays: s.cutoffDays, cutoffHour: s.cutoffHour,
-    unavailable: s.unavailable.concat(pr.filter((p) => p.active === false).map((p) => p.id)), earliest: dEarliest(s), load: dLoad(''), hqPhone: s.hqPhone,
+    unavailable: s.unavailable.concat(pr.filter((p) => p.active === false).map((p) => p.id)), earliest: dEarliest(s), load: dLoad(''), hqPhone: s.hqPhone, invoiceTermDays: s.invoiceTermDays,
     products: (pr.length ? pr : cfg.FLAVOURS_SEED).map((p) => ({ id: p.id, name: p.name, desc: p.desc || '', img: pr.length ? p.img || '' : '', bg: pr.length ? p.bg || '' : '', active: p.active !== false })) }; };
   function dRules(o, prev, code) {
     const s = dSet(), pi = prev ? prev.items : {};
@@ -390,14 +390,17 @@
     } else dPost(Object.entries(net).filter(([, v]) => v < 0).map(([mid, v]) => ({ mat: mid, type: 'Pembetulan', qty: -v, cost: null, date: o.date, ref: o.code, reason: `Status ${prev} → ${next}` })), 'Sistem');
   }
   const dReqs = () => getJ('-reqs', []);
-  const REQ_TYPES = { batal: 'Batalkan order', diskaun: 'Diskaun invois', lain: 'Lain-lain' };
+  const REQ_TYPES = { batal: 'Batalkan order', diskaun: 'Diskaun invois', bayaran: 'Bukti bayaran', lain: 'Lain-lain' };
   const _setStatus2 = demo.adminSetStatus, _myOrders2 = demo.myOrders, _adminList2 = demo.adminList, _agLogin2 = demo.agLogin;
   const dSetStatus = (code, status, who) => { const list = load(), o = list[findIdx(list, code)], prev = o.status; if (prev === status) return o;
     dBake(Object.assign({}, o), prev, status); list[findIdx(list, code)].status = status; save(list); dInvoices(); dLog(who, 'Status order', o.code, prev + ' → ' + status); return list[findIdx(list, code)]; };
   Object.assign(demo, {
     publicSettings() { return { ok: true, settings: dPublic() } },
     adminSetStatus(p) { adm(p.password); if (!cfg.STATUSES.includes(p.status)) throw new Error('Status tidak sah.'); return { ok: true, order: dSetStatus(p.code, p.status, 'Admin') }; },
-    myOrders(p) { const r = _myOrders2(p), s = dSet(); return Object.assign(r, { hqTarget: (s.targets || {})[p.sp] || 0, pendingRequests: dReqs().filter((x) => x.sp === p.sp && x.status === 'Menunggu').length }); },
+    myOrders(p) { const r = _myOrders2(p), s = dSet(), codes = new Set(r.orders.map((o) => o.code)), statusLog = {};
+      getJ('-log', []).slice().reverse().forEach((x) => { if (!codes.has(x.ref)) return; const st = x.action === 'Order baru' ? 'Baru' : x.action === 'Edit order' ? 'Dikemaskini' : x.action === 'Batal order' ? 'Dibatalkan' : x.action === 'Status order' ? String(x.detail).split('→').pop().trim() : '';
+        if (st) (statusLog[x.ref] = statusLog[x.ref] || []).push({ at: x.at, status: st }); });
+      return Object.assign(r, { hqTarget: (s.targets || {})[p.sp] || 0, pendingRequests: dReqs().filter((x) => x.sp === p.sp && x.status === 'Menunggu').length, statusLog, requests: dReqs().filter((x) => x.sp === p.sp).slice(-20) }); },
     adminList(p) { const r = _adminList2(p); return Object.assign(r, { pwDefault: false, pending: dReqs().filter((x) => x.status === 'Menunggu').length }); },
     agLogin(p) { return Object.assign(_agLogin2(p), { products: pubProducts() }); },
     adminHQ({ password }) { adm(password); return { ok: true, products: dProducts(), materials: dMaterials(), moves: dMoves().slice(-500).reverse(), suppliers: getJ('-sups', []),
@@ -438,14 +441,16 @@
       dPost(p.lines.map((x) => ({ mat: x.mat, type: 'Pembetulan', qty: -x.qty, cost: x.cost, date: p.date, ref: p.id, reason: 'Batal belian' })), 'Admin'); p.status = 'Dibatalkan'; setJ('-purs', l); dLog('Admin', 'Batal belian', id, ''); return { ok: true }; },
     adminPayPurchase({ password, id, paid, date }) { adm(password); const l = getJ('-purs', []), p = l.find((x) => x.id === id); if (!p) throw new Error('Belian tidak dijumpai.'); p.pay = paid === false ? 'Belum bayar' : 'Dibayar'; p.paidDate = paid === false ? '' : isoOr(date); setJ('-purs', l); return { ok: true }; },
     spRequests({ sp }) { return { ok: true, requests: dReqs().filter((r) => r.sp === sp).reverse() }; },
-    spAddRequest({ sp, phone, type, ref, detail, amount }) {
-      type = REQ_TYPES[type] ? type : 'lain'; detail = String(detail || '').trim(); let code = '', amt = 0;
-      if (type !== 'lain') { const list = load(), o = list[findIdx(list, ref)]; if (o.phone !== phone) throw new Error('Order ini bukan milik anda.'); code = o.code;
+    spAddRequest({ sp, phone, type, ref, detail, amount, bankRef, date }) {
+      type = REQ_TYPES[type] ? type : 'lain'; detail = String(detail || '').trim(); let code = '', amt = 0, bank = '', pdate = '';
+      if (type === 'bayaran') { amt = r2(amount); bank = String(bankRef || '').trim(); pdate = isoOr(date); if (amt <= 0) throw new Error('Sila isi jumlah yang dibayar.'); if (!bank) throw new Error('Sila isi no. rujukan / transaksi bank.'); detail = detail || 'Bayaran ke HQ · ' + bank;
+        if (dReqs().some((r) => r.type === 'bayaran' && r.status === 'Menunggu' && r.bankRef === bank)) throw new Error('Bukti bayaran dengan rujukan ini sedang disemak HQ.'); }
+      else if (type !== 'lain') { const list = load(), o = list[findIdx(list, ref)]; if (o.phone !== phone) throw new Error('Order ini bukan milik anda.'); code = o.code;
         if (type === 'batal' && o.status === 'Dibatalkan') throw new Error('Order ini sudah dibatalkan.');
         if (type === 'diskaun') { amt = r2(amount); const v = dInvoices().find((x) => x.code === code); if (amt <= 0) throw new Error('Sila isi jumlah diskaun.'); if (!v || amt > v.amount + (v.disc || 0)) throw new Error('Diskaun melebihi jumlah invois.'); } }
       if (!detail) throw new Error('Sila tulis sebab permintaan.');
       const l = dReqs(); if (code && l.some((r) => r.ref === code && r.type === type && r.status === 'Menunggu')) throw new Error(`Permintaan untuk ${code} masih menunggu keputusan HQ.`);
-      const id = nextId('rq', 'RQ-'); l.push({ id, at: stamp(), sp, type, ref: code, detail, amount: amt, status: 'Menunggu', by: '', decidedAt: '', reason: '' }); setJ('-reqs', l);
+      const id = nextId('rq', 'RQ-'); l.push({ id, at: stamp(), sp, type, ref: code, detail, amount: amt, bankRef: bank, date: pdate, status: 'Menunggu', by: '', decidedAt: '', reason: '' }); setJ('-reqs', l);
       dLog(sp, 'Permintaan', id, REQ_TYPES[type] + (code ? ' · ' + code : '')); return { ok: true, id };
     },
     spCancelRequest({ sp, id }) { const l = dReqs(), r = l.find((x) => x.id === id && x.sp === sp); if (!r) throw new Error('Permintaan tidak dijumpai.'); if (r.status !== 'Menunggu') throw new Error('Permintaan ini sudah diputuskan.');
@@ -453,6 +458,8 @@
     adminDecide({ password, id, decision, reason }) { adm(password); const ok = decision === 'Diluluskan'; reason = String(reason || '').trim(); if (!ok && !reason) throw new Error('Sila tulis sebab permintaan ditolak.');
       const l = dReqs(), r = l.find((x) => x.id === id); if (!r) throw new Error('Permintaan tidak dijumpai.'); if (r.status !== 'Menunggu') throw new Error('Permintaan ini sudah diputuskan.');
       if (ok && r.type === 'batal') dSetStatus(r.ref, 'Dibatalkan', 'Admin (' + r.id + ')');
+      if (ok && r.type === 'bayaran') { const s2 = dSp(r.sp).s; if (!s2.phone) throw new Error('Salesperson ini belum ada nombor telefon.'); const hl = getJ('-hqpay', []), n = (getJ('-hqn', 0) || 0) + 1; setJ('-hqn', n);
+        hl.push({ id: 'HP-' + String(n).padStart(4, '0'), phone: s2.phone, date: r.date || today(), amount: r.amount, note: 'Bukti ' + r.bankRef + ' (' + r.id + ')', createdAt: stamp() }); setJ('-hqpay', hl); dLog('Admin', 'Bayaran HQ', 'HP-' + n, r.sp + ' · RM' + r.amount.toFixed(2)); }
       if (ok && r.type === 'diskaun') { const inv = getJ('-inv', {}); if (inv[r.ref]) { inv[r.ref].disc = r.amount; setJ('-inv', inv); dInvoices(); } }
       Object.assign(r, { status: ok ? 'Diluluskan' : 'Ditolak', by: 'Admin', decidedAt: stamp(), reason }); setJ('-reqs', l);
       dLog('Admin', ok ? 'Lulus permintaan' : 'Tolak permintaan', r.id, REQ_TYPES[r.type]); return { ok: true }; },
