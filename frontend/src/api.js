@@ -496,10 +496,42 @@
     }
   });
 
+  /* ---------- demo: salesperson -> customer invoices ---------- */
+  const ciAll = () => getJ('-cinv', []);
+  function ciClean(d) {
+    d = d || {}; const t = (v, n) => String(v == null ? '' : v).trim().slice(0, n || 200), bill = d.bill || {}, bank = d.bank || {};
+    const items = (d.items || []).map((it) => ({ fid: t(it.fid, 40), name: t(it.name, 80), desc: t(it.desc, 120), qty: Math.max(0, Math.round(Number(it.qty) || 0)), rate: r2(it.rate) })).filter((it) => it.qty > 0);
+    if (!items.length) throw new Error('Tambah sekurang-kurangnya satu produk.');
+    if (!t(bill.name)) throw new Error('Sila isi nama pelanggan.');
+    const sub = r2(items.reduce((a, it) => a + it.qty * it.rate, 0)), disc = Math.min(sub, Math.max(0, r2(d.discount)));
+    return { bill: { name: t(bill.name, 100), addr: t(bill.addr, 300), email: t(bill.email, 100), phone: t(bill.phone, 30) },
+      date: isoOr(d.date), terms: Math.max(0, Math.min(120, Math.round(Number(d.terms) || 0))), due: isoOr(d.due || d.date),
+      items, sub, discount: disc, total: r2(sub - disc), note: t(d.note, 400),
+      seller: { name: t((d.seller || {}).name, 100), phone: t((d.seller || {}).phone, 30) },
+      bank: { name: t(bank.name, 100), bank: t(bank.bank, 60), acc: t(bank.acc, 40) }, alloc: d.alloc || {} };
+  }
+  Object.assign(demo, {
+    spInvoices({ phone }) { const sp = normPhone(phone); return { ok: true, invoices: ciAll().filter((x) => x.phone === sp).reverse().map((x) => Object.assign({}, x.data, { no: x.no, date: x.date, total: x.total, status: x.status, updatedAt: x.updatedAt })) }; },
+    spSaveInvoice({ phone, no, data }) {
+      const sp = normPhone(phone), d = ciClean(data), l = ciAll();
+      if (no) { const x = l.find((y) => y.no === no && y.phone === sp); if (!x) throw new Error('Invois tidak dijumpai.'); if (x.status === 'Batal') throw new Error('Invois yang dibatalkan tidak boleh diubah.');
+        Object.assign(x, { date: d.date, total: d.total, data: d, updatedAt: stamp() }); setJ('-cinv', l); return { ok: true, invoice: Object.assign({}, d, { no, status: x.status }) }; }
+      const n = (getJ('-cinvn', 0) || 0) + 1; setJ('-cinvn', n); no = 'NGAP-' + String(n).padStart(4, '0');
+      l.push({ no, phone: sp, date: d.date, total: d.total, status: 'Belum bayar', updatedAt: stamp(), data: d }); setJ('-cinv', l);
+      return { ok: true, invoice: Object.assign({}, d, { no, status: 'Belum bayar' }) };
+    },
+    spSetInvoiceStatus({ phone, no, status }) {
+      if (!['Belum bayar', 'Dibayar', 'Batal'].includes(status)) throw new Error('Status tidak sah.');
+      const sp = normPhone(phone), l = ciAll(), x = l.find((y) => y.no === no && y.phone === sp); if (!x) throw new Error('Invois tidak dijumpai.'); if (x.status === 'Batal') throw new Error('Invois ini sudah dibatalkan.');
+      x.status = status; x.updatedAt = stamp(); setJ('-cinv', l); return { ok: true, invoice: Object.assign({}, x.data, { no, status }) };
+    }
+  });
+
   // Salesperson session: every salesperson request carries their code (e.g. salesAkmal) and session token.
   let spCode = '', spTok = '';
   const SP_ACTIONS = ['create', 'get', 'update', 'cancel', 'myOrders', 'agentGet', 'agentSaveProfile', 'agentSaveSales', 'spAgents', 'spAddAgent', 'spUpdateAgent',
-                      'spDistribute', 'spUpdateDist', 'spDeleteDist', 'spAddPayment', 'spDeletePayment', 'spRequests', 'spAddRequest', 'spCancelRequest', 'spLogoutAll', 'spDecideAgentReq'];
+                      'spDistribute', 'spUpdateDist', 'spDeleteDist', 'spAddPayment', 'spDeletePayment', 'spRequests', 'spAddRequest', 'spCancelRequest', 'spLogoutAll', 'spDecideAgentReq',
+                      'spInvoices', 'spSaveInvoice', 'spSetInvoiceStatus'];
   async function call(action, payload) {
     payload = Object.assign({}, payload || {});
     if (SP_ACTIONS.includes(action)) { payload.sp = spCode; payload.tok = spTok; }
@@ -594,6 +626,9 @@
     spLogoutAll: () => call('spLogoutAll', {}),
     agRequest: (code, x) => call('agRequest', Object.assign({ code }, x)),
     agCancelRequest: (code, id) => call('agCancelRequest', { code, id }),
-    spDecideAgentReq: (phone, id, decision, reason, ref) => call('spDecideAgentReq', { phone, id, decision, reason, ref })
+    spDecideAgentReq: (phone, id, decision, reason, ref) => call('spDecideAgentReq', { phone, id, decision, reason, ref }),
+    spInvoices: () => call('spInvoices', {}),
+    spSaveInvoice: (no, data) => call('spSaveInvoice', { no, data }),
+    spSetInvoiceStatus: (no, status) => call('spSetInvoiceStatus', { no, status })
   };
 })();

@@ -21,6 +21,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,700;0,6..96,900;1,6..96,600&family=Pinyon+Script&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="ordering/ordering.css?v=7">
 <link rel="stylesheet" href="ordering/agent.css?v=29">
+<link rel="stylesheet" href="ordering/cinvoice.css?v=1">
 </head>
 <body class="glass">
 <header class="lt-bar">
@@ -129,6 +130,7 @@
       <button type="button" id="m-price"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h7a2 2 0 0 1 2 2v7l-9 9-9-9 9-9Z"/><circle cx="16.5" cy="7.5" r="1.5"/></svg>Harga kos &amp; harga jual</button>
       <button type="button" id="m-hq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/></svg>Invois &amp; bayaran HQ</button>
       <button type="button" id="m-req"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/><path d="M12 8v4l3 2"/></svg>Permintaan ke HQ <span class="pill st-Baru hidden" id="m-req-n" style="margin-left:6px"></span></button>
+      <button type="button" id="m-cinv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>Invois pelanggan <span class="pill st-Baru hidden" id="m-cinv-n" style="margin-left:6px"></span></button>
     </div></section>
 
     <p class="sec-h">Akaun</p>
@@ -277,6 +279,7 @@
 <script src="ordering/customers.js?v=1"></script>
 <script src="ordering/apphelp.js?v=2"></script>
 <script src="ordering/finance.js?v=1"></script>
+<script src="ordering/cinvoice.js?v=1"></script>
 <script>
 (function () {
   const { FLAVOURS } = window.SC_CONFIG;
@@ -335,7 +338,7 @@
   const fmtShort = (iso) => { if (!iso) return '-'; const [y, m, d] = iso.split('-'); return new Date(+y, m - 1, +d).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' }); };
   const RM = (n) => (n < 0 ? '-' : '') + 'RM' + Math.abs(n).toLocaleString('ms-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const RMs = (n) => (n < 0 ? '-' : '') + 'RM' + (Math.abs(n) >= 1000 ? (Math.abs(n) / 1000).toFixed(1) + 'k' : Math.round(Math.abs(n)));
-  const TITLES = { home: 'Utama', new: 'Order Stok', mine: 'Stok & Order', me: 'Profil', stats: 'Untung Saya', detail: 'Butiran Order', agents: 'Agent Saya', agent: 'Agent', cust: 'Pelanggan', custd: 'Pelanggan', 'pg-harga': 'Harga Saya', 'pg-invois': 'Invois HQ', 'pg-minta': 'Permintaan', 'pg-panduan': 'Cara Guna' };
+  const TITLES = { home: 'Utama', new: 'Order Stok', mine: 'Stok & Order', me: 'Profil', stats: 'Untung Saya', detail: 'Butiran Order', agents: 'Agent Saya', agent: 'Agent', cust: 'Pelanggan', custd: 'Pelanggan', 'pg-harga': 'Harga Saya', 'pg-invois': 'Invois HQ', 'pg-minta': 'Permintaan', 'pg-panduan': 'Cara Guna', 'pg-cinv': 'Invois Pelanggan' };
 
   if (API.DEMO) $('demo').classList.remove('hidden');
   if (window.SC_CONFIG.DEMO_RUN) {
@@ -558,7 +561,7 @@
   /* ---------- sync with Google Sheet (sheets "Jualan" and "AgentData") ---------- */
   const syncQ = new Set(); let syncT = null, profileDirty = false;
   const nowISO = () => new Date().toISOString();
-  const agentData = () => ({ prices: getPrices(), target: store.get('sc-target', null), updatedAt: store.get('sc-agent-upd', '') });
+  const agentData = () => ({ prices: getPrices(), target: store.get('sc-target', null), bank: store.get('sc-bank', null), updatedAt: store.get('sc-agent-upd', '') });
   function setSync(st) {
     $('sync-st').textContent = { pending: 'Menyimpan ke Google Sheet…', ok: 'Semua rekod disimpan ke Google Sheet ✓', err: 'Belum disimpan ke Sheet (tiada internet?). Data selamat di peranti, akan dicuba semula.' }[st];
   }
@@ -587,6 +590,7 @@
     if (srvP && String(srvP.updatedAt || '') > String(locU)) {
       if (srvP.prices) store.set('sc-prices', srvP.prices);
       store.set('sc-target', srvP.target || null); store.set('sc-agent-upd', srvP.updatedAt || '');
+      if (srvP.bank) store.set('sc-bank', srvP.bank);
     } else if (locU && (!srvP || String(locU) > String(srvP.updatedAt || ''))) profileDirty = true;
     if (syncQ.size || profileDirty) scheduleSync(); else setSync('ok');
   }
@@ -1232,7 +1236,7 @@
 
   // Profil destinations open as full pages (/sales/harga, /sales/invois, /sales/permintaan, /sales/panduan)
   let pgShown = '', reqPre = null;
-  const PAGES = { 'pg-harga': () => priceSheet(), 'pg-invois': () => hqSheet(), 'pg-minta': () => { const p = reqPre; reqPre = null; reqSheet(p); }, 'pg-panduan': () => SC_HELP.guideSheet(openModal, 'sales') };
+  const PAGES = { 'pg-harga': () => priceSheet(), 'pg-invois': () => hqSheet(), 'pg-minta': () => { const p = reqPre; reqPre = null; reqSheet(p); }, 'pg-panduan': () => SC_HELP.guideSheet(openModal, 'sales'), 'pg-cinv': () => cinvSheet() };
   function go(t) {
     if (tab === 'new') drafts.new = readForm();
     else if (tab === 'mine' && editing) drafts.edit = readForm();
@@ -1283,7 +1287,7 @@
 
   /* ---------- clean URLs: /sales, /sales/stok, /sales/order/SC-0001, /sales/agent/agentAli ... ---------- */
   const SLUG = { home: '', mine: 'stok', new: 'order-baru', agents: 'agent', stats: 'untung', me: 'profil', cust: 'pelanggan',
-                 'pg-harga': 'harga', 'pg-invois': 'invois', 'pg-minta': 'permintaan', 'pg-panduan': 'panduan' };
+                 'pg-harga': 'harga', 'pg-invois': 'invois', 'pg-minta': 'permintaan', 'pg-panduan': 'panduan', 'pg-cinv': 'invois-pelanggan' };
   const TAB_OF = Object.fromEntries(Object.entries(SLUG).filter(([, v]) => v).map(([k, v]) => [v, k]));
   function urlParts() {
     if (tab === 'detail' && detail) return ['order', detail.code];
@@ -1416,7 +1420,7 @@
       const savedTok = spSess().toLowerCase() === c.toLowerCase() ? store.get('sp-tok', '') : '';
       const { sp, token, needPin } = await API.spLogin(c, $('sp-pin').value.trim(), savedTok);
       $('sp-pin').value = '';
-      if (spSess() && spSess().toLowerCase() !== sp.code.toLowerCase()) ['sc-sales', 'sc-prices', 'sc-target', 'sc-agent-upd'].forEach((k) => store.del(k));
+      if (spSess() && spSess().toLowerCase() !== sp.code.toLowerCase()) ['sc-sales', 'sc-prices', 'sc-target', 'sc-agent-upd', 'sc-bank'].forEach((k) => store.del(k));
       store.set('sp-code', sp.code); store.set('sp-tok', token); store.set('sp-haspin', !needPin); API.setSP(sp.code, token);
       store.set('sc-agent', { name: sp.name, phone: sp.phone });
       drafts.new = Object.assign(drafts.new || {}, { name: sp.name, phone: sp.phone });
@@ -1525,6 +1529,209 @@
   $('m-hq').onclick = () => go('pg-invois');
   document.addEventListener('click', (e) => { if (e.target.closest('#hq-proof')) proofSheet(); });
 
+  /* ---------- customer invoices (salesperson -> their own customer), /sales/invois-pelanggan ---------- */
+  let cinvs = [];
+  const CI_ST = { 'Belum bayar': 'st-Baru', Dibayar: 'st-Siap', Batal: 'st-Dibatalkan' };
+  const getBank = () => store.get('sc-bank', null) || { name: '', bank: '', acc: '' };
+  const f2s = (v) => (Number(v) || 0).toFixed(2);
+  // Sale lines written by an invoice carry tx = invoice no, so editing or cancelling it puts the stock back.
+  function invLines(no) {
+    const out = {};
+    Object.values(getSales()).forEach((rec) => Object.entries(rec.items || {}).forEach(([fid, it]) => (it.lines || []).forEach((l) => { if (l.tx === no) out[fid] = (out[fid] || 0) + (Number(l.qty) || 0); })));
+    return out;
+  }
+  // Take the invoice's stock out of the oldest orders first (FIFO). The discount is spread over the line prices so profit stays right.
+  function bookInvoice(no, inv) {
+    const all = getSales(), touched = new Set();
+    Object.entries(all).forEach(([code, rec]) => Object.values(rec.items || {}).forEach((it) => {
+      if (!Array.isArray(it.lines)) return; const n = it.lines.length; it.lines = it.lines.filter((l) => l.tx !== no); if (it.lines.length !== n) touched.add(code);
+    }));
+    store.set('sc-sales', all);
+    if (inv) {
+      const k = inv.sub ? inv.total / inv.sub : 1, pool = stockByOrder();
+      inv.items.forEach((it) => {
+        let need = it.qty; const price = Math.round(it.rate * k * 100) / 100;
+        pool.forEach(({ o, left }) => {
+          if (!need || !left[it.fid]) return; const t = Math.min(need, left[it.fid]); left[it.fid] -= t; need -= t;
+          const rec = all[o.code] = all[o.code] || { items: {}, extras: [] }; rec.items = rec.items || {};
+          const r = rec.items[it.fid] = rec.items[it.fid] || {}; if (!Array.isArray(r.lines)) r.lines = salesLines(rec.items, it.fid).slice();
+          r.lines.push({ qty: t, price, cust: String(inv.bill.name || '').slice(0, 60), cphone: String(inv.bill.phone || '').slice(0, 20), tx: no }); touched.add(o.code);
+        });
+      });
+    }
+    const now = new Date().toISOString(); touched.forEach((c) => { all[c].updatedAt = now; });
+    store.set('sc-sales', all); touched.forEach(queueSales);
+  }
+  function cinvBadge() { const n = cinvs.filter((x) => x.status === 'Belum bayar').length; $('m-cinv-n').textContent = n ? n + ' belum bayar' : ''; $('m-cinv-n').classList.toggle('hidden', !n); }
+
+  async function cinvSheet() {
+    if (!cinvs.length) openModal('<span class="kicker">Invois pelanggan</span><h2>Invois pelanggan</h2><p class="muted" style="margin-top:8px">Memuatkan…</p>');
+    try { const [r] = await Promise.all([API.spInvoices(), mine.length ? null : fetchMine()]); cinvs = r.invoices || []; } catch (err) { toast(err.message, true); }   // stock comes from the orders
+    cinvBadge(); if (tab !== 'pg-cinv') return;
+    const sum = (l) => l.reduce((a, x) => a + (Number(x.total) || 0), 0), open = cinvs.filter((x) => x.status === 'Belum bayar');
+    const late = open.filter((x) => x.due && x.due < todayISO()), stock = Object.values(stockLeft()).reduce((a, b) => a + b, 0);
+    const month = todayISO().slice(0, 7), paidM = cinvs.filter((x) => x.status === 'Dibayar' && String(x.date).slice(0, 7) === month);
+    openModal(`<span class="kicker">Invois pelanggan</span><h2>Invois pelanggan</h2>
+      <p class="muted" style="margin:4px 0 4px">Buat invois untuk pelanggan anda daripada stok yang anda order dari HQ. Letak harga sendiri, kemudian simpan PDF atau hantar terus ke pelanggan.</p>
+      <div class="stats3"><div><b>${RMs(sum(open))}</b><span>Belum dibayar (${open.length})</span></div><div><b class="${late.length ? 'neg' : ''}">${late.length}</b><span>Lewat tempoh</span></div><div><b>${RMs(sum(paidM))}</b><span>Dibayar bulan ini</span></div></div>
+      <button class="btn btn-p btn-block" type="button" id="ci-new">+ Invois baru</button>
+      <p class="muted" style="margin:6px 0 0;font-size:12.5px;text-align:center">Stok dalam tangan: <b>${stock} biji</b></p>
+      <p class="sec-h">Semua invois</p><div class="clist">${cinvs.map((x) => { const lt = x.status === 'Belum bayar' && x.due && x.due < todayISO();
+        return `<div class="payrow" role="button" tabindex="0" data-ci="${esc(x.no)}" style="cursor:pointer"><span><b>${esc(x.no)} · ${esc((x.bill || {}).name || '-')}</b><small>${esc(fmtDate(x.date))} · ${RM(Number(x.total) || 0)} · ${(x.items || []).reduce((a, it) => a + (Number(it.qty) || 0), 0)} biji${x.status === 'Belum bayar' ? ' · tempoh ' + esc(fmtShort(x.due)) : ''}</small></span>
+          ${lt ? '<span class="pill" style="background:#FDECEC;color:var(--bad)">Lewat</span>' : `<span class="pill ${CI_ST[x.status] || ''}">${esc(x.status)}</span>`}</div>`; }).join('') || '<p class="none">Belum ada invois. Tekan <b>+ Invois baru</b> untuk mula.</p>'}</div>
+      <div class="acts one" style="margin-top:12px"><button class="btn btn-o" type="button" data-close>Tutup</button></div>`);
+    $('ci-new').onclick = () => cinvForm(null);
+    document.querySelectorAll('[data-ci]').forEach((r) => { const open1 = () => cinvView(cinvs.find((x) => x.no === r.dataset.ci)); r.onclick = open1; r.onkeydown = (e) => { if (e.key === 'Enter') open1(); }; });
+  }
+
+  function cinvWA(inv) {
+    const t = SC_CINV.totals(inv), b = inv.bank || {}, ph = API.normPhone((inv.bill || {}).phone || '');
+    const text = `Hai ${inv.bill.name},\n\nBerikut invois *${inv.no}* daripada Ngap Cookies:\n` +
+      inv.items.map((it) => `• ${it.name} × ${it.qty} @ RM${f2s(it.rate)} = RM${f2s(it.qty * it.rate)}`).join('\n') +
+      (t.disc ? `\nDiskaun: -RM${f2s(t.disc)}` : '') + `\n*Jumlah: RM${f2s(t.total)}*` +
+      (inv.status === 'Dibayar' ? '\nStatus: DIBAYAR. Terima kasih!' : `\nTarikh akhir bayar: ${fmtDate(inv.due)}` + (b.acc ? `\n\nBayaran ke:\n${b.name}\n${b.bank} ${b.acc}` : '')) +
+      `\n\nTerima kasih!\n${getProfile().name || 'Ngap Cookies'}`;
+    window.open((validPhone(ph) ? 'https://wa.me/6' + ph : 'https://wa.me/') + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
+  }
+
+  function cinvView(inv) {
+    if (!inv) return cinvSheet();
+    const live = inv.status !== 'Batal';
+    openModal(`<span class="kicker">Invois pelanggan</span><h2>${esc(inv.no)} <span class="pill ${CI_ST[inv.status] || ''}" style="vertical-align:middle">${esc(inv.status)}</span></h2>
+      <p class="muted" style="margin:4px 0 0">${esc(inv.bill.name)} · ${RM(Number(inv.total) || 0)}${inv.status === 'Belum bayar' ? ' · tempoh ' + esc(fmtDate(inv.due)) : ''}</p>
+      <div class="ci-acts">
+        <button class="btn btn-p" type="button" id="ci-pdf">Simpan PDF / cetak</button>
+        <button class="btn btn-o" type="button" id="ci-wa">Hantar WhatsApp</button>
+        ${live ? `<button class="btn btn-o" type="button" id="ci-paid">${inv.status === 'Dibayar' ? 'Tanda belum bayar' : 'Tanda dah bayar ✓'}</button><button class="btn btn-o" type="button" id="ci-edit">Edit invois</button>` : ''}
+      </div>
+      <p class="muted" style="margin:0 0 10px;font-size:12.5px">Untuk hantar fail PDF: tekan <b>Simpan PDF</b> (pilih "Save as PDF"), kemudian lampirkan fail itu dalam WhatsApp pelanggan.</p>
+      <div id="ci-prev"></div>
+      <div class="acts" style="margin-top:14px"><button class="btn btn-o" type="button" id="ci-back">Semua invois</button>${live ? '<button class="btn btn-d" type="button" id="ci-void">Batalkan invois</button>' : '<span></span>'}</div>`);
+    SC_CINV.preview($('ci-prev'), inv);
+    $('ci-pdf').onclick = () => SC_CINV.print(inv);
+    $('ci-wa').onclick = () => cinvWA(inv);
+    $('ci-back').onclick = () => cinvSheet();
+    const setSt = async (st, msg) => {
+      try { const r = await API.spSetInvoiceStatus(inv.no, st); const x = Object.assign({}, inv, r.invoice, { status: st }); cinvs = cinvs.map((y) => (y.no === inv.no ? x : y));
+        if (st === 'Batal') bookInvoice(inv.no, null); cinvBadge(); toast(msg); cinvView(x); } catch (err) { toast(err.message, true); }
+    };
+    if (live) {
+      $('ci-paid').onclick = () => setSt(inv.status === 'Dibayar' ? 'Belum bayar' : 'Dibayar', inv.status === 'Dibayar' ? 'Ditanda belum bayar.' : 'Invois ditanda dah bayar.');
+      $('ci-edit').onclick = () => cinvForm(inv);
+      $('ci-void').onclick = () => { if (confirm(`Batalkan ${inv.no}? Stok dalam invois ini akan dikembalikan ke stok anda.`)) setSt('Batal', 'Invois dibatalkan. Stok dikembalikan.'); };
+    }
+  }
+
+  function cinvForm(inv) {
+    const ed = !!(inv && inv.no), bank = ed && inv.bank && inv.bank.acc ? inv.bank : getBank(), own = ed ? invLines(inv.no) : {}, left = stockLeft();
+    const avail = (fid) => (left[fid] || 0) + (own[fid] || 0);
+    const inStock = FLAVOURS.filter((f) => avail(f.id) > 0);
+    if (!inStock.length) { toast('Tiada stok dalam tangan. Order stok dari HQ dahulu.', true); return; }
+    const defRate = (fid) => { const v = priceOf(fid).sell; return isNaN(v) ? '' : f2s(v); };
+    const fname = (fid) => (FLAVOURS.find((f) => f.id === fid) || {}).name || fid;
+    let lines = ed ? inv.items.map((it) => ({ fid: it.fid, qty: String(it.qty), rate: f2s(it.rate), desc: it.desc || '' }))
+                   : [{ fid: inStock[0].id, qty: '', rate: defRate(inStock[0].id), desc: SC_CINV.DESC }];
+    const b = ed ? inv.bill : { name: '', phone: '', email: '', addr: '' }, date0 = ed ? inv.date : todayISO(), terms0 = ed ? inv.terms : 7;
+    const custs = customers(), past = {}; cinvs.forEach((x) => { const n = ((x.bill || {}).name || '').toLowerCase(); if (n && !past[n]) past[n] = x.bill; });
+    const names = [...new Set(custs.map((c) => c.name).concat(Object.values(past).map((x) => x.name)).filter(Boolean))];
+    const tx = (v) => esc(v || '');
+    openModal(`<span class="kicker">Invois pelanggan</span><h2>${ed ? 'Edit ' + esc(inv.no) : 'Invois baru'}</h2>
+      <form id="ci-f" class="fields" novalidate style="margin-top:10px">
+        <p class="sec-h" style="margin:0">Bil kepada</p>
+        <label class="f">Nama pelanggan / syarikat<input class="inp" id="ci-name" list="ci-cl" autocomplete="off" placeholder="cth. Minom Coffee" value="${tx(b.name)}"><datalist id="ci-cl">${names.map((n) => `<option value="${esc(n)}">`).join('')}</datalist></label>
+        <div class="fields two"><label class="f">Telefon<input class="inp" id="ci-phone" type="tel" inputmode="tel" placeholder="012-345 6789" value="${tx(b.phone)}"></label>
+          <label class="f"><span>Emel <small>Pilihan</small></span><input class="inp" id="ci-email" type="email" placeholder="nama@email.com" value="${tx(b.email)}"></label></div>
+        <label class="f"><span>Alamat <small>Pilihan</small></span><textarea class="inp" id="ci-addr" rows="2" style="height:auto;padding:12px 14px" placeholder="Alamat pelanggan">${tx(b.addr)}</textarea></label>
+        <div class="fields two"><label class="f">Tarikh invois<input class="inp" id="ci-date" type="date" value="${tx(date0)}"></label>
+          <label class="f">Tempoh bayar<select class="inp" id="ci-terms">${[[0, 'Bayar segera'], [7, 'Net 7 hari'], [14, 'Net 14 hari'], [30, 'Net 30 hari']].map(([v, l]) => `<option value="${v}"${Number(terms0) === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label></div>
+        <p class="muted" id="ci-duet" style="margin:-6px 0 0;font-size:12.5px"></p>
+        <p class="sec-h" style="margin:6px 0 0">Produk <small style="font-weight:400;color:var(--muted)">daripada stok anda · harga anda sendiri</small></p>
+        <div id="ci-lines"></div>
+        <button class="btn btn-o btn-sm" type="button" id="ci-add" style="justify-self:start">+ Tambah produk</button>
+        <div class="fields two"><label class="f"><span>Diskaun (RM) <small>Pilihan</small></span><input class="inp" id="ci-disc" inputmode="decimal" placeholder="0.00" value="${ed && inv.discount ? f2s(inv.discount) : ''}"></label><span></span></div>
+        <div class="ci-tot" id="ci-tot"></div>
+        <label class="f"><span>Nota pada invois <small>Pilihan</small></span><textarea class="inp" id="ci-note" rows="2" style="height:auto;padding:12px 14px" placeholder="cth. Penghantaran pada 12 Dis">${tx(ed ? inv.note : '')}</textarea></label>
+        <p class="sec-h" style="margin:6px 0 0">Akaun bank untuk bayaran</p>
+        <p class="muted" style="margin:-8px 0 0;font-size:12.5px">Disimpan dalam akaun anda dan dipaparkan pada setiap invois baru.</p>
+        <label class="f">Nama pemegang akaun<input class="inp" id="ci-bname" autocomplete="off" value="${tx(bank.name)}"></label>
+        <div class="fields two"><label class="f">Bank<input class="inp" id="ci-bbank" list="ci-banks" autocomplete="off" placeholder="cth. Maybank" value="${tx(bank.bank)}"><datalist id="ci-banks">${['Maybank', 'CIMB', 'Public Bank', 'RHB', 'Hong Leong', 'AmBank', 'Bank Islam', 'Bank Rakyat', 'BSN', 'Affin', 'Alliance', 'Bank Muamalat', 'OCBC', 'UOB', 'Agrobank', 'GXBank', 'TNG eWallet'].map((n) => `<option value="${n}">`).join('')}</datalist></label>
+          <label class="f">No. akaun<input class="inp" id="ci-bacc" inputmode="numeric" autocomplete="off" value="${tx(bank.acc)}"></label></div>
+        <div class="acts"><button class="btn btn-o" type="button" id="ci-cancel">Batal</button><button class="btn btn-p" type="submit" id="ci-go">${ed ? 'Simpan perubahan' : 'Simpan invois'}</button></div>
+      </form>`);
+
+    const usedElse = (i, fid) => lines.reduce((a, l, j) => a + (j !== i && l.fid === fid ? (Math.floor(Number(l.qty)) || 0) : 0), 0);
+    const drawLines = () => {
+      $('ci-lines').innerHTML = lines.map((l, i) => `<div class="ci-line" data-i="${i}">
+        <label class="f"><span>Produk <small class="ci-av" data-av>ada ${Math.max(0, avail(l.fid) - usedElse(i, l.fid))}</small></span><select class="inp" data-k="fid">${FLAVOURS.filter((f) => avail(f.id) > 0 || f.id === l.fid).map((f) => `<option value="${f.id}"${f.id === l.fid ? ' selected' : ''}>${esc(f.name)}</option>`).join('')}</select></label>
+        <label class="f">Kuantiti<input class="inp" data-k="qty" inputmode="numeric" placeholder="0" value="${esc(l.qty)}"></label>
+        <label class="f">Harga (RM)<input class="inp" data-k="rate" inputmode="decimal" placeholder="0.00" value="${esc(l.rate)}"></label>
+        <button class="ci-x" type="button" data-x aria-label="Buang produk"${lines.length < 2 ? ' disabled style="opacity:.35"' : ''}>×</button>
+        <label class="f ci-desc">Keterangan<input class="inp" data-k="desc" value="${esc(l.desc)}"></label></div>`).join('');
+    };
+    const upd = () => {
+      const due = addDaysISO($('ci-date').value || todayISO(), Number($('ci-terms').value) || 0);
+      $('ci-duet').textContent = 'Tarikh akhir bayar: ' + fmtDate(due);
+      const pcs = lines.reduce((a, l) => a + (Math.floor(Number(l.qty)) || 0), 0), sub = lines.reduce((a, l) => a + (Math.floor(Number(l.qty)) || 0) * (Number(String(l.rate).replace(',', '.')) || 0), 0);
+      const disc = Math.min(sub, Number(num($('ci-disc').value)) || 0), tot = sub - disc;
+      let cost = 0, known = true; lines.forEach((l) => { const c = priceOf(l.fid).cost; if (isNaN(c)) known = false; else cost += (Math.floor(Number(l.qty)) || 0) * c; });
+      $('ci-tot').innerHTML = `<span>Sub total (${pcs} biji)</span><b>${RM(sub)}</b>${disc ? `<span>Diskaun</span><b>-${RM(disc)}</b>` : ''}<span>Jumlah</span><b class="big">${RM(tot)}</b>` +
+        (known && pcs ? `<span class="muted" style="font-size:12.5px">Anggaran untung (selepas kos produk)</span><b class="${tot - cost < 0 ? 'neg' : 'pos'}" style="font-size:12.5px">${RM(tot - cost)}</b>` : '');
+      document.querySelectorAll('.ci-line').forEach((r) => { const i = +r.dataset.i; r.querySelector('[data-av]').textContent = 'ada ' + Math.max(0, avail(lines[i].fid) - usedElse(i, lines[i].fid)); });
+    };
+    drawLines(); upd();
+    $('ci-lines').addEventListener('input', (e) => { const r = e.target.closest('.ci-line'); if (!r || !e.target.dataset.k || e.target.dataset.k === 'fid') return; lines[+r.dataset.i][e.target.dataset.k] = e.target.value; upd(); });
+    $('ci-lines').addEventListener('change', (e) => {
+      const r = e.target.closest('.ci-line'); if (!r || e.target.dataset.k !== 'fid') return; const l = lines[+r.dataset.i];
+      l.fid = e.target.value; if (!l.rate || l.rate === defRate(l.fid)) l.rate = defRate(l.fid); drawLines(); upd();
+    });
+    $('ci-lines').addEventListener('click', (e) => { const x = e.target.closest('[data-x]'); if (!x || lines.length < 2) return; lines.splice(+x.closest('.ci-line').dataset.i, 1); drawLines(); upd(); });
+    $('ci-lines').addEventListener('focusin', (e) => { if (e.target.matches('input[data-k=qty],input[data-k=rate]')) e.target.select(); });
+    $('ci-add').onclick = () => {
+      const f = inStock.find((x) => avail(x.id) - usedElse(-1, x.id) > 0 && !lines.some((l) => l.fid === x.id)) || inStock.find((x) => avail(x.id) - usedElse(-1, x.id) > 0);
+      if (!f) return toast('Semua stok dah dimasukkan dalam invois ini.', true);
+      lines.push({ fid: f.id, qty: '', rate: defRate(f.id), desc: SC_CINV.DESC }); drawLines(); upd();
+      const last = document.querySelector('.ci-line:last-child [data-k=qty]'); if (last) last.focus();
+    };
+    ['ci-date', 'ci-terms', 'ci-disc'].forEach((id) => { $(id).addEventListener('input', upd); $(id).addEventListener('change', upd); });
+    // picking a known customer fills in their details
+    $('ci-name').addEventListener('change', () => {
+      const n = $('ci-name').value.trim().toLowerCase(), p = past[n], c = custs.find((x) => x.name.toLowerCase() === n);
+      if (p) { ['phone', 'email', 'addr'].forEach((k) => { const el = $('ci-' + k); if (!el.value.trim() && p[k]) el.value = p[k]; }); }
+      else if (c && c.phone && !$('ci-phone').value.trim()) $('ci-phone').value = c.phone;
+    });
+    $('ci-cancel').onclick = () => (ed ? cinvView(inv) : cinvSheet());
+    $('ci-f').onsubmit = async (e) => {
+      e.preventDefault();
+      const bill = { name: $('ci-name').value.trim(), phone: $('ci-phone').value.trim(), email: $('ci-email').value.trim(), addr: $('ci-addr').value.trim() };
+      if (!bill.name) { $('ci-name').focus(); return toast('Sila isi nama pelanggan.', true); }
+      if (bill.phone && !validPhone(bill.phone)) { $('ci-phone').focus(); return toast('Nombor telefon pelanggan tidak sah.', true); }
+      const items = [], want = {};
+      for (const l of lines) {
+        const q = Number(l.qty), r = num(l.rate);
+        if (!Number.isInteger(q) || q <= 0) return toast(`Isi kuantiti untuk ${fname(l.fid)}.`, true);
+        if (r === '' || r === null) return toast(`Isi harga yang sah untuk ${fname(l.fid)}.`, true);
+        want[l.fid] = (want[l.fid] || 0) + q;
+        items.push({ fid: l.fid, name: fname(l.fid), desc: String(l.desc || '').trim(), qty: q, rate: Math.round(r * 100) / 100 });
+      }
+      const over = Object.keys(want).find((fid) => want[fid] > avail(fid));
+      if (over) return toast(`Stok ${fname(over)} tak cukup — ada ${avail(over)} biji sahaja.`, true);
+      const disc = num($('ci-disc').value); if (disc === null) return toast('Diskaun tidak sah.', true);
+      const date = $('ci-date').value || todayISO(), terms = Number($('ci-terms').value) || 0;
+      const bk = { name: $('ci-bname').value.trim(), bank: $('ci-bbank').value.trim(), acc: $('ci-bacc').value.replace(/[^\d\s-]/g, '').replace(/\s+/g, ' ').trim() };
+      const pr = getProfile();
+      const data = { bill, date, terms, due: addDaysISO(date, terms), items, discount: disc || 0, note: $('ci-note').value.trim(), seller: { name: pr.name || '', phone: pr.phone || '' }, bank: bk };
+      if (JSON.stringify(bk) !== JSON.stringify(getBank()) && (bk.acc || bk.name)) { store.set('sc-bank', bk); queueProfile(); }
+      $('ci-go').disabled = true;
+      try {
+        const r = await API.spSaveInvoice(ed ? inv.no : '', data), x = Object.assign({}, data, r.invoice);
+        bookInvoice(x.no, x);
+        cinvs = ed ? cinvs.map((y) => (y.no === x.no ? x : y)) : [x].concat(cinvs); cinvBadge();
+        toast(ed ? 'Invois dikemas kini.' : `Invois ${x.no} dicipta. Stok ditolak.`); cinvView(x);
+      } catch (err) { toast(err.message, true); $('ci-go').disabled = false; }
+    };
+  }
+  $('m-cinv').onclick = () => go('pg-cinv');
+
   /* ---------- requests to HQ (approval) ---------- */
   const RQ_T = { batal: 'Batalkan order', diskaun: 'Diskaun invois', lain: 'Lain-lain' }, RQ_ALL = Object.assign({ bayaran: 'Bukti bayaran' }, RQ_T);
   async function reqSheet(pre) {
@@ -1576,7 +1783,7 @@
     };
   }
   function spLogout() {
-    ['sp-code', 'sp-tok', 'sc-agent', 'sc-sales', 'sc-prices', 'sc-target', 'sc-agent-upd'].forEach((k) => store.del(k));
+    ['sp-code', 'sp-tok', 'sc-agent', 'sc-sales', 'sc-prices', 'sc-target', 'sc-agent-upd', 'sc-bank'].forEach((k) => store.del(k));
     API.setSP(''); mine = []; net = { agents: [], dists: [], payments: [], sales: {} }; showApp(false); $('sp-code').value = '';
   }
   $('sp-form').addEventListener('submit', (e) => { e.preventDefault(); spLoginWith($('sp-code').value); });

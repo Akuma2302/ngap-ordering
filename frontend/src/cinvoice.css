@@ -1,0 +1,85 @@
+/* Customer invoice (A4) in the Ngap Cookies style. Used for the in-app preview and for printing / Save as PDF. */
+.ci-doc{--ci-b:#7A1E2C;--ci-ink:#3A1F14;--ci-mut:#7A5A4A;--ci-bg:#F7EFE3;--ci-ln:rgba(58,31,20,.14);
+  position:relative;width:794px;min-height:1123px;box-sizing:border-box;padding:0 56px 48px;background:var(--ci-bg);color:var(--ci-ink);
+  font-family:'DM Sans',system-ui,sans-serif;font-size:13px;line-height:1.45;display:flex;flex-direction:column;overflow:hidden;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.ci-doc *{box-sizing:border-box}
+.ci-band{height:16px;margin:0 -56px 38px;background:var(--ci-b)}
+.ci-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.ci-brand{display:flex;align-items:center;gap:14px}
+.ci-brand span{display:flex;flex-direction:column}
+.ci-brand b{font-family:'Bodoni Moda',Georgia,serif;font-size:24px;font-weight:900;color:var(--ci-b);line-height:1.1}
+.ci-brand small{color:var(--ci-mut);font-size:12.5px}
+.ci-logo{width:64px;height:64px;border-radius:50%;background:var(--ci-b);color:#F7EFE3;display:inline-flex!important;align-items:center;justify-content:center;
+  font-family:'Bodoni Moda',Georgia,serif;font-size:34px;font-weight:900;flex-shrink:0}
+.ci-title{text-align:right}
+.ci-title h1{margin:0;font-family:'Bodoni Moda',Georgia,serif;font-size:40px;font-weight:900;letter-spacing:2px;color:var(--ci-ink);line-height:1}
+.ci-title p{margin:6px 0 14px;font-weight:700;color:var(--ci-mut)}
+.ci-title small{display:block;font-size:11px;letter-spacing:1.5px;color:var(--ci-mut);font-weight:700}
+.ci-title strong{font-size:22px;color:var(--ci-b)}
+.ci-meta{display:flex;justify-content:space-between;gap:24px;margin:34px 0 22px}
+.ci-bill small,.ci-pay>small,.ci-note small{display:block;font-size:11px;letter-spacing:1.5px;color:var(--ci-mut);font-weight:700;margin-bottom:4px}
+.ci-bill b{font-size:16px}
+.ci-bill p{margin:2px 0 0;color:var(--ci-ink);max-width:340px}
+.ci-dates{display:grid;grid-template-columns:auto auto;gap:6px 18px;margin:0;align-self:flex-end}
+.ci-dates dt{color:var(--ci-mut);text-align:right}
+.ci-dates dd{margin:0;font-weight:700;text-align:right}
+.ci-tbl{width:100%;border-collapse:collapse}
+.ci-tbl th{background:var(--ci-b);color:#fff;font-size:11.5px;letter-spacing:.8px;text-align:left;padding:10px 12px;font-weight:700}
+.ci-tbl td{padding:11px 12px;border-bottom:1px solid var(--ci-ln);vertical-align:top}
+.ci-tbl td b{display:block;font-weight:700}
+.ci-tbl td small{display:block;color:var(--ci-mut);font-size:12px}
+.ci-tbl .c{text-align:center;width:40px}
+.ci-tbl .r{text-align:right;white-space:nowrap}
+.ci-sum{margin:18px 0 0 auto;width:330px}
+.ci-sum dl{display:grid;grid-template-columns:1fr auto;gap:8px 12px;margin:0 12px}
+.ci-sum dt{color:var(--ci-mut)}
+.ci-sum dt small{font-size:12px}
+.ci-sum dd{margin:0;text-align:right;font-weight:700}
+.ci-sum .tot{color:var(--ci-ink);font-weight:900;font-size:14px}
+.ci-due{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:12px;background:var(--ci-b);color:#fff;font-weight:700}
+.ci-due b{font-size:16px}
+.ci-pay{margin-top:34px}
+.ci-pay p{margin:0 0 10px}
+.ci-acc{display:grid;grid-template-columns:1.3fr 1fr 1fr;border:1.5px solid var(--ci-b);border-radius:8px;overflow:hidden}
+.ci-acc div{padding:10px 14px;border-right:1px solid var(--ci-ln)}
+.ci-acc div:last-child{border-right:0}
+.ci-acc small{display:block;font-size:10.5px;letter-spacing:1.2px;color:var(--ci-mut);font-weight:700}
+.ci-acc b{font-size:14px;word-break:break-word}
+.ci-note{margin-top:20px}
+.ci-note p{margin:0}
+.ci-foot{margin-top:auto;padding-top:34px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
+.ci-foot p{margin:0;max-width:430px;color:var(--ci-mut);font-size:12px}
+.ci-ty{font-family:'Pinyon Script',cursive;font-size:44px;color:var(--ci-b);line-height:1}
+.ci-stamp{position:absolute;top:150px;left:50%;transform:translateX(-50%) rotate(-12deg);border:4px solid #2F7A4B;color:#2F7A4B;border-radius:10px;
+  padding:4px 22px;font-size:38px;font-weight:900;letter-spacing:6px;opacity:.55}
+.ci-stamp.void{border-color:#9B2C2C;color:#9B2C2C}
+
+/* scaled preview inside the app */
+.ci-prev{position:relative;width:100%;overflow:hidden;border-radius:14px;box-shadow:0 1px 2px rgba(58,31,20,.06),0 10px 28px rgba(58,31,20,.1);background:#F7EFE3}
+.ci-scale{width:794px;transform-origin:0 0}
+
+#cinv-print{display:none}
+@media print{
+  @page{size:A4;margin:0}
+  body.cinv-printing{background:#F7EFE3!important;padding:0!important;margin:0!important}
+  body.cinv-printing>*:not(#cinv-print){display:none!important}
+  body.cinv-printing #cinv-print{display:block}
+  body.cinv-printing .ci-doc{min-height:297mm;width:210mm}
+}
+
+/* app: invoice form + list */
+.ci-line{display:grid;grid-template-columns:1fr 84px 96px 36px;gap:8px;align-items:end;padding:10px 0;border-bottom:1px dashed var(--line)}
+.ci-line .ci-desc{grid-column:1 / -1}
+.ci-line .inp{height:44px;font-size:15px}
+.ci-line label.f{font-size:12px}
+.ci-line .ci-x{width:36px;height:44px;border:0;border-radius:12px;background:#FDECEC;color:var(--bad,#9B2C2C);font-size:18px;cursor:pointer}
+.ci-line small.ci-av{font-weight:400;color:var(--muted)}
+.ci-tot{display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin:12px 0 4px;font-size:14px}
+.ci-tot b{text-align:right}
+.ci-tot .big{font-size:18px;color:var(--burgundy)}
+.ci-acts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:12px 0}
+.ci-acts .btn{min-width:0;width:100%;padding:0 10px;white-space:normal;line-height:1.15}
+@media (max-width:420px){.ci-acts .btn{font-size:14px}}
+.ci-acts .wide{grid-column:1 / -1}
+@media (max-width:420px){.ci-line{grid-template-columns:1fr 70px 84px 36px}}
