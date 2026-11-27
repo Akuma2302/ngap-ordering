@@ -103,21 +103,34 @@
     return libP;
   }
   const fileName = (inv) => { const n = String((inv.bill || {}).name || '').replace(/[^\w-]+/g, '-').replace(/^-|-$/g, ''); return `Invoice-${inv.no || 'DRAF'}${n ? '-' + n : ''}.pdf`; };
+  // Never wait forever (a phone can stall on a network request or a font): give up with a clear message.
+  const limit = (p, ms, msg) => Promise.race([p, new Promise((res, rej) => setTimeout(() => (msg ? rej(new Error(msg)) : res()), ms))]);
   async function pdf(inv) {
-    await preload(); if (document.fonts) await document.fonts.ready;
-    const box = document.createElement('div');
-    box.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;pointer-events:none';
-    box.innerHTML = doc(inv); document.body.appendChild(box);
+    await limit(preload(), 15000, 'Pembuat PDF lambat dimuatkan. Semak internet dan cuba lagi.');
+    // Render the invoice alone in its own frame: html2canvas then copies only the invoice, not the whole app
+    // (the app page has many product photos, and some phones hang waiting for them).
+    const f = document.createElement('iframe'); f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
+    f.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;pointer-events:none';
+    document.body.appendChild(f);
     try {
-      const el = box.firstElementChild;
-      const canvas = await window.html2canvas(el, { scale: 2.5, backgroundColor: '#F7EFE3', useCORS: true, logging: false, width: 794, windowWidth: 794 });
+      const links = [...document.querySelectorAll('link[rel=stylesheet]')].filter((l) => /fonts\.googleapis|cinvoice\.css/.test(l.href)).map((l) => `<link rel="stylesheet" href="${esc(l.href)}">`).join('');
+      const loaded = new Promise((res) => { f.onload = res; });
+      const d = f.contentDocument; d.open();
+      d.write(`<!doctype html><html><head><meta charset="utf-8">${links}<style>html,body{margin:0;padding:0;background:#F7EFE3}</style></head><body>${doc(inv)}</body></html>`);
+      d.close();
+      await limit(loaded, 6000);
+      if (d.fonts) await limit(d.fonts.ready, 4000);
+      const el = d.querySelector('.ci-doc'), H = el.offsetHeight;
+      const ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const canvas = await limit(window.html2canvas(el, { scale: ios ? 2 : 2.5, backgroundColor: '#F7EFE3', useCORS: true, logging: false, imageTimeout: 3000,
+        width: 794, height: H, windowWidth: 794, windowHeight: H }), 25000, 'PDF ambil masa terlalu lama. Cuba lagi.');
       const w = 210, h = Math.max(297, canvas.height * w / canvas.width);
       const out = new window.jspdf.jsPDF({ unit: 'mm', format: [w, h], orientation: 'portrait', compress: true });
       out.setProperties({ title: fileName(inv).replace(/\.pdf$/, '') });
       out.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, w, canvas.height * w / canvas.width);
       const blob = out.output('blob');
       return { blob, name: fileName(inv), file: typeof File === 'function' ? new File([blob], fileName(inv), { type: 'application/pdf' }) : null };
-    } finally { box.remove(); }
+    } finally { f.remove(); }
   }
   const canShare = (r) => !!(r.file && navigator.canShare && navigator.canShare({ files: [r.file] }));
   function download(r) {
