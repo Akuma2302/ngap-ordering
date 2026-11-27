@@ -62,16 +62,35 @@
     if (!el._ro && window.ResizeObserver) { el._ro = new ResizeObserver(fit); el._ro.observe(el); }
   }
 
+  // Print the invoice on its own (in a hidden frame): exactly one A4 page, edge to edge, no app page, URL or date around it.
   function print(inv) {
+    const name = String((inv.bill || {}).name || '').replace(/[^\w-]+/g, '-').replace(/^-|-$/g, '');
+    const title = `Invoice-${inv.no || 'DRAF'}${name ? '-' + name : ''}`, oldTitle = document.title;
+    // fallback for browsers that print the parent page instead of the frame: print CSS shows only the invoice
     let box = document.getElementById('cinv-print');
     if (!box) { box = document.createElement('div'); box.id = 'cinv-print'; document.body.appendChild(box); }
-    box.innerHTML = doc(inv);
-    const title = document.title, name = String((inv.bill || {}).name || '').replace(/[^\w-]+/g, '-').replace(/^-|-$/g, '');
-    document.title = `Invoice-${inv.no || 'DRAF'}${name ? '-' + name : ''}`;
-    document.body.classList.add('cinv-printing');
-    const done = () => { document.body.classList.remove('cinv-printing'); document.title = title; window.removeEventListener('afterprint', done); };
-    window.addEventListener('afterprint', done);
-    setTimeout(() => window.print(), 60);   // print-only CSS: the screen is not affected if afterprint never fires
+    box.innerHTML = doc(inv); document.body.classList.add('cinv-printing');
+    const old = document.getElementById('cinv-frame'); if (old) old.remove();
+    const f = document.createElement('iframe'); f.id = 'cinv-frame'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
+    f.style.cssText = 'position:fixed;right:0;bottom:0;width:210mm;height:297mm;border:0;opacity:0;pointer-events:none;z-index:-1';
+    document.body.appendChild(f);
+    const links = [...document.querySelectorAll('link[rel=stylesheet]')].filter((l) => /fonts\.googleapis|cinvoice\.css/.test(l.href)).map((l) => `<link rel="stylesheet" href="${esc(l.href)}">`).join('');
+    let started = false;
+    const go = () => {
+      if (started) return; started = true;
+      const w = f.contentWindow, fonts = w.document.fonts ? w.document.fonts.ready : Promise.resolve();
+      fonts.then(() => {
+        document.title = title;
+        const done = () => { document.title = oldTitle; document.body.classList.remove('cinv-printing'); };
+        w.addEventListener('afterprint', done); window.addEventListener('afterprint', done, { once: true });
+        w.focus(); w.print();
+      });
+    };
+    f.onload = go; setTimeout(go, 2500);
+    const d = f.contentDocument; d.open();
+    d.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${links}
+      <style>@page{size:A4;margin:0}html,body{margin:0;padding:0;background:#F7EFE3}.ci-doc{width:210mm;min-height:296mm}</style></head><body>${doc(inv)}</body></html>`);
+    d.close();
   }
 
   window.SC_CINV = { doc, preview, print, totals, DESC };

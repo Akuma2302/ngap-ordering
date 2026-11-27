@@ -62,10 +62,11 @@
 #cinv-print{display:none}
 @media print{
   @page{size:A4;margin:0}
-  body.cinv-printing{background:#F7EFE3!important;padding:0!important;margin:0!important}
+  html:has(body.cinv-printing){background:#F7EFE3!important}
+  body.cinv-printing{background:#F7EFE3!important;padding:0!important;margin:0!important;min-height:0!important}
   body.cinv-printing>*:not(#cinv-print){display:none!important}
   body.cinv-printing #cinv-print{display:block}
-  body.cinv-printing .ci-doc{min-height:297mm;width:210mm}
+  body.cinv-printing .ci-doc{min-height:296mm;width:210mm}
 }
 
 /* app: invoice form + list */
