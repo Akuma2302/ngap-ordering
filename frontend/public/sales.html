@@ -1600,15 +1600,31 @@
     openModal(`<span class="kicker">Invois pelanggan</span><h2>${esc(inv.no)} <span class="pill ${CI_ST[inv.status] || ''}" style="vertical-align:middle">${esc(inv.status)}</span></h2>
       <p class="muted" style="margin:4px 0 0">${esc(inv.bill.name)} · ${RM(Number(inv.total) || 0)}${inv.status === 'Belum bayar' ? ' · tempoh ' + esc(fmtDate(inv.due)) : ''}</p>
       <div class="ci-acts">
-        <button class="btn btn-p" type="button" id="ci-pdf">Simpan PDF / cetak</button>
-        <button class="btn btn-o" type="button" id="ci-wa">Hantar WhatsApp</button>
+        <button class="btn btn-p" type="button" id="ci-pdf">${navigator.canShare ? 'Hantar PDF' : 'Muat turun PDF'}</button>
+        <button class="btn btn-o" type="button" id="ci-wa">Mesej WhatsApp</button>
         ${live ? `<button class="btn btn-o" type="button" id="ci-paid">${inv.status === 'Dibayar' ? 'Tanda belum bayar' : 'Tanda dah bayar ✓'}</button><button class="btn btn-o" type="button" id="ci-edit">Edit invois</button>` : ''}
       </div>
-      <p class="muted" style="margin:0 0 10px;font-size:12.5px">Untuk hantar fail PDF: tekan <b>Simpan PDF</b> (pilih "Save as PDF"), kemudian lampirkan fail itu dalam WhatsApp pelanggan.</p>
+      <p class="muted" style="margin:0 0 10px;font-size:12.5px">${navigator.canShare ? '<b>Hantar PDF</b> buka senarai app — pilih WhatsApp dan pelanggan anda, atau simpan ke Files.' : '<b>Muat turun PDF</b> simpan fail invois. Lampirkan fail itu dalam WhatsApp / emel pelanggan.'} <b>Mesej WhatsApp</b> hantar ringkasan invois sebagai teks.</p>
       <div id="ci-prev"></div>
       <div class="acts" style="margin-top:14px"><button class="btn btn-o" type="button" id="ci-back">Semua invois</button>${live ? '<button class="btn btn-d" type="button" id="ci-void">Batalkan invois</button>' : '<span></span>'}</div>`);
     SC_CINV.preview($('ci-prev'), inv);
-    $('ci-pdf').onclick = () => SC_CINV.print(inv);
+    SC_CINV.preload().catch(() => {});
+    let made = null;
+    const label = $('ci-pdf').textContent, sendPdf = async () => {
+      const b = $('ci-pdf');
+      try {
+        if (!made) { b.disabled = true; b.textContent = 'Menyediakan PDF…'; made = await SC_CINV.pdf(inv); }
+        b.disabled = false; b.textContent = label;
+        const r = await SC_CINV.share(made, `Invois ${inv.no} daripada Ngap Cookies`);
+        if (r === 'download') toast('PDF dimuat turun: ' + made.name);
+      } catch (err) {
+        b.disabled = false;
+        // some phones only allow sharing straight after a tap: the file is ready, one more tap sends it
+        if (made && err && err.name === 'NotAllowedError') { b.textContent = 'PDF siap · tekan untuk hantar'; return; }
+        b.textContent = label; toast(err.message || 'PDF gagal dibuat.', true);
+      }
+    };
+    $('ci-pdf').onclick = sendPdf;
     $('ci-wa').onclick = () => cinvWA(inv);
     $('ci-back').onclick = () => cinvSheet();
     const setSt = async (st, msg) => {

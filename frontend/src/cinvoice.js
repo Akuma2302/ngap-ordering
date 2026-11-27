@@ -93,5 +93,44 @@
     d.close();
   }
 
-  window.SC_CINV = { doc, preview, print, totals, DESC };
+  /* ---------- real PDF file, made on the device (no print dialog: no border, URL, date or page numbers) ---------- */
+  const LIBS = ['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'];
+  let libP = null;
+  function preload() {
+    if (libP) return libP;
+    const one = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.async = true; s.onload = res; s.onerror = () => rej(new Error('Gagal memuatkan pembuat PDF. Semak internet dan cuba lagi.')); document.head.appendChild(s); });
+    libP = Promise.all(LIBS.map(one)).catch((e) => { libP = null; throw e; });
+    return libP;
+  }
+  const fileName = (inv) => { const n = String((inv.bill || {}).name || '').replace(/[^\w-]+/g, '-').replace(/^-|-$/g, ''); return `Invoice-${inv.no || 'DRAF'}${n ? '-' + n : ''}.pdf`; };
+  async function pdf(inv) {
+    await preload(); if (document.fonts) await document.fonts.ready;
+    const box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;pointer-events:none';
+    box.innerHTML = doc(inv); document.body.appendChild(box);
+    try {
+      const el = box.firstElementChild;
+      const canvas = await window.html2canvas(el, { scale: 2.5, backgroundColor: '#F7EFE3', useCORS: true, logging: false, width: 794, windowWidth: 794 });
+      const w = 210, h = Math.max(297, canvas.height * w / canvas.width);
+      const out = new window.jspdf.jsPDF({ unit: 'mm', format: [w, h], orientation: 'portrait', compress: true });
+      out.setProperties({ title: fileName(inv).replace(/\.pdf$/, '') });
+      out.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, w, canvas.height * w / canvas.width);
+      const blob = out.output('blob');
+      return { blob, name: fileName(inv), file: typeof File === 'function' ? new File([blob], fileName(inv), { type: 'application/pdf' }) : null };
+    } finally { box.remove(); }
+  }
+  const canShare = (r) => !!(r.file && navigator.canShare && navigator.canShare({ files: [r.file] }));
+  function download(r) {
+    const url = URL.createObjectURL(r.blob), a = document.createElement('a');
+    a.href = url; a.download = r.name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  // Phones: share sheet (WhatsApp, Files, Drive…). Computers: download the file.
+  async function share(r, text) {
+    if (!canShare(r)) { download(r); return 'download'; }
+    try { await navigator.share({ files: [r.file], title: r.name, text: text || '' }); return 'shared'; }
+    catch (e) { if (e && e.name === 'AbortError') return 'cancel'; throw e; }
+  }
+
+  window.SC_CINV = { doc, preview, print, totals, DESC, preload, pdf, share, download, canShare };
 })();
